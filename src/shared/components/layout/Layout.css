@@ -1,0 +1,138 @@
+/* NAVBAR BASE (mobile first) */
+/* titulo */
+.public-navbar {
+    display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px 50px;
+  background: var(--navbar);
+  color: black;
+  transition: background 0.3s ease;
+}
+
+.navbar {
+  display:block;
+  justify-content: space-between;
+  align-items: center;
+  padding:0;
+  background: var(--navbar);
+  border-bottom: 1px solid #eee;
+  transition: background 0.3s ease;
+}
+
+.nav-logo{
+  background-image: url("../../../../public/images/navbar/utnFRClogo.png");
+  width: 100%;
+  height: 100px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* links */
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  transition: background 0.3s ease;
+}
+
+.nav-links a {
+
+  display: flex;
+  text-decoration: none;
+  text-align: center;
+  width: auto;
+  min-height: 150px;
+  font-size: 32px;
+  color: var(--text);
+  transition: background 0.3s ease;
+  background-repeat: no-repeat !important;
+  background-size:cover !important;
+  background-position: center;
+  font-weight: bold;
+
+
+}
+.nav-links a h4{
+  align-self: center;
+  margin: 0;
+}
+.nav-links a:hover {
+  opacity: 0.8;
+  background-color: var(--secondary);
+  transition: background 0.3s ease;
+}
+.nav-links a:focus,
+.nav-links a:focus-visible {
+  background-color: var(--tertiary);
+  transition: background 0.3s ease;
+}
+
+.nav-logout{
+  height: 40px;
+  font-weight: bold;
+  background-color: whitesmoke;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+.nav-logout:hover {
+  opacity: 0.8;
+  border-color: black;
+  background-color: var(--secondary);
+  transition: background 0.3s ease;
+}
+.nav-logout:focus,
+.nav-logout:focus-visible {
+  background-color: var(--tertiary);
+  transition: background 0.3s ease;
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.footer {
+  text-align: left;
+  padding: 5px 20px;
+  background: var(--secondary);
+  min-height: 5vh;
+  color: var(--text)
+}
+/* DESKTOP */
+
+@media (min-width: 768px) {
+
+.navbar {  
+  display: inline-flex;
+  flex-direction: row;
+  padding: 0px;
+}
+.nav-logo{
+  background-position: left;
+  background-position-x: 10px;
+}
+.nav-links {
+  display: flex;
+  flex-direction: row;
+  font-weight: bold;
+  height: 100px;
+}
+
+.nav-links a {
+  width: auto;
+  background-image: none !important;
+  display: flex;
+  text-align: center;
+  min-height: auto;
+  font-size: 24px;
+
+}
+  .nav-logout{
+    height: 40px;
+    font-weight: bold;
+  }
+}
+
