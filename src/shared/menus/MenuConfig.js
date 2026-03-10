@@ -3,19 +3,19 @@ export const sharedMenu = [
         label:"Inicio",
         path:"/",
         color:"#FFFFFF",
-        image:"../../../../public/images/navbar/estacionamientoUTN.jpg"
+        image:"/images/navbar/estacionamientoUTN.jpg"
     },
     {
         label:"Estudiar en la UTN",
         path:"/JPA",
         color:"#BAE6FF",
-         image:"../../../../public/images/navbar/IngresoUTN.png"
+         image:"/images/navbar/IngresoUTN.png"
     },
     {
         label:"Iniciar Sesion",
         path:"/login",
         color:"#E5EAFF",
-        image:"../../../../public/images/navbar/inchaUTN.png"
+        image:"/images/navbar/inchaUTN.png"
     },
 ]
 
@@ -31,6 +31,12 @@ export const studentMenu = [
     label: "Becas",
     path: "/Mis-Becas",
     color:"#184B97",
+    image:"none"
+  },
+    {
+    label: "Inicio",
+    path: "/Principal",
+    color:"#D98AC5",
     image:"none"
   },
   {
@@ -52,6 +58,12 @@ export const employedMenu = [
     label: "Deportes",
     path: "/Gestion-Deportes",
     color:"#8FABD4",
+    image:"none"
+  },
+    {
+    label: "Becas",
+    path: "/Gestion-Becas",
+    color:"#3F76C8",
     image:"none"
   }
 ];

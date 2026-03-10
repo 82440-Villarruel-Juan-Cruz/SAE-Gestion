@@ -2,9 +2,10 @@ import { Link } from "react-router-dom";
 import "./Layout.css";
 import { useAuth } from "../../auth/AuthContext";
 import {sharedMenu,studentMenu,employedMenu  } from "../../menus/MenuConfig";
+import SessionLog from "./Session";
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user} = useAuth();
 
   let menu = [];
   if(!user){
@@ -25,19 +26,17 @@ export default function Navbar() {
      
       <div className="nav-logo"></div>
         
-      <div className="nav-links">
-        {menu.map((item) => (
-          <Link key={item.path} to={item.path} style={{background:item.color, backgroundImage:'url('+ item.image+')'}}>
-              <h4> {item.label}</h4>
-          </Link>
-        ))}
+        <div className="nav-links">
+          {menu.map((item) => (
+            <Link key={item.path} to={item.path} style={{background:item.color, backgroundImage:'url('+ item.image+')'}}>
+                <h4> {item.label}</h4>
+            </Link>
+          ))}
 
-        {user && (
-          <button className="nav-logout" onClick={logout}>
-            Cerrar Sesion
-          </button>
-        )}
-      </div>
+          {user && (
+            <SessionLog></SessionLog>
+          )}
+        </div>
 
 
     </nav>

@@ -15,6 +15,7 @@ import EmployedSports from "./employed/pages/sports/EmployedSports";
 import StudentSports from "./students/pages/sports/StudentSports";
 
 import Scholarships from "./students/pages/scholarships/Scholarships";
+import EmployedScholarships from "./employed/pages/scholarships/Scholarships";
 
 export default function App() {
 useEffect(() => {
@@ -51,6 +52,14 @@ useEffect(() => {
               element={
                 <ProtectedRoute role={1}>
                   <EmployedSports />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Gestion-Becas"
+              element={
+                <ProtectedRoute role={1}>
+                  <EmployedScholarships />
                 </ProtectedRoute>
               }
             />
