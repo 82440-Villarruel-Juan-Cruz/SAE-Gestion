@@ -12,6 +12,7 @@ export default function MainLayout() {
   return (
     <NotificationProvider>
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+        <DocumentTitle />
         <Navbar />
         <ScrollToTop />
         <SessionExpiredDialog />
