@@ -163,7 +163,7 @@ function ItemNovedad({ item, invertida }) {
               opacity: 0,
               transition: "all .3s ease",
               cursor: "pointer",
-              zIndex: 1,
+              zIndex: 3,
             }}
             className="hover-overlay"
           >
@@ -180,7 +180,7 @@ function ItemNovedad({ item, invertida }) {
             </SAETypography>
           </Box>
           
-          <CardContent sx={{ position: 'relative', zIndex: 2 }}>
+          <CardContent sx={{ position: 'relative', zIndex: 1 }}>
             <SAETypography variant="h6" sx={{ color: "var(--secondary)" }}>
               {titulo_publicacion}
             </SAETypography>
