@@ -307,7 +307,7 @@ function TravelHistory() {
 }
 
 function BussinessDialog() {
-  const { handleBussinessSave,fieldErrors, setFieldErrors, setTouchedFields,validateField } = useTravel();
+  const { handleBussinessSave,fieldErrors, setFieldErrors, setTouchedFields,validateField, resetValidation } = useTravel();
   const {
     dialogOpen,
     dialogMode,
@@ -319,9 +319,14 @@ function BussinessDialog() {
     closeDialog,
   } = useNotification();
 
+  const handleClose = () => {
+    resetValidation();
+    setDialogError("");
+    closeDialog();
+  };
 
   return (
-    <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
+    <Dialog open={dialogOpen} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle
         sx={{
           display: "flex",
@@ -332,7 +337,7 @@ function BussinessDialog() {
         <Typography variant="h6" component="span" sx={{ fontWeight: "bold" }}>
           {dialogMode === "create" ? "Nueva Empresa" : "Editar Empresa"}
         </Typography>
-        <IconButton onClick={closeDialog} size="small">
+        <IconButton onClick={handleClose} size="small">
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -471,7 +476,7 @@ function BussinessDialog() {
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <SAEButton
           variant="outlined"
-          onClick={closeDialog}
+          onClick={handleClose}
           disabled={dialogSaving}
         >
           {C.cancel}
@@ -496,7 +501,7 @@ function BussinessDialog() {
 }
 
 function TravelsDialog() {
-  const { bussiness, handleTravelSave,fieldErrors, setFieldErrors, setTouchedFields,validateField } = useTravel();
+  const { bussiness, handleTravelSave,fieldErrors, setFieldErrors, setTouchedFields,validateField, resetValidation } = useTravel();
   const {
     dialogOpen,
     dialogMode,
@@ -508,8 +513,30 @@ function TravelsDialog() {
     closeDialog,
   } = useNotification();
 
+  const handleClose = () => {
+    resetValidation();
+    setDialogError("");
+    closeDialog();
+  };
+
   const handleDialogChange = (field, value) => {
+    const nextData = { ...dialogData, [field]: value };
+    const message = validateField(field, value, nextData);
+
     handleDataChange(field, value);
+    setTouchedFields((previous) => ({ ...previous, [field]: true }));
+    setFieldErrors((previous) => {
+      const nextErrors = { ...previous };
+
+      if (message) {
+        nextErrors[field] = message;
+      } else {
+        delete nextErrors[field];
+        setDialogError("");
+      }
+
+      return nextErrors;
+    });
   };
 
   const sanitizeAddressPart = (value = "") =>
@@ -533,7 +560,7 @@ function TravelsDialog() {
   const addressPartsDestiny = parseAddress(dialogData.destino);
 
   return (
-    <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="md" fullWidth>
+    <Dialog open={dialogOpen} onClose={handleClose} maxWidth="md" fullWidth>
       <DialogTitle
         sx={{
           display: "flex",
@@ -544,7 +571,7 @@ function TravelsDialog() {
         <Typography variant="h6" component="span" sx={{ fontWeight: "bold" }}>
           {dialogMode === "create" ? C.travelCreate : C.travelUpdate}
         </Typography>
-        <IconButton onClick={closeDialog} size="small">
+        <IconButton onClick={handleClose} size="small">
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -860,7 +887,7 @@ function TravelsDialog() {
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <SAEButton
           variant="outlined"
-          onClick={closeDialog}
+          onClick={handleClose}
           disabled={dialogSaving}
         >
           {C.cancel}

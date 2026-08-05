@@ -8,7 +8,7 @@ COPY . .
 ARG VITE_APP_NAME="SAE Gestion"
 ARG VITE_SESSION_TIMEOUT=30
 ARG VITE_BASE_PATH="/vulcan/dartagnan/" 
-ARG VITE_API_BASE_PATH="http://localhost:1986"
+ARG VITE_API_BASE_PATH="http://localhost:1986/api"
 
 # Las expones como ENV para que Vite las lea durante el build
 ENV VITE_APP_NAME=$VITE_APP_NAME
