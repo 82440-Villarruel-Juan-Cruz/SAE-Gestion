@@ -14,14 +14,14 @@ export { RequestAPI };
 
 export function ObtenerPerfilXLegajo(legajo) {
   return RequestAPI(
-    `/api/Estudiante/BuscarPerfilEstudiante/${encodeURIComponent(legajo)}`,
+    `/Estudiante/BuscarPerfilEstudiante/${encodeURIComponent(legajo)}`,
     'GET',
   );
 }
 
 export function ModificarPerfilEstudiante(legajo, body) {
   return RequestAPI(
-    `/api/Estudiante/ModificarPerfilEstudiante/${encodeURIComponent(legajo)}`,
+    `/Estudiante/ModificarPerfilEstudiante/${encodeURIComponent(legajo)}`,
     'PUT',
     body,
   );
@@ -29,21 +29,21 @@ export function ModificarPerfilEstudiante(legajo, body) {
 
 export function DescargarDocumentacionXId(id, token) {
   return apiDownloadDocument(
-    `/api/Estudiante/DescargarDocumentacionXId/${encodeURIComponent(id)}`,
+    `/Estudiante/DescargarDocumentacionXId/${encodeURIComponent(id)}`,
     { id, token },
   );
 }
 
 export function EliminarDocumentoEstudiante(idArchivo, token) {
   return apiDeleteFile(
-    `/api/Estudiante/EliminarDocumentoEstudiante/${encodeURIComponent(idArchivo)}`,
+    `/Estudiante/EliminarDocumentoEstudiante/${encodeURIComponent(idArchivo)}`,
     { token, mapper: mapResponseEliminarDocumento },
   );
 }
 
 export function ListarDocumentacionXLegajo(legajo, token) {
   return RequestAPI(
-    `/api/Estudiante/ListarDocumentacionXLegajo/${encodeURIComponent(legajo)}`,
+    `/Estudiante/ListarDocumentacionXLegajo/${encodeURIComponent(legajo)}`,
     'GET',
     null,
     { token, mapper: mapResponseListarDocumentacionXLegajo },
@@ -52,7 +52,7 @@ export function ListarDocumentacionXLegajo(legajo, token) {
 
 export function ModificarDocumentoEstudiante(idDocumento, archivo, token) {
   return apiUploadFile(
-    `/api/Estudiante/ModificarDocumento/${encodeURIComponent(idDocumento)}`,
+    `/Estudiante/ModificarDocumento/${encodeURIComponent(idDocumento)}`,
     archivo,
     { method: 'PUT', token, mapper: mapResponseCrearDocumento },
   );
@@ -60,7 +60,7 @@ export function ModificarDocumentoEstudiante(idDocumento, archivo, token) {
 
 export function CrearDocumentoEstudiante(idTipoDocumento, archivo, token) {
   return apiUploadFile(
-    `/api/Estudiante/CrearDocumentoEstudiante/${encodeURIComponent(idTipoDocumento)}`,
+    `/Estudiante/CrearDocumentoEstudiante/${encodeURIComponent(idTipoDocumento)}`,
     archivo,
     { token, mapper: mapResponseCrearDocumento },
   );

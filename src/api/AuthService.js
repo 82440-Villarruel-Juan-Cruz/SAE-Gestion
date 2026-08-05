@@ -32,7 +32,7 @@ function errorResult(error, messages) {
 export default async function ObtenerTokenJWT(legajo, dominio, password) {
   try {
     const response = await apiRequest(
-      `/api/Usuarios/ObtenerTokenJWT/${encodeURIComponent(legajo)}/${encodeURIComponent(dominio)}/${encodeURIComponent(password)}`,
+      `/Usuarios/ObtenerTokenJWT/${encodeURIComponent(legajo)}/${encodeURIComponent(dominio)}/${encodeURIComponent(password)}`,
       {
         auth: false,
         includeHeaders: true,
@@ -56,7 +56,7 @@ export default async function ObtenerTokenJWT(legajo, dominio, password) {
 export async function ModificarUsuario(id, payload, token) {
   try {
     const response = await apiRequest(
-      `/api/Usuarios/ModificarUsuario/${encodeURIComponent(id)}`,
+      `/Usuarios/ModificarUsuario/${encodeURIComponent(id)}`,
       {
         method: 'PUT',
         body: payload,

@@ -3,16 +3,16 @@ import { mapHorarios, mapTorneo } from './formatters/DeportesFormatters';
 
 // DOCENTES DEPORTIVOS
 export async function obtenerDocentesDeportivos() {
-  return RequestAPI('/api/Deporte/ObtenerDocentesDeportivos', 'GET');
+  return RequestAPI('/Deporte/ObtenerDocentesDeportivos', 'GET');
 }
 
 export async function crearDocenteDeportivo(body) {
-  return RequestAPI('/api/Deporte/CrearDocenteDeportivo', 'POST', body);
+  return RequestAPI('/Deporte/CrearDocenteDeportivo', 'POST', body);
 }
 
 export async function modificarDocenteDeportivo(cuil, body) {
   return RequestAPI(
-    '/api/Deporte/ModificarDocenteDeportivo/' + encodeURIComponent(cuil),
+    '/Deporte/ModificarDocenteDeportivo/' + encodeURIComponent(cuil),
     'PUT',
     body,
   );
@@ -20,16 +20,16 @@ export async function modificarDocenteDeportivo(cuil, body) {
 
 // DEPORTISTAS
 export async function obtenerDeportistas() {
-  return RequestAPI('/api/Deporte/ObtenerDeportistasCompleto', 'GET');
+  return RequestAPI('/Deporte/ObtenerDeportistasCompleto', 'GET');
 }
 
 export async function crearDeportista(body) {
-  return RequestAPI('/api/Deporte/CrearDeportista', 'POST', body);
+  return RequestAPI('/Deporte/CrearDeportista', 'POST', body);
 }
 
 export async function modificarDeportista(id, body) {
   return RequestAPI(
-    '/api/Deporte/ModificarDeportista/' + encodeURIComponent(id),
+    '/Deporte/ModificarDeportista/' + encodeURIComponent(id),
     'PUT',
     body,
   );
@@ -37,14 +37,14 @@ export async function modificarDeportista(id, body) {
 
 export async function obtenerIdDeportista(legajo) {
   return RequestAPI(
-    '/api/Deporte/ObtenerDeportistasXLegajo/' + encodeURIComponent(legajo),
+    '/Deporte/ObtenerDeportistasXLegajo/' + encodeURIComponent(legajo),
     'GET',
   );
 }
 
 export async function obtenerDeportistasXTorneo(idTorneo) {
   return RequestAPI(
-    '/api/Deporte/ObtenerDeportistasXTorneo/' + encodeURIComponent(idTorneo),
+    '/Deporte/ObtenerDeportistasXTorneo/' + encodeURIComponent(idTorneo),
     'GET',
   );
 }
@@ -55,20 +55,20 @@ export async function obtenerDeportistasXTorneo2(idTorneo) {
 
 // ESPACIOS DEPORTIVOS
 export async function obtenerEspaciosDeportivos() {
-  return RequestAPI('/api/Deporte/ObtenerEspDeportivoCompleto', 'GET');
+  return RequestAPI('/Deporte/ObtenerEspDeportivoCompleto', 'GET');
 }
 
 export async function obtenerEspDeportivoActivos() {
-  return RequestAPI('/api/Deporte/obtenerEspDeportivoActivos/', 'GET');
+  return RequestAPI('/Deporte/obtenerEspDeportivoActivos/', 'GET');
 }
 
 export async function crearEspacioDeportivo(body) {
-  return RequestAPI('/api/Deporte/CrearEspacioDeportivo', 'POST', body);
+  return RequestAPI('/Deporte/CrearEspacioDeportivo', 'POST', body);
 }
 
 export async function modificarEspacioDeportivo(id, body) {
   return RequestAPI(
-    '/api/Deporte/ModificarEspacioDeportivo/' + encodeURIComponent(id),
+    '/Deporte/ModificarEspacioDeportivo/' + encodeURIComponent(id),
     'PUT',
     body,
   );
@@ -76,20 +76,20 @@ export async function modificarEspacioDeportivo(id, body) {
 
 // DEPORTES
 export async function obtenerDeportesActivos() {
-  return RequestAPI('/api/Deporte/ObtenerDeportesActivos/', 'GET');
+  return RequestAPI('/Deporte/ObtenerDeportesActivos/', 'GET');
 }
 
 export async function obtenerDeportesCompleto() {
-  return RequestAPI('/api/Deporte/ObtenerDeportesCompleto/', 'GET');
+  return RequestAPI('/Deporte/ObtenerDeportesCompleto/', 'GET');
 }
 
 export async function crearDeporte(body) {
-  return RequestAPI('/api/Deporte/CrearDeporte', 'POST', body);
+  return RequestAPI('/Deporte/CrearDeporte', 'POST', body);
 }
 
 export async function modificarDeporte(id, body) {
   return RequestAPI(
-    '/api/Deporte/ModificarDeporte/' + encodeURIComponent(id),
+    '/Deporte/ModificarDeporte/' + encodeURIComponent(id),
     'PUT',
     body,
   );
@@ -97,23 +97,23 @@ export async function modificarDeporte(id, body) {
 
 // HORARIOS
 export async function obtenerHorariosActivos() {
-  return RequestAPI('/api/Deporte/obtenerHorariosActivos/', 'GET');
+  return RequestAPI('/Deporte/obtenerHorariosActivos/', 'GET');
 }
 
 export async function obtenerHorariosXDeporte(idDeporte) {
   return RequestAPI(
-    '/api/Deporte/ObtenerHorariosXDeporte/' + encodeURIComponent(idDeporte),
+    '/Deporte/ObtenerHorariosXDeporte/' + encodeURIComponent(idDeporte),
     'GET',
   );
 }
 
 export async function crearHorarioDeportivo(body) {
-  return RequestAPI('/api/Deporte/CrearHorarioDeportivo/', 'POST', body);
+  return RequestAPI('/Deporte/CrearHorarioDeportivo/', 'POST', body);
 }
 
 export async function modificarHorarioDeportivo(id, body) {
   return RequestAPI(
-    '/api/Deporte/ModificarHorario/' + encodeURIComponent(id),
+    '/Deporte/ModificarHorario/' + encodeURIComponent(id),
     'PUT',
     body,
   );
@@ -121,7 +121,7 @@ export async function modificarHorarioDeportivo(id, body) {
 
 export async function eliminarHorarioDeportivo(id) {
   return RequestAPI(
-    '/api/Deporte/EliminarHorarioDeportivo/' + encodeURIComponent(id),
+    '/Deporte/EliminarHorarioDeportivo/' + encodeURIComponent(id),
     'DELETE',
   );
 }
@@ -129,7 +129,7 @@ export async function eliminarHorarioDeportivo(id) {
 // TORNEOS
 export async function obtenerTorneosDeportivos() {
   const torneos = await RequestAPI(
-    '/api/Deporte/ObtenerTorneosDeportivos/',
+    '/Deporte/ObtenerTorneosDeportivos/',
     'GET',
   );
   return Array.isArray(torneos) ? torneos.map(mapTorneo) : [];
@@ -137,7 +137,7 @@ export async function obtenerTorneosDeportivos() {
 
 export async function obtenerTorneoXId(id) {
   const torneo = await RequestAPI(
-    '/api/Deporte/ObtenerTorneosXId/' + encodeURIComponent(id),
+    '/Deporte/ObtenerTorneosXId/' + encodeURIComponent(id),
     'GET',
   );
   return torneo ? mapTorneo(torneo) : torneo;
@@ -145,19 +145,19 @@ export async function obtenerTorneoXId(id) {
 
 export async function obtenerTorneosXDeporte(id_deporte) {
   const torneos = await RequestAPI(
-    '/api/Deporte/ObtenerTorneosXDeporte/' + encodeURIComponent(id_deporte),
+    '/Deporte/ObtenerTorneosXDeporte/' + encodeURIComponent(id_deporte),
     'GET',
   );
   return Array.isArray(torneos) ? torneos.map(mapTorneo) : [];
 }
 
 export async function crearTorneo(body) {
-  return RequestAPI('/api/Deporte/CrearTorneo/', 'POST', body);
+  return RequestAPI('/Deporte/CrearTorneo/', 'POST', body);
 }
 
 export async function modificarTorneo(id, body) {
   return RequestAPI(
-    '/api/Deporte/ModificarTorneo/' + encodeURIComponent(id),
+    '/Deporte/ModificarTorneo/' + encodeURIComponent(id),
     'PUT',
     body,
   );
@@ -165,7 +165,7 @@ export async function modificarTorneo(id, body) {
 
 export async function crearInscripcionTorneo(idTorneo, idDeportista, body) {
   return RequestAPI(
-    '/api/Deporte/CrearInscripcionTorneo/' +
+    '/Deporte/CrearInscripcionTorneo/' +
       encodeURIComponent(idTorneo) +
       '/' +
       encodeURIComponent(idDeportista),
@@ -176,7 +176,7 @@ export async function crearInscripcionTorneo(idTorneo, idDeportista, body) {
 
 export async function eliminarInscripcionTorneo(idInscripcion) {
   return RequestAPI(
-    '/api/Deporte/EliminarInscripcionTorneo/' +
+    '/Deporte/EliminarInscripcionTorneo/' +
       encodeURIComponent(idInscripcion),
     'DELETE',
   );
@@ -185,7 +185,7 @@ export async function eliminarInscripcionTorneo(idInscripcion) {
 // INSCRIPCIONES
 export async function obtenerInscripcionesXDeportista(id_deportista) {
   return RequestAPI(
-    '/api/Deporte/obtenerInscripcionesXDeportista/' +
+    '/Deporte/obtenerInscripcionesXDeportista/' +
       encodeURIComponent(id_deportista),
     'GET',
   );
@@ -193,7 +193,7 @@ export async function obtenerInscripcionesXDeportista(id_deportista) {
 
 export async function crearInscripcionDeporte(id_deporte, id_deportista) {
   return RequestAPI(
-    '/api/Deporte/CrearInscripcionDeporte/' +
+    '/Deporte/CrearInscripcionDeporte/' +
       encodeURIComponent(id_deporte) +
       '/' +
       encodeURIComponent(id_deportista),
@@ -203,7 +203,7 @@ export async function crearInscripcionDeporte(id_deporte, id_deportista) {
 
 export async function eliminarInscripcionDeporte(idInscripcion) {
   return RequestAPI(
-    '/api/Deporte/EliminarInscripcionDeporte/' +
+    '/Deporte/EliminarInscripcionDeporte/' +
       encodeURIComponent(idInscripcion),
     'DELETE',
   );
@@ -212,28 +212,28 @@ export async function eliminarInscripcionDeporte(idInscripcion) {
 // DOCUMENTACION
 export async function listarDocumentacionXLegajo(legajo) {
   return RequestAPI(
-    '/api/Estudiante/ListarDocumentacionXLegajo/' + encodeURIComponent(legajo),
+    '/Estudiante/ListarDocumentacionXLegajo/' + encodeURIComponent(legajo),
     'GET',
   );
 }
 
 export function descargarDocumentacionXId(id) {
   return apiDownloadDocument(
-    `/api/Estudiante/DescargarDocumentacionXId/${encodeURIComponent(id)}`,
+    `/Estudiante/DescargarDocumentacionXId/${encodeURIComponent(id)}`,
     { id },
   );
 }
 
 export async function crearDocumentoEstudiante(id_tipo_documento, archivo) {
   return apiUploadFile(
-    `/api/Estudiante/CrearDocumentoEstudiante/${encodeURIComponent(id_tipo_documento)}`,
+    `/Estudiante/CrearDocumentoEstudiante/${encodeURIComponent(id_tipo_documento)}`,
     archivo,
   );
 }
 
 export async function eliminarDocumentoEstudiante(id_archivo) {
   return RequestAPI(
-    '/api/Estudiante/EliminarDocumentoEstudiante/' +
+    '/Estudiante/EliminarDocumentoEstudiante/' +
       encodeURIComponent(id_archivo),
     'DELETE',
   );

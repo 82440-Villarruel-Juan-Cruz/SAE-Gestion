@@ -14,7 +14,7 @@ export { RequestAPI };
 
 export async function ObtenerComprasXFecha(fechaInicio, fechaFin, documentTypes) {
   const data = await RequestAPI(
-    `/api/Compra/ObtenerComprasXFecha/${encodeURIComponent(fechaInicio)}/${encodeURIComponent(fechaFin)}`,
+    `/Compra/ObtenerComprasXFecha/${encodeURIComponent(fechaInicio)}/${encodeURIComponent(fechaFin)}`,
     "GET",
   );
   const purchases = Array.isArray(data) ? data.map(mapCompras) : [];
@@ -38,12 +38,12 @@ export async function ObtenerComprasXFecha(fechaInicio, fechaFin, documentTypes)
 }
 
 export function CrearCompra(body) {
-  return RequestAPI("/api/Compra/CrearCompra/", "POST", body);
+  return RequestAPI("/Compra/CrearCompra/", "POST", body);
 }
 
 export function ModificarCompra(idCompra, body) {
   return RequestAPI(
-    `/api/Compra/ModificarCompra/${encodeURIComponent(idCompra)}`,
+    `/Compra/ModificarCompra/${encodeURIComponent(idCompra)}`,
     "PUT",
     body,
   );
@@ -51,21 +51,21 @@ export function ModificarCompra(idCompra, body) {
 
 export function EliminarCompra(idCompra) {
   return RequestAPI(
-    `/api/Compra/EliminarCompra/${encodeURIComponent(idCompra)}`,
+    `/Compra/EliminarCompra/${encodeURIComponent(idCompra)}`,
     "DELETE",
   );
 }
 
 export function ObtenerInformeXExpediente(nroExpediente) {
   return RequestAPI(
-    `/api/Compra/ObtenerInformeXExpediente/${encodeURIComponent(nroExpediente)}`,
+    `/Compra/ObtenerInformeXExpediente/${encodeURIComponent(nroExpediente)}`,
     "GET",
   );
 }
 
 export function ModificarInforme(nroExpediente, body) {
   return RequestAPI(
-    `/api/Compra/ModificarInforme/${encodeURIComponent(nroExpediente)}`,
+    `/Compra/ModificarInforme/${encodeURIComponent(nroExpediente)}`,
     "PUT",
     body,
   );
@@ -73,18 +73,18 @@ export function ModificarInforme(nroExpediente, body) {
 
 export function ObtenerInformeXCompra(idCompra) {
   return RequestAPI(
-    `/api/Compra/ObtenerInformeXCompra/${encodeURIComponent(idCompra)}`,
+    `/Compra/ObtenerInformeXCompra/${encodeURIComponent(idCompra)}`,
     "GET",
   );
 }
 
 export function CrearInforme(body) {
-  return RequestAPI("/api/Compra/CrearInforme/", "POST", body);
+  return RequestAPI("/Compra/CrearInforme/", "POST", body);
 }
 
 export function ListarDocumentacionXCompra(idCompra) {
   return RequestAPI(
-    `/api/Compra/ListarDocumentacionXCompra/${encodeURIComponent(idCompra)}`,
+    `/Compra/ListarDocumentacionXCompra/${encodeURIComponent(idCompra)}`,
     "GET",
   );
 }
@@ -93,21 +93,21 @@ export function ListarDocumentacionXCompra(idCompra) {
 // convencionales y pueden transportar imágenes, PDF o multipart/form-data.
 export function DescargarDocumentacionXId(id) {
   return apiDownloadDocument(
-    `/api/Compra/DescargarDocumentacionXId/${encodeURIComponent(id)}`,
+    `/Compra/DescargarDocumentacionXId/${encodeURIComponent(id)}`,
     { id },
   );
 }
 
 export function CrearDocumentoCompra(idCompra, idTipoDocumento, file) {
   return apiUploadFile(
-    `/api/Compra/CrearDocumentoCompra/${encodeURIComponent(idCompra)}/${encodeURIComponent(idTipoDocumento)}`,
+    `/Compra/CrearDocumentoCompra/${encodeURIComponent(idCompra)}/${encodeURIComponent(idTipoDocumento)}`,
     file,
   );
 }
 
 export function EliminarDocumentoCompra(idDocumento) {
   return apiDeleteFile(
-    `/api/Compra/EliminarDocumentoCompra/${encodeURIComponent(idDocumento)}`,
+    `/Compra/EliminarDocumentoCompra/${encodeURIComponent(idDocumento)}`,
   );
 }
 

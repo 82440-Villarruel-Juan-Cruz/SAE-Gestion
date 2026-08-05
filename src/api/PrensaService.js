@@ -10,28 +10,28 @@ import {
 
 export async function listarPublicacionesCompleto() {
   const data = await RequestAPI(
-    "/api/Prensa/ListarPublicacionesCompleto",
+    "/Prensa/ListarPublicacionesCompleto",
     "GET",
   );
   return data.map(mapPublicacionPublica);
 }
 
 export const listarPublicacionesActivas = () =>
-  RequestAPI("/api/Prensa/ListarPublicacionesActivas", "GET");
+  RequestAPI("/Prensa/ListarPublicacionesActivas", "GET");
 
 export function obtenerPublicacionPorId(id) {
   return RequestAPI(
-    `/api/Prensa/ObtenerPublicacionXId/${encodeURIComponent(id)}`,
+    `/Prensa/ObtenerPublicacionXId/${encodeURIComponent(id)}`,
     "GET",
   );
 }
 
 export const crearPublicacion = (body) =>
-  RequestAPI("/api/Prensa/CrearPublicacion", "POST", body);
+  RequestAPI("/Prensa/CrearPublicacion", "POST", body);
 
 export function modificarPublicacion(id, body) {
   return RequestAPI(
-    `/api/Prensa/ModificarPublicacion/${encodeURIComponent(id)}`,
+    `/Prensa/ModificarPublicacion/${encodeURIComponent(id)}`,
     "PUT",
     body,
   );
@@ -39,35 +39,35 @@ export function modificarPublicacion(id, body) {
 
 export function eliminarPublicacion(id) {
   return RequestAPI(
-    `/api/Prensa/EliminarPublicacion/${encodeURIComponent(id)}`,
+    `/Prensa/EliminarPublicacion/${encodeURIComponent(id)}`,
     "DELETE",
   );
 }
 
 export function listarDocumentosPorPublicacion(idPublicacion) {
   return RequestAPI(
-    `/api/Prensa/ListarDocumentoXPublicacion/${encodeURIComponent(idPublicacion)}`,
+    `/Prensa/ListarDocumentoXPublicacion/${encodeURIComponent(idPublicacion)}`,
     "GET",
   );
 }
 
 export const listarDocumentosSinData = () =>
-  RequestAPI("/api/Prensa/ListarDocumentosSinData", "GET");
+  RequestAPI("/Prensa/ListarDocumentosSinData", "GET");
 
 export function crearDocumentoPrensa(formData) {
-  return apiUploadFile("/api/Prensa/CrearDocumentoPrensaLibre", formData);
+  return apiUploadFile("/Prensa/CrearDocumentoPrensaLibre", formData);
 }
 
 export function crearVinculoDocPubli(idPublicacion, idDocumento) {
   return RequestAPI(
-    `/api/Prensa/CrearVinculoDocPubli/${encodeURIComponent(idPublicacion)}/${encodeURIComponent(idDocumento)}`,
+    `/Prensa/CrearVinculoDocPubli/${encodeURIComponent(idPublicacion)}/${encodeURIComponent(idDocumento)}`,
     "POST",
   );
 }
 
 export function descargarDocumentoPorId(idDocumento) {
   return apiDownloadDocument(
-    `/api/Prensa/DescargarDocumentoXId/${encodeURIComponent(idDocumento)}`,
+    `/Prensa/DescargarDocumentoXId/${encodeURIComponent(idDocumento)}`,
     { id: idDocumento },
   );
 }
@@ -82,7 +82,7 @@ const PUBLIC_NEWS_ERRORS = {
 export async function ObtenerNoticiasPublicas() {
   try {
     const response = await apiRequest(
-      "/api/Prensa/ListarPublicacionesActivas",
+      "/Prensa/ListarPublicacionesActivas",
       { auth: false, includeHeaders: true },
     );
 
@@ -113,6 +113,6 @@ export async function ObtenerNoticiasPublicas() {
 
 export function getDownloadUrl(id) {
   return resolveApiUrl(
-    `/api/Prensa/DescargarDocumentoXId/${encodeURIComponent(id)}`,
+    `/Prensa/DescargarDocumentoXId/${encodeURIComponent(id)}`,
   );
 }

@@ -1,13 +1,13 @@
 import { RequestAPI } from './apiClient';
 
 export function obtenerTiposDocumento() {
-  return RequestAPI('/api/Herramientas/ObtenerTiposDocumento', 'GET');
+  return RequestAPI('/Herramientas/ObtenerTiposDocumento', 'GET');
 }
 
 export function obtenerPerfiles() {
-  return RequestAPI('/api/Herramientas/ObtenerPerfiles', 'GET');
+  return RequestAPI('/Herramientas/ObtenerPerfiles', 'GET');
 }
 
 export function obtenerCarreras() {
-  return RequestAPI('/api/Herramientas/ObtenerCarreras', 'GET');
+  return RequestAPI('/Herramientas/ObtenerCarreras', 'GET');
 }
