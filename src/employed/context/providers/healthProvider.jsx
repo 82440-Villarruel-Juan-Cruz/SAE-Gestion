@@ -43,13 +43,33 @@ import { HealthContext } from "../employedContext";
 import { useNotification } from "../../../shared/context/sharedContext";
 import { EMPTY_CURSO, EMPTY_ESPECIALIDAD, EMPTY_FALTA, EMPTY_HORARIO, EMPTY_PERSONAL, EMPTY_TURNO } from "../../../utils/common/common.config.js";
 import { compareDatesDesc } from "../../../utils/date.utils";
+import { HEALTH_STRING } from "../../../utils/strings/employed.strings.js";
 
 // #endregion
+
+const C = HEALTH_STRING;
+const CANCELLED_TURN_STATUS_ID = 2;
 
 const sortTurnosByFechaAtencionDesc = (turnos) =>
   [...turnos].sort((a, b) =>
     compareDatesDesc(a?.fecha_atencion, b?.fecha_atencion),
   );
+
+const hasTurnValue = (value) =>
+  value !== null && value !== undefined && String(value).trim() !== "";
+
+const hasCompleteTurnDataForMove = (turno) =>
+  [
+    turno?.legajo,
+    turno?.paciente,
+    turno?.asunto,
+    turno?.cuil_medico,
+    turno?.fecha_atencion,
+    turno?.hora_atencion,
+  ].every(hasTurnValue);
+
+const canMoveTurnToState = (turno, nextStateId) =>
+  nextStateId === CANCELLED_TURN_STATUS_ID || hasCompleteTurnDataForMove(turno);
 
 export const HealthUsersProvider = ({ children }) => {
   
@@ -277,6 +297,11 @@ export const HealthUsersProvider = ({ children }) => {
         // Validaciones iniciales
         if (!foundTurn || foundTurn.id_estado_turno === id_estado_nuevo) return;
 
+        if (!canMoveTurnToState(foundTurn, id_estado_nuevo)) {
+          showNotification(C.turnsMoveMissingData, "warning", 3500);
+          return;
+        }
+
         const nombreActual = estadosTurno.find(
           (item) => item.id_estado_turno === id_estado_nuevo,
         );
@@ -404,7 +429,7 @@ export const HealthUsersProvider = ({ children }) => {
         return;
       }
       if (dialogData.id_estado_turno === 1 && !handleValidation()) {
-        setDialogError("Faltan valores");
+        setDialogError(C.turnsMoveMissingData);
         setDialogSaving(false);
         return;
       }
@@ -503,6 +528,20 @@ export const HealthUsersProvider = ({ children }) => {
         const estadoAnterior = turnoPrevio
           ? turnoPrevio.id_estado_turno
           : dialogData.id_estado_turno;
+        const isStateChange = estadoAnterior !== dialogData.id_estado_turno;
+        const nextTurnData = {
+          ...turnoPrevio,
+          ...dialogData,
+        };
+
+        if (
+          isStateChange &&
+          !canMoveTurnToState(nextTurnData, dialogData.id_estado_turno)
+        ) {
+          setDialogError(C.turnsMoveMissingData);
+          showNotification(C.turnsMoveMissingData, "warning", 3500);
+          return;
+        }
 
         const nombreActual = estadosTurno.find(
           (item) => item.id_estado_turno === dialogData.id_estado_turno,

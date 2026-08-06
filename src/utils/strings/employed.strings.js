@@ -135,6 +135,9 @@ export const HEALTH_STRING = {
   turnsFinish: "Turnos Finalizadas",
   turnsMissingID: "Ingrese un legajo para continuar",
   turnsMissingDegree: "Ingrese una carrera para continuar",
+  turnsMoveMissingData:
+    "Completá paciente, asunto, especialista, fecha y hora antes de mover el turno. Para cancelar no hace falta completar esos datos.",
+  turnsDropToState: "Soltar para mover a",
 
   turnsHeader: "Modulo de Salud",
   turnsTitle: "Turnero",

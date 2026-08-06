@@ -63,6 +63,25 @@ const getTurnStatusColor = (statusId) => PALETTE[Number(statusId)] ?? PALETTE[0]
 
 const getTurnStatusTextColor = () => "white";
 
+const getTurnStatusLabel = (statusId) => {
+  switch (statusId) {
+    case 0:
+      return "Pendiente";
+    case 1:
+      return "Asignado";
+    case 2:
+      return "Cancelados";
+    case 3:
+      return "En Curso";
+    case 4:
+      return "Terminado";
+    case 5:
+      return "Reprogramar";
+    default:
+      return "Pendiente";
+  }
+};
+
 export function TurnGrid() {
   const {
     //Visualizacion de Turnos No Activos
@@ -717,6 +736,8 @@ function TurnList({
   );
   const inactiveType = estadoActual === 2 ? "cancelados" : "finalizados";
   const isInactiveListOpen = inactiveTurnsType === inactiveType;
+  const statusColor = getTurnStatusColor(estadoActual);
+  const statusLabel = getTurnStatusLabel(estadoActual);
 
   return (
     <>
@@ -732,24 +753,30 @@ function TurnList({
         }}
         sx={{
           borderRadius: 4,
-          boxShadow: "0 18px 45px rgba(21, 61, 113, 0.08)",
+          boxShadow: isDragOver
+            ? `0 22px 48px ${statusColor}33`
+            : "0 18px 45px rgba(21, 61, 113, 0.08)",
           overflow: "hidden",
           mt: 3,
-          border: isDragOver ? "2px dashed #1976d2" : "2px solid lightGray",
+          border: "2px solid",
+          borderColor: isDragOver ? statusColor : "lightGray",
+          transform: isDragOver ? "translateY(-2px)" : "none",
+          transition:
+            "border-color .18s ease, box-shadow .18s ease, transform .18s ease",
         }}
       >
         <Box
           sx={{
             px: 3,
             py: 2.5,
-            background: PALETTE[estadoActual],
+            background: statusColor,
             color: "white",
             minHeight: 50,
             flex: 1,
             display: "flex",
             flexDirection: "column",
             gap: 1,
-            transition: "all .2s ease",
+            transition: "box-shadow .18s ease",
           }}
         >
           <Stack
@@ -762,24 +789,7 @@ function TurnList({
               <AccessTimeIcon sx={{ fontSize: 32 }} />
               <Box>
                 <Typography variant="h5">
-                  {(() => {
-                    switch (estadoActual) {
-                      case 0:
-                        return "Pendiente";
-                      case 1:
-                        return "Asignado";
-                      case 2:
-                        return "Cancelados";
-                      case 3:
-                        return "En Curso";
-                      case 4:
-                        return "Terminado";
-                      case 5:
-                        return "Reprogramar";
-                      default:
-                        return "Pendiente";
-                    }
-                  })()}
+                  {statusLabel}
                 </Typography>
               </Box>
             </Stack>
@@ -835,15 +845,23 @@ function TurnList({
         {/*Lo organizo de esta forma para reciclar el componente. */}
         <Box
           sx={{
+            position: "relative",
             display: "flex",
             gap: 2,
             overflowX: "auto",
             maxHeight: { xs: 430, md: 470 },
             //Solo los estados a pendiente y a reprogramar tienen esta altura minima
-            minHeight: estadoActual === 0 || estadoActual === 5 ? 250 : "none",
+            minHeight:
+              estadoActual === 0 || estadoActual === 5 || isDragOver
+                ? 250
+                : "none",
             paddingX: 1,
             paddingY: 0.5,
             pr: 1.5,
+            bgcolor: isDragOver ? `${statusColor}14` : "transparent",
+            outline: isDragOver ? `1px solid ${statusColor}40` : "none",
+            outlineOffset: -8,
+            transition: "background-color .18s ease, outline-color .18s ease",
             scrollbarColor: "rgba(21, 61, 113, 0.45) rgba(21, 61, 113, 0.08)",
             // Opcional: Ocultar o estilizar la barra de scroll
             "&::-webkit-scrollbar": { height: "6px", width: "8px" },
@@ -857,6 +875,46 @@ function TurnList({
             },
           }}
         >
+          {isDragOver && (
+            <Box
+              sx={{
+                position: "absolute",
+                inset: 12,
+                borderRadius: 3,
+                border: `1px solid ${statusColor}55`,
+                bgcolor: "rgba(255,255,255,0.72)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                pointerEvents: "none",
+                zIndex: 2,
+                boxShadow: `inset 0 0 0 1px rgba(255,255,255,0.55), 0 10px 28px ${statusColor}1f`,
+              }}
+            >
+              <Stack alignItems="center" spacing={1}>
+                <Box
+                  sx={{
+                    width: 46,
+                    height: 46,
+                    borderRadius: "50%",
+                    bgcolor: statusColor,
+                    color: "white",
+                    display: "grid",
+                    placeItems: "center",
+                    boxShadow: `0 10px 22px ${statusColor}66`,
+                  }}
+                >
+                  <AccessTimeIcon />
+                </Box>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ color: "#153b6f", fontWeight: 900 }}
+                >
+                  {C.turnsDropToState} {statusLabel}
+                </Typography>
+              </Stack>
+            </Box>
+          )}
           {loadingTurnos && listadoTurnos && (
             <Grid
               width={"100%"}
