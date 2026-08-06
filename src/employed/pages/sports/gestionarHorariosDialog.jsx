@@ -13,6 +13,7 @@ import {
   DialogTitle,
   FormControl,
   FormControlLabel,
+  FormHelperText,
   Grid,
   IconButton,
   InputLabel,
@@ -21,6 +22,7 @@ import {
   Stack,
   Switch,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 
@@ -63,11 +65,67 @@ const getDayLabel = (day) =>
 const getTimeRangeLabel = (startTime, endTime) =>
   `${toTimeInput(startTime) || "--:--"} - ${toTimeInput(endTime) || "--:--"}`;
 
-function HorarioFormFields({ form, onChange, espacios, docentes }) {
+const isTimeBefore = (startTime, endTime) =>
+  Boolean(startTime && endTime) && startTime < endTime;
+
+const validateHorarioForm = (form) => {
+  const errors = {};
+
+  if (isEmpty(form.dia)) {
+    errors.dia = C.scheduleValidationDay;
+  }
+
+  if (isEmpty(form.hora_inicio)) {
+    errors.hora_inicio = C.scheduleValidationStartTime;
+  }
+
+  if (isEmpty(form.hora_fin)) {
+    errors.hora_fin = C.scheduleValidationEndTime;
+  }
+
+  if (
+    form.hora_inicio &&
+    form.hora_fin &&
+    !isTimeBefore(form.hora_inicio, form.hora_fin)
+  ) {
+    errors.hora_fin = C.scheduleValidationEndTimeAfterStart;
+  }
+
+  if (isEmpty(form.id_espacio_deportivo)) {
+    errors.id_espacio_deportivo = C.scheduleValidationPlace;
+  }
+
+  if (isEmpty(form.cuil_docente)) {
+    errors.cuil_docente = C.scheduleValidationTeacher;
+  }
+
+  return errors;
+};
+
+const getConflictFieldErrors = () => ({
+  dia: C.scheduleValidationConflictDay,
+  hora_inicio: C.scheduleValidationConflictTime,
+  hora_fin: C.scheduleValidationConflictTime,
+  id_espacio_deportivo: C.scheduleValidationConflictAssignment,
+  cuil_docente: C.scheduleValidationConflictAssignment,
+});
+
+const isConflictError = (error) =>
+  String(error?.message ?? error)
+    .toLowerCase()
+    .includes("conflict");
+
+function HorarioFormFields({
+  form,
+  errors = {},
+  onChange,
+  espacios,
+  docentes,
+}) {
   return (
     <Grid container spacing={2}>
       <Grid size={{ xs: 12, sm: 4 }}>
-        <FormControl size="small" fullWidth>
+        <FormControl size="small" fullWidth error={Boolean(errors.dia)}>
           <InputLabel>Día</InputLabel>
           <Select
             value={form.dia}
@@ -80,6 +138,7 @@ function HorarioFormFields({ form, onChange, espacios, docentes }) {
               </MenuItem>
             ))}
           </Select>
+          {errors.dia && <FormHelperText>{errors.dia}</FormHelperText>}
         </FormControl>
       </Grid>
       <Grid size={{ xs: 12, sm: 4 }}>
@@ -90,6 +149,8 @@ function HorarioFormFields({ form, onChange, espacios, docentes }) {
           minTime="12:00"
           maxTime="22:00"
           fullWidth
+          error={Boolean(errors.hora_inicio)}
+          helperText={errors.hora_inicio ?? ""}
         />
       </Grid>
       <Grid size={{ xs: 12, sm: 4 }}>
@@ -100,10 +161,16 @@ function HorarioFormFields({ form, onChange, espacios, docentes }) {
           minTime="12:00"
           maxTime="22:00"
           fullWidth
+          error={Boolean(errors.hora_fin)}
+          helperText={errors.hora_fin ?? ""}
         />
       </Grid>
       <Grid size={{ xs: 12, md: 5 }}>
-        <FormControl size="small" fullWidth>
+        <FormControl
+          size="small"
+          fullWidth
+          error={Boolean(errors.id_espacio_deportivo)}
+        >
           <InputLabel>Espacio deportivo</InputLabel>
           <Select
             value={form.id_espacio_deportivo}
@@ -119,10 +186,17 @@ function HorarioFormFields({ form, onChange, espacios, docentes }) {
               </MenuItem>
             ))}
           </Select>
+          {errors.id_espacio_deportivo && (
+            <FormHelperText>{errors.id_espacio_deportivo}</FormHelperText>
+          )}
         </FormControl>
       </Grid>
       <Grid size={{ xs: 12, md: 5 }}>
-        <FormControl size="small" fullWidth>
+        <FormControl
+          size="small"
+          fullWidth
+          error={Boolean(errors.cuil_docente)}
+        >
           <InputLabel>{C.scheduleTeacher}</InputLabel>
           <Select
             value={form.cuil_docente}
@@ -138,12 +212,15 @@ function HorarioFormFields({ form, onChange, espacios, docentes }) {
               </MenuItem>
             ))}
           </Select>
+          {errors.cuil_docente && (
+            <FormHelperText>{errors.cuil_docente}</FormHelperText>
+          )}
         </FormControl>
       </Grid>
       <Grid size={{ xs: 12, md: 2 }}>
         <Box
           sx={{
-            minHeight: 40,
+            minHeight: 46,
             px: 1.25,
             border: "1px solid",
             borderColor: "rgba(21,101,192,0.2)",
@@ -194,9 +271,22 @@ function HorarioCard({ horario, espacios, docentes, onSaved, onDeleted }) {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
 
-  const handleChange = (field, value) =>
+  const handleChange = (field, value) => {
     setForm((p) => ({ ...p, [field]: value }));
+    setFieldErrors((previous) => {
+      const nextErrors = { ...previous };
+      delete nextErrors[field];
+
+      if (field === "hora_inicio") {
+        delete nextErrors.hora_fin;
+      }
+
+      return nextErrors;
+    });
+    setError("");
+  };
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -211,8 +301,17 @@ function HorarioCard({ horario, espacios, docentes, onSaved, onDeleted }) {
   };
 
   const handleSave = async () => {
+    const errors = validateHorarioForm(form);
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setError("");
+      return;
+    }
+
     setSaving(true);
     setError("");
+    setFieldErrors({});
     try {
       const espacioObj = espacios.find(
         (e) => String(e.id) === String(form.id_espacio_deportivo),
@@ -236,6 +335,12 @@ function HorarioCard({ horario, espacios, docentes, onSaved, onDeleted }) {
       setEditing(false);
       onSaved();
     } catch (err) {
+      if (isConflictError(err)) {
+        setFieldErrors(getConflictFieldErrors());
+        setError("");
+        return;
+      }
+
       setError(err.message || "Error al guardar");
     } finally {
       setSaving(false);
@@ -253,6 +358,7 @@ function HorarioCard({ horario, espacios, docentes, onSaved, onDeleted }) {
     });
     setEditing(false);
     setError("");
+    setFieldErrors({});
   };
 
   if (!editing) {
@@ -285,7 +391,10 @@ function HorarioCard({ horario, espacios, docentes, onSaved, onDeleted }) {
             </Typography>
             <Chip
               size="small"
-              label={calendarDays.find(d => d.value === horario.dia)?.label || "Día no encontrado"}
+              label={
+                calendarDays.find((d) => d.value === horario.dia)?.label ||
+                "Día no encontrado"
+              }
               sx={{
                 bgcolor: "rgba(255,255,255,0.22)",
                 color: "white",
@@ -345,41 +454,49 @@ function HorarioCard({ horario, espacios, docentes, onSaved, onDeleted }) {
         sx={{
           borderRadius: 2,
           overflow: "hidden",
-          borderColor: "#d6e4f7",
-          bgcolor: "#fbfdff",
-          transition: "border-color 0.15s, box-shadow 0.15s",
+          borderColor: horario.activo ? "#c9ddf5" : "#d7dde6",
+          borderLeft: "6px solid",
+          borderLeftColor: horario.activo ? "#2e7d32" : "#9aa4b2",
+          bgcolor: horario.activo ? "#fbfdff" : "#f7f8fa",
+          transition: "border-color 0.15s, box-shadow 0.15s, transform 0.15s",
           "&:hover": {
             borderColor: "#8eb8e8",
             boxShadow: "0 8px 24px rgba(21,101,192,0.12)",
+            transform: "translateY(-1px)",
           },
         }}
       >
-        <CardContent sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}>
+        <CardContent sx={{ p: 1.75, "&:last-child": { pb: 1.75 } }}>
           <Stack
             direction={{ xs: "column", sm: "row" }}
             alignItems={{ xs: "stretch", sm: "center" }}
             justifyContent="space-between"
-            spacing={1.5}
+            spacing={2}
+            sx={{ minHeight: 92 }}
           >
-            <Stack spacing={1} sx={{ flex: 1, minWidth: 0 }}>
+            <Stack spacing={1.1} sx={{ flex: 1, minWidth: 0 }}>
               <Stack
                 direction="row"
                 alignItems="center"
                 spacing={1}
                 sx={{
                   flexWrap: "wrap",
-                  p: 1,
+                  px: 1.2,
+                  py: 0.9,
                   borderRadius: 1,
-                  bgcolor: horario.activo ? "#eaf4ff" : "#f1f3f5",
+                  bgcolor: horario.activo ? "#eaf4ff" : "#eceff3",
                 }}
               >
                 <Typography
-                  variant="subtitle2"
-                  sx={{ fontWeight: 700, color: "#153b6f" }}
+                  variant="subtitle1"
+                  sx={{ fontWeight: 800, color: "#153b6f", lineHeight: 1.1 }}
                 >
-                  {calendarDays.find(d => d.value === horario.dia)?.label || "Día no encontrado"}
+                  {calendarDays.find((d) => d.value === horario.dia)?.label ||
+                    "Día no encontrado"}
                 </Typography>
-                <AccessTimeIcon sx={{ color: "#1565C0", display: "none", fontSize: 18 }} />
+                <AccessTimeIcon
+                  sx={{ color: "#1565C0", display: "none", fontSize: 18 }}
+                />
                 <Typography
                   variant="body2"
                   sx={{ color: "#153b6f", display: "none", fontWeight: 800 }}
@@ -391,17 +508,30 @@ function HorarioCard({ horario, espacios, docentes, onSaved, onDeleted }) {
                   size="small"
                   label={horario.activo ? C.active : C.inactive}
                   color={horario.activo ? "success" : "default"}
+                  variant={horario.activo ? "filled" : "outlined"}
+                  sx={{ height: 22, fontWeight: 700 }}
                 />
               </Stack>
-              <Stack direction="row" alignItems="center" spacing={0.75}>
-                <AccessTimeIcon sx={{ color: "#1565C0", fontSize: 16 }} />
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={0.75}
+                sx={{
+                  width: "fit-content",
+                  maxWidth: "100%",
+                  px: 1,
+                  py: 0.75,
+                  borderRadius: 1,
+                  bgcolor: horario.activo ? "#f4f8fd" : "#eef1f5",
+                }}
+              >
+                <AccessTimeIcon sx={{ color: "#1565C0", fontSize: 18 }} />
                 <Typography
-                  variant="caption"
-                  sx={{ color: "#153b6f", fontWeight: 800 }}
+                  variant="body2"
+                  sx={{ color: "#153b6f", fontWeight: 800, lineHeight: 1.2 }}
                   noWrap
                 >
-                  {toTimeInput(horario.hora_inicio)} -{" "}
-                  {toTimeInput(horario.hora_fin)}
+                  {getTimeRangeLabel(horario.hora_inicio, horario.hora_fin)}
                 </Typography>
               </Stack>
               {hasAssignedValue(horario.espacio_deportivo) && (
@@ -423,30 +553,41 @@ function HorarioCard({ horario, espacios, docentes, onSaved, onDeleted }) {
             </Stack>
             <Stack
               direction="row"
-              spacing={0.5}
+              spacing={0.75}
+              alignItems="center"
               justifyContent={{ xs: "flex-end", sm: "center" }}
               sx={{ flexShrink: 0 }}
             >
-              <IconButton
-                size="small"
-                onClick={() => setEditing(true)}
-                sx={{
-                  color: "primary.main",
-                  "&:hover": { bgcolor: "rgba(91,150,204,0.12)" },
-                }}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                onClick={() => setConfirmDelete(true)}
-                sx={{
-                  color: "error.main",
-                  "&:hover": { bgcolor: "rgba(211,47,47,0.08)" },
-                }}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
+              <Tooltip title={C.scheduleEditing}>
+                <IconButton
+                  size="small"
+                  onClick={() => setEditing(true)}
+                  sx={{
+                    width: 34,
+                    height: 34,
+                    color: "primary.main",
+                    bgcolor: "rgba(21,101,192,0.08)",
+                    "&:hover": { bgcolor: "rgba(21,101,192,0.16)" },
+                  }}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={C.scheduleDelete}>
+                <IconButton
+                  size="small"
+                  onClick={() => setConfirmDelete(true)}
+                  sx={{
+                    width: 34,
+                    height: 34,
+                    color: "error.main",
+                    bgcolor: "rgba(211,47,47,0.08)",
+                    "&:hover": { bgcolor: "rgba(211,47,47,0.14)" },
+                  }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
             </Stack>
           </Stack>
         </CardContent>
@@ -474,7 +615,10 @@ function HorarioCard({ horario, espacios, docentes, onSaved, onDeleted }) {
       </Typography>
       <Chip
         size="small"
-        label={calendarDays.find(d => d.value === horario.dia)?.label || "Día no encontrado"}
+        label={
+          calendarDays.find((d) => d.value === horario.dia)?.label ||
+          "Día no encontrado"
+        }
         sx={{
           bgcolor: "rgba(255,255,255,0.22)",
           color: "white",
@@ -505,9 +649,7 @@ function HorarioCard({ horario, espacios, docentes, onSaved, onDeleted }) {
       }}
     >
       {editHeader}
-      <CardContent
-        sx={{ p: 2, bgcolor: "#f0f6ff", "&:last-child": { pb: 2 } }}
-      >
+      <CardContent sx={{ p: 2, bgcolor: "#f0f6ff", "&:last-child": { pb: 2 } }}>
         {error && (
           <Alert severity="error" sx={{ mb: 1.5 }} onClose={() => setError("")}>
             {error}
@@ -515,6 +657,7 @@ function HorarioCard({ horario, espacios, docentes, onSaved, onDeleted }) {
         )}
         <HorarioFormFields
           form={form}
+          errors={fieldErrors}
           onChange={handleChange}
           espacios={espacios}
           docentes={docentes}
@@ -564,13 +707,35 @@ function NuevoHorarioCard({
   const [form, setForm] = useState(EMPTY_SCHEDULE);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
 
-  const handleChange = (field, value) =>
+  const handleChange = (field, value) => {
     setForm((p) => ({ ...p, [field]: value }));
+    setFieldErrors((previous) => {
+      const nextErrors = { ...previous };
+      delete nextErrors[field];
+
+      if (field === "hora_inicio") {
+        delete nextErrors.hora_fin;
+      }
+
+      return nextErrors;
+    });
+    setError("");
+  };
 
   const handleCreate = async () => {
+    const errors = validateHorarioForm(form);
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setError("");
+      return;
+    }
+
     setSaving(true);
     setError("");
+    setFieldErrors({});
     try {
       const espacioObj = espacios.find(
         (e) => String(e.id) === String(form.id_espacio_deportivo),
@@ -595,6 +760,12 @@ function NuevoHorarioCard({
       });
       onCreated();
     } catch (err) {
+      if (isConflictError(err)) {
+        setFieldErrors(getConflictFieldErrors());
+        setError("");
+        return;
+      }
+
       setError(err.message || "Error al crear");
     } finally {
       setSaving(false);
@@ -638,9 +809,7 @@ function NuevoHorarioCard({
       }}
     >
       {createHeader}
-      <CardContent
-        sx={{ p: 2, bgcolor: "#f1faf2", "&:last-child": { pb: 2 } }}
-      >
+      <CardContent sx={{ p: 2, bgcolor: "#f1faf2", "&:last-child": { pb: 2 } }}>
         {error && (
           <Alert severity="error" sx={{ mb: 1.5 }} onClose={() => setError("")}>
             {error}
@@ -648,6 +817,7 @@ function NuevoHorarioCard({
         )}
         <HorarioFormFields
           form={form}
+          errors={fieldErrors}
           onChange={handleChange}
           espacios={espacios}
           docentes={docentes}
@@ -721,20 +891,28 @@ export default function GestionarHorariosDialog({ open, onClose }) {
     return () => {
       cancelled = true;
     };
-  }, [open,obtenerDeportesActivos,obtenerDocentesDeportivos,obtenerEspaciosDeportivos]);
+  }, [
+    open,
+    obtenerDeportesActivos,
+    obtenerDocentesDeportivos,
+    obtenerEspaciosDeportivos,
+  ]);
 
-  const fetchHorarios = useCallback(async (idDeporte) => {
-    setLoadingHorarios(true);
-    setHorariosError("");
-    try {
-      const data = await obtenerHorariosXDeporte(idDeporte);
-      setHorarios(data);
-    } catch (err) {
-      setHorariosError(err.message || C.errorScheduleLoad);
-    } finally {
-      setLoadingHorarios(false);
-    }
-  }, [obtenerHorariosXDeporte]);
+  const fetchHorarios = useCallback(
+    async (idDeporte) => {
+      setLoadingHorarios(true);
+      setHorariosError("");
+      try {
+        const data = await obtenerHorariosXDeporte(idDeporte);
+        setHorarios(data);
+      } catch (err) {
+        setHorariosError(err.message || C.errorScheduleLoad);
+      } finally {
+        setLoadingHorarios(false);
+      }
+    },
+    [obtenerHorariosXDeporte],
+  );
 
   const handleDeporteChange = useCallback(
     (_e, value) => {

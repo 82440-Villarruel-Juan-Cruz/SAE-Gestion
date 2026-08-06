@@ -448,6 +448,17 @@ export const SPORTS_STRINGS = {
 
   scheduleStartTime: "Hora de Inicio",
   scheduleEndTime: "Hora de Fin",
+  scheduleValidationDay: "Seleccioná un día",
+  scheduleValidationStartTime: "Ingresá la hora de inicio",
+  scheduleValidationEndTime: "Ingresá la hora de fin",
+  scheduleValidationEndTimeAfterStart:
+    "La hora de fin debe ser posterior a la de inicio",
+  scheduleValidationPlace: "Seleccioná un espacio deportivo",
+  scheduleValidationTeacher: "Seleccioná un docente",
+  scheduleValidationConflictDay: "Revisá el día",
+  scheduleValidationConflictTime: "Ya existe un horario con esos datos",
+  scheduleValidationConflictAssignment:
+    "El espacio o docente ya tiene un horario superpuesto",
 
   active: "Activo",
   inactive: "Desactivado",
