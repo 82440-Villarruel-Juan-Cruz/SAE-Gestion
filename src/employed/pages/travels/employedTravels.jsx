@@ -132,7 +132,7 @@ function EmployedTravelsContent() {
   );
 }
 function TravelHistory() {
-  const {fetchTravelsXDate,oldTravelsRows,travelsColumns,loadingOldTravels}=useTravel();
+  const {fetchTravelsXDate,oldTravelsRows,travelHistoryColumns,loadingOldTravels}=useTravel();
   const getDefaultPurchaseDateRange = () => {
     const today = new Date();
     const firstDayOfMonth = new Date(
@@ -288,7 +288,7 @@ function TravelHistory() {
             <Box sx={{ width: "100%" }}>
               <DataGrid
                 rows={oldTravelsRows}
-                columns={travelsColumns}
+                columns={travelHistoryColumns}
                 loading={loadingOldTravels}
                 autoHeight
                 disableRowSelectionOnClick

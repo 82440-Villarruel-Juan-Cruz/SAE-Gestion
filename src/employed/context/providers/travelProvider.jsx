@@ -17,7 +17,7 @@ import { ObtenerEmpresas,ObtenerViajesActivos,ObtenerInscriptosViaje, EliminarIn
 
 import { mapViajes } from "../../../api/formatters/ViajeFormatter";
 import { generateRows,generateColumns } from "../../../utils/datagrid.utils.jsx";
-import { normalizeCurrencyValue } from "../../../utils/formatters.utils.js";
+import { formatCurrency, normalizeCurrencyValue } from "../../../utils/formatters.utils.js";
 
 import { useNotification } from "../../../shared/context/sharedContext";
 import { TravelContext } from "../employedContext";
@@ -31,6 +31,7 @@ import { isValidCbu, isValidCuit, isValidEmail, isValidPhone } from "../../../ut
  
 const C = TRAVEL_STRINGS;
 const checkAndCleanDialogData = (data) => cleanObjectFields(data);
+const formatTravelCost = (value) => formatCurrency(value).replace(/\s/g, "");
 const isPositiveNumber = (value) => {
     const numericValue = Number(value);
     return Number.isFinite(numericValue) && numericValue > 0;
@@ -386,14 +387,43 @@ export function TravelProvider({ children }){
         onClick: handleOpenInscripTravels,
     }
     ], [handleOpenEditTravels, handleOpenSeeDocTravels, handleOpenInscripTravels]);
+
+    const travelHistoryActions = useMemo(() => [
+    {
+        icon: FolderIcon,
+        color: "primary",
+        title: "Documentacion",
+        onClick: handleOpenSeeDocTravels,
+    },
+    {
+        icon: Diversity3Icon,
+        color: "primary",
+        title: "Inscriptos",
+        onClick: handleOpenInscripTravels,
+    }
+    ], [handleOpenSeeDocTravels, handleOpenInscripTravels]);
+
+    const travelColumnConfig = useMemo(() => ({
+        costo_aproximado: {
+            headerName: "Costos",
+            align: "right",
+            headerAlign: "right",
+            minWidth: 130,
+            renderCell: (params) => formatTravelCost(params.value),
+        },
+    }), []);
     
     const bussinessColumns = useMemo(() => {
     return generateColumns(EMPTY_BUSSINESS, bussinessActions);
     }, [ bussinessActions]); 
 
     const travelsColumns = useMemo(() => {
-    return generateColumns(EMPTY_VIAJES, travelsActions);
-    }, [ travelsActions]);
+    return generateColumns(EMPTY_VIAJES, travelsActions, travelColumnConfig);
+    }, [ travelsActions, travelColumnConfig]);
+
+    const travelHistoryColumns = useMemo(() => {
+    return generateColumns(EMPTY_VIAJES, travelHistoryActions, travelColumnConfig);
+    }, [ travelHistoryActions, travelColumnConfig]);
 
     const [usuarioSelected,setUsuarioSelected] = useState(null);
     const [loadingUsuario,setLoadingUsuario] = useState(false);
@@ -749,7 +779,7 @@ export function TravelProvider({ children }){
         fetchBussiness,openCreateBussiness,handleBussinessSave,
 
         travels,travelsRows, setTravelsRows,
-        loadingTravels, setLoadingTravels,travelsColumns,
+        loadingTravels, setLoadingTravels,travelsColumns,travelHistoryColumns,
         fetchTravels,openCreateTravels,handleTravelSave,
 
         usuarioSelected,setUsuarioSelected,loadingUsuario,fetchUsuariosXlegajo,
