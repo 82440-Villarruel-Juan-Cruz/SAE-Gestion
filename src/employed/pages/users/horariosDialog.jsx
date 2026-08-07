@@ -353,37 +353,42 @@ function HorarioCard({ horario }) {
         sx={{
           borderRadius: 2,
           overflow: "hidden",
-          borderColor: "#d6e4f7",
+          borderColor: "#c9ddf5",
+          borderLeft: "6px solid",
+          borderLeftColor: "#2e7d32",
           bgcolor: "#fbfdff",
-          transition: "border-color 0.15s, box-shadow 0.15s",
+          transition: "border-color 0.15s, box-shadow 0.15s, transform 0.15s",
           "&:hover": {
             borderColor: "#8eb8e8",
             boxShadow: "0 8px 24px rgba(21,101,192,0.12)",
+            transform: "translateY(-1px)",
           },
         }}
       >
-        <CardContent sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}>
+        <CardContent sx={{ p: 1.75, "&:last-child": { pb: 1.75 } }}>
           <Stack
             direction={{ xs: "column", sm: "row" }}
             alignItems={{ xs: "stretch", sm: "center" }}
             justifyContent="space-between"
-            spacing={1.5}
+            spacing={2}
+            sx={{ minHeight: 92 }}
           >
-            <Stack spacing={1} sx={{ flex: 1, minWidth: 0 }}>
+            <Stack spacing={1.1} sx={{ flex: 1, minWidth: 0 }}>
               <Stack
                 direction="row"
                 alignItems="center"
                 spacing={1}
                 sx={{
                   flexWrap: "wrap",
-                  p: 1,
+                  px: 1.2,
+                  py: 0.9,
                   borderRadius: 1,
                   bgcolor: "#eaf4ff",
                 }}
               >
                 <Typography
-                  variant="subtitle2"
-                  sx={{ fontWeight: 700, color: "#153b6f" }}
+                  variant="subtitle1"
+                  sx={{ fontWeight: 800, color: "#153b6f", lineHeight: 1.1 }}
                 >
                   {calendarDays.find(
                     (d) => d.value === (horario.dia === 0 ? 7 : horario.dia),
@@ -400,11 +405,23 @@ function HorarioCard({ horario }) {
                   {toTimeInput(horario.hora_fin)}
                 </Typography>
               </Stack>
-              <Stack direction="row" alignItems="center" spacing={0.75}>
-                <AccessTimeIcon sx={{ color: "#1565C0", fontSize: 16 }} />
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={0.75}
+                sx={{
+                  width: "fit-content",
+                  maxWidth: "100%",
+                  px: 1,
+                  py: 0.75,
+                  borderRadius: 1,
+                  bgcolor: "#f4f8fd",
+                }}
+              >
+                <AccessTimeIcon sx={{ color: "#1565C0", fontSize: 18 }} />
                 <Typography
-                  variant="caption"
-                  sx={{ color: "#153b6f", fontWeight: 800 }}
+                  variant="body2"
+                  sx={{ color: "#153b6f", fontWeight: 800, lineHeight: 1.2 }}
                   noWrap
                 >
                   {getTimeRangeLabel(horario.hora_inicio, horario.hora_fin)}
@@ -413,7 +430,8 @@ function HorarioCard({ horario }) {
             </Stack>
             <Stack
               direction="row"
-              spacing={0.5}
+              spacing={0.75}
+              alignItems="center"
               justifyContent={{ xs: "flex-end", sm: "center" }}
               sx={{ flexShrink: 0 }}
             >
@@ -429,7 +447,10 @@ function HorarioCard({ horario }) {
                 }}
                 sx={{
                   color: "primary.main",
-                  "&:hover": { bgcolor: "rgba(91,150,204,0.12)" },
+                  bgcolor: "rgba(21,101,192,0.08)",
+                  width: 34,
+                  height: 34,
+                  "&:hover": { bgcolor: "rgba(21,101,192,0.16)" },
                 }}
               >
                 <EditIcon fontSize="small" />
@@ -439,7 +460,10 @@ function HorarioCard({ horario }) {
                 onClick={() => setDeleteId(horario.id)}
                 sx={{
                   color: "error.main",
-                  "&:hover": { bgcolor: "rgba(211,47,47,0.08)" },
+                  bgcolor: "rgba(211,47,47,0.08)",
+                  width: 34,
+                  height: 34,
+                  "&:hover": { bgcolor: "rgba(211,47,47,0.14)" },
                 }}
               >
                 <DeleteIcon fontSize="small" />

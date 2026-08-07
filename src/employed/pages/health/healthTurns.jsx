@@ -738,6 +738,7 @@ function TurnList({
   const isInactiveListOpen = inactiveTurnsType === inactiveType;
   const statusColor = getTurnStatusColor(estadoActual);
   const statusLabel = getTurnStatusLabel(estadoActual);
+  const turnsCount = listadoTurnos?.length ?? 0;
 
   return (
     <>
@@ -824,12 +825,10 @@ function TurnList({
             {estadoActual !== 2 && estadoActual !== 4 && (
               <Chip
                 size="large"
-                label={`${listadoTurnos?.length ?? 0} ${
-                  listadoTurnos?.length === 1 ? "turno" : "turnos"
-                }`}
+                label={`${turnsCount} ${turnsCount === 1 ? "turno" : "turnos"}`}
                 sx={{
                   bgcolor: "rgba(255,255,255,0.92)",
-                  color: PALETTE[estadoActual],
+                  color: statusColor,
                   fontWeight: 800,
                   minWidth: 112,
                   height: 38,

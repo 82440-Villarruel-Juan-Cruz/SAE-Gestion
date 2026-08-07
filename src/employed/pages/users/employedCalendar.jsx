@@ -100,7 +100,7 @@ function layoutEvents(events) {
 
 const WEEKEND = new Set([0, 6]); // dia values for Sat/Sun
 
-export function EmployedCalendar({ legajoEmpleado = null }){
+export function EmployedCalendar({ legajoEmpleado = null, embedded = false }){
     const {
             dialogError,
             empleados,loadingEmpleados,
@@ -183,9 +183,10 @@ export function EmployedCalendar({ legajoEmpleado = null }){
       {!hasFixedEmployee && (
         <Card
           sx={{
-            borderRadius: 3,
-            boxShadow: "0 18px 45px rgba(21,61,113,0.08)",
-            mb: 2,
+            borderRadius: embedded ? 0 : 3,
+            boxShadow: embedded ? "none" : "0 18px 45px rgba(21,61,113,0.08)",
+            mb: embedded ? 0 : 2,
+            borderTop: embedded ? "1px solid #e3eaf4" : "none",
           }}
         >
           <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
@@ -288,9 +289,12 @@ export function EmployedCalendar({ legajoEmpleado = null }){
       {!loadingHorarios && !loadingEmpleados && !dialogError && (
         <Card
           sx={{
-            borderRadius: 4,
-            boxShadow: "0 18px 45px rgba(21,61,113,0.08)",
+            borderRadius: embedded ? 0 : 4,
+            boxShadow: embedded ? "none" : "0 18px 45px rgba(21,61,113,0.08)",
+            borderTop: embedded ? "1px solid #e3eaf4" : "none",
             overflowX: "auto",
+            p: embedded ? { xs: 1, sm: 2 } : 0,
+            pt: embedded ? { xs: 1.5, sm: 2 } : 0,
           }}
         >
           <Box sx={{ minWidth: TIME_COL_WIDTH + DAYS.length * 90 }}>

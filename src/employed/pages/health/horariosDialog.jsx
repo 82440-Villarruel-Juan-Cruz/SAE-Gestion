@@ -29,6 +29,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import DeleteIcon from "@mui/icons-material/Delete";
+import PersonIcon from "@mui/icons-material/Person";
 
 import SAEButton from "../../../assets/components/buttons/SAEButton";
 import SAETextField from "../../../assets/components/inputs/SAETextField";
@@ -185,9 +186,7 @@ function NuevoHorarioCard() {
       }}
     >
       {createHeader}
-      <CardContent
-        sx={{ py: 1.5, bgcolor: "#f1faf2", "&:last-child": { pb: 1.5 } }}
-      >
+      <CardContent sx={{ p: 2, bgcolor: "#f1faf2", "&:last-child": { pb: 2 } }}>
         {errorHorario && (
           <Alert
             severity="error"
@@ -205,7 +204,7 @@ function NuevoHorarioCard() {
           direction="row"
           spacing={1}
           justifyContent="flex-end"
-          sx={{ mt: 1 }}
+          sx={{ mt: 2 }}
         >
           <SAEButton
             variant="outlined"
@@ -356,38 +355,86 @@ function HorarioCard({ horario }) {
     return (
       <Card
         variant="outlined"
-        sx={{ borderRadius: 2, overflow: "hidden", borderColor: "#d6e4f7" }}
+        sx={{
+          borderRadius: 2,
+          overflow: "hidden",
+          borderColor: "#c9ddf5",
+          borderLeft: "6px solid",
+          borderLeftColor: "#2e7d32",
+          bgcolor: "#fbfdff",
+          transition: "border-color 0.15s, box-shadow 0.15s, transform 0.15s",
+          "&:hover": {
+            borderColor: "#8eb8e8",
+            boxShadow: "0 8px 24px rgba(21,101,192,0.12)",
+            transform: "translateY(-1px)",
+          },
+        }}
       >
-        <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
+        <CardContent sx={{ p: 1.75, "&:last-child": { pb: 1.75 } }}>
           <Stack
-            direction="row"
-            alignItems="center"
+            direction={{ xs: "column", sm: "row" }}
+            alignItems={{ xs: "stretch", sm: "center" }}
             justifyContent="space-between"
-            spacing={1}
+            spacing={2}
+            sx={{ minHeight: 92 }}
           >
-            <Stack spacing={0.2} sx={{ flex: 1, minWidth: 0 }}>
+            <Stack spacing={1.1} sx={{ flex: 1, minWidth: 0 }}>
               <Stack
                 direction="row"
                 alignItems="center"
                 spacing={1}
-                sx={{ flexWrap: "wrap" }}
+                sx={{
+                  flexWrap: "wrap",
+                  px: 1.2,
+                  py: 0.9,
+                  borderRadius: 1,
+                  bgcolor: "#eaf4ff",
+                }}
               >
                 <Typography
-                  variant="subtitle2"
-                  sx={{ fontWeight: 700, color: "#153b6f" }}
+                  variant="subtitle1"
+                  sx={{ fontWeight: 800, color: "#153b6f", lineHeight: 1.1 }}
                 >
                   {DIAS_LABEL[horario.dia]}
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#5a6f8f" }}>
-                  {toTimeInput(horario.hora_inicio)} –{" "}
+              </Stack>
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={0.75}
+                sx={{
+                  width: "fit-content",
+                  maxWidth: "100%",
+                  px: 1,
+                  py: 0.75,
+                  borderRadius: 1,
+                  bgcolor: "#f4f8fd",
+                }}
+              >
+                <AccessTimeIcon sx={{ color: "#1565C0", fontSize: 18 }} />
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#153b6f", fontWeight: 800, lineHeight: 1.2 }}
+                  noWrap
+                >
+                  {toTimeInput(horario.hora_inicio)} -{" "}
                   {toTimeInput(horario.hora_fin)}
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#5a6f8f" }}>
+              </Stack>
+              <Stack direction="row" alignItems="center" spacing={0.75}>
+                <PersonIcon sx={{ color: "#7890ad", fontSize: 16 }} />
+                <Typography variant="caption" color="text.secondary" noWrap>
                   {horario.especialista} - {horario.nombre_especialidad}
                 </Typography>
               </Stack>
             </Stack>
-            <Stack direction="row" spacing={0.5}>
+            <Stack
+              direction="row"
+              spacing={0.75}
+              alignItems="center"
+              justifyContent={{ xs: "flex-end", sm: "center" }}
+              sx={{ flexShrink: 0 }}
+            >
               <IconButton
                 size="small"
                 onClick={() => {
@@ -401,7 +448,10 @@ function HorarioCard({ horario }) {
                 }}
                 sx={{
                   color: "primary.main",
-                  "&:hover": { bgcolor: "rgba(91,150,204,0.12)" },
+                  bgcolor: "rgba(21,101,192,0.08)",
+                  width: 34,
+                  height: 34,
+                  "&:hover": { bgcolor: "rgba(21,101,192,0.16)" },
                 }}
               >
                 <EditIcon fontSize="small" />
@@ -411,7 +461,10 @@ function HorarioCard({ horario }) {
                 onClick={() => setDeleteId(horario.id)}
                 sx={{
                   color: "error.main",
-                  "&:hover": { bgcolor: "rgba(211,47,47,0.08)" },
+                  bgcolor: "rgba(211,47,47,0.08)",
+                  width: 34,
+                  height: 34,
+                  "&:hover": { bgcolor: "rgba(211,47,47,0.14)" },
                 }}
               >
                 <DeleteIcon fontSize="small" />
@@ -568,7 +621,17 @@ export default function GestionarHorariosDialog({ open }) {
             <CircularProgress />
           </Box>
         ) : (
-          <Stack spacing={2} sx={{ pt: 0.5 }}>
+          <Card
+            variant="outlined"
+            sx={{
+              borderRadius: 2,
+              overflow: "hidden",
+              borderColor: "#d6e4f7",
+              bgcolor: "#fbfdff",
+            }}
+          >
+            <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
+              <Stack spacing={2}>
             <Autocomplete
               options={personal}
               getOptionLabel={(opt) =>
@@ -603,12 +666,17 @@ export default function GestionarHorariosDialog({ open }) {
                   direction="row"
                   alignItems="center"
                   justifyContent="space-between"
+                  sx={{
+                    borderTop: "1px solid #d6e4f7",
+                    pt: 1.5,
+                  }}
                 >
                   <Typography
                     variant="subtitle2"
                     sx={{ color: "#5a6f8f", fontWeight: 600 }}
                   >
-                    Horarios registrados — {selectedEmploy.especialista}
+                    Horarios registrados — {selectedEmploy.apellido},{" "}
+                    {selectedEmploy.nombre}
                   </Typography>
                   <IconButton
                     onClick={() => setShowNuevoForm(true)}
@@ -664,7 +732,9 @@ export default function GestionarHorariosDialog({ open }) {
                   ))}
               </Stack>
             )}
-          </Stack>
+              </Stack>
+            </CardContent>
+          </Card>
         )}
       </DialogContent>
 

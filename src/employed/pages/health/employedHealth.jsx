@@ -243,9 +243,9 @@ function EmployedAdminContent() {
             </SAEButton>
           </Stack>
         </Box>
+        {/*CALENDARIO */}
+        <EmployedCalendar embedded />
       </Card>
-      {/*CALENDARIO */}
-      <EmployedCalendar />
 
       <GestionarHorariosDialog open={horariosDialogOpen} />
       <DialogHealth />

@@ -184,8 +184,8 @@ function EmployedAdminContent() {
             </SAEButton>
           </Stack>
         </Box>
+        <EmployedCalendar embedded />
       </Card>
-      <EmployedCalendar />
 
       {dialogType === "empleados" && <EmpleadosDialog />}
       {dialogType === "usuarios" && <UsuariosDialog />}
