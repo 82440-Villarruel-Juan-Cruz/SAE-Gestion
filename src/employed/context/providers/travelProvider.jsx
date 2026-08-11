@@ -1,5 +1,5 @@
 import {useState, useEffect,useCallback,useMemo,useRef} from "react";
-import { IconButton, Chip, Stack, isEmpty } from "@mui/material";
+import { IconButton, Chip, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 import EditIcon from "@mui/icons-material/Edit";
@@ -17,20 +17,29 @@ import { ObtenerEmpresas,ObtenerViajesActivos,ObtenerInscriptosViaje, EliminarIn
 
 import { mapViajes } from "../../../api/formatters/ViajeFormatter";
 import { generateRows,generateColumns } from "../../../utils/datagrid.utils.jsx";
-import { normalizeCurrencyValue } from "../../../utils/formatters.utils.js";
+import { formatCurrency, normalizeCurrencyValue } from "../../../utils/formatters.utils.js";
 
 import { useNotification } from "../../../shared/context/sharedContext";
 import { TravelContext } from "../employedContext";
 import { cleanObjectFields } from "../../../utils/util.jsx";
+import { isEmpty } from "../../../utils/text.utils.js";
 
 import { TRAVEL_STRINGS } from "../../../utils/strings/employed.strings.js";
 import { EMPTY_DOCUMENTACION_ESTUDIANTE,EMPTY_DOCUMENTACION_VIAJE,EMPTY_VIAJES_FORM,EMPTY_VIAJES,EMPTY_BUSSINESS } from "../../../utils/common/common.config.js";
 import { formatDate, toApiDateTime } from "../../../utils/date.utils.js";
-import { isNumber } from "@mui/x-data-grid/internals";
-import { isValidAddress, isValidCbu, isValidCuit, isValidEmail, isValidPhone } from "../../../utils/validation.utils.js";
+import { isValidCbu, isValidCuit, isValidEmail, isValidPhone } from "../../../utils/validation.utils.js";
  
 const C = TRAVEL_STRINGS;
 const checkAndCleanDialogData = (data) => cleanObjectFields(data);
+const formatTravelCost = (value) => formatCurrency(value).replace(/\s/g, "");
+const isPositiveNumber = (value) => {
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) && numericValue > 0;
+};
+const isValidTravelPlace = (value = "") => {
+    const parts = String(value).split(/\s+-\s+/);
+    return parts.length === 3 && parts.every((part) => !isEmpty(part));
+};
 
 export function TravelProvider({ children }){
     const navigate = useNavigate();
@@ -51,10 +60,10 @@ export function TravelProvider({ children }){
     const [fieldErrors, setFieldErrors] = useState({});
     const [touchedFields, setTouchedFields] = useState({});
 
-    const resetValidation = () => {
+    const resetValidation = useCallback(() => {
         setFieldErrors({});
         setTouchedFields({});
-    };
+    }, []);
     const validateField = (field, value, data = dialogData) => {
 
         switch (true) {
@@ -79,18 +88,18 @@ export function TravelProvider({ children }){
             case field === "fecha_fin":
                 return  isEmpty(value) ? C.validationDate:"";
             case field === "seguro":
-                return  isEmpty(value) ? C.validationActive:"";
+                return  typeof value === "boolean" ? "" : C.validationActive;
             case field === "origen":
-                return  isEmpty(value) || !isValidAddress(value) ? C.validationPlace:"";
+                return  isEmpty(value) || !isValidTravelPlace(value) ? C.validationPlace:"";
             case field === "destino":
-                return  isEmpty(value) || !isValidAddress(value)? C.validationPlace:"";
+                return  isEmpty(value) || !isValidTravelPlace(value)? C.validationPlace:"";
             case field === "cantidad_personas":
-                return  isEmpty(value) || !isNumber(value) || Number(value) <=0 ? C.validationQuant:""; 
+                return  isEmpty(value) || !isPositiveNumber(value) ? C.validationQuant:""; 
 
             case field === "id_empresa_viaje":
-                return  isEmpty(value) || !isNumber(value) || Number(value) <=0 ? C.validationBuss:"";
+                return  isEmpty(value) || !isPositiveNumber(value) ? C.validationBuss:"";
             case field === "costo_aproximado":
-                return  isEmpty(value) || !isNumber(value)  || Number(value) <=0? C.validationCost:"";
+                return  isEmpty(value) || !isPositiveNumber(value) ? C.validationCost:"";
             case field === "motivo":
                 return  isEmpty(value) ? C.validationMotive:""; 
                 
@@ -159,12 +168,14 @@ export function TravelProvider({ children }){
     }, [fetchBussiness]);
 
     const openCreateBussiness = () => {
+        resetValidation();
         openDialog("bussiness", "create", EMPTY_BUSSINESS);
     };
 
     const openEditBussiness = useCallback((row) => {
+        resetValidation();
         openDialog("bussiness", "edit", row);
-    }, [openDialog]);
+    }, [openDialog, resetValidation]);
 
     const handleOpenEditBussiness = useCallback((row) => {
     openEditBussiness(row);
@@ -238,6 +249,7 @@ export function TravelProvider({ children }){
     }, [fetchTravels]);
 
     const openCreateTravels = () => {
+        resetValidation();
         openDialog("travels", "create", EMPTY_VIAJES_FORM);
     };
 
@@ -245,8 +257,9 @@ export function TravelProvider({ children }){
         const viajeEncontrado = travels.find(viaje => viaje.id === Number(row.id));
         if(!viajeEncontrado) return;
 
+        resetValidation();
         openDialog("travels", "edit", viajeEncontrado);
-    }, [openDialog, travels]);
+    }, [openDialog, resetValidation, travels]);
 
     const fetchDocsXTravel = useCallback(async (row) => {
             setLoadingViajeDocs(true);
@@ -374,14 +387,43 @@ export function TravelProvider({ children }){
         onClick: handleOpenInscripTravels,
     }
     ], [handleOpenEditTravels, handleOpenSeeDocTravels, handleOpenInscripTravels]);
+
+    const travelHistoryActions = useMemo(() => [
+    {
+        icon: FolderIcon,
+        color: "primary",
+        title: "Documentacion",
+        onClick: handleOpenSeeDocTravels,
+    },
+    {
+        icon: Diversity3Icon,
+        color: "primary",
+        title: "Inscriptos",
+        onClick: handleOpenInscripTravels,
+    }
+    ], [handleOpenSeeDocTravels, handleOpenInscripTravels]);
+
+    const travelColumnConfig = useMemo(() => ({
+        costo_aproximado: {
+            headerName: "Costos",
+            align: "right",
+            headerAlign: "right",
+            minWidth: 130,
+            renderCell: (params) => formatTravelCost(params.value),
+        },
+    }), []);
     
     const bussinessColumns = useMemo(() => {
     return generateColumns(EMPTY_BUSSINESS, bussinessActions);
     }, [ bussinessActions]); 
 
     const travelsColumns = useMemo(() => {
-    return generateColumns(EMPTY_VIAJES, travelsActions);
-    }, [ travelsActions]);
+    return generateColumns(EMPTY_VIAJES, travelsActions, travelColumnConfig);
+    }, [ travelsActions, travelColumnConfig]);
+
+    const travelHistoryColumns = useMemo(() => {
+    return generateColumns(EMPTY_VIAJES, travelHistoryActions, travelColumnConfig);
+    }, [ travelHistoryActions, travelColumnConfig]);
 
     const [usuarioSelected,setUsuarioSelected] = useState(null);
     const [loadingUsuario,setLoadingUsuario] = useState(false);
@@ -737,7 +779,7 @@ export function TravelProvider({ children }){
         fetchBussiness,openCreateBussiness,handleBussinessSave,
 
         travels,travelsRows, setTravelsRows,
-        loadingTravels, setLoadingTravels,travelsColumns,
+        loadingTravels, setLoadingTravels,travelsColumns,travelHistoryColumns,
         fetchTravels,openCreateTravels,handleTravelSave,
 
         usuarioSelected,setUsuarioSelected,loadingUsuario,fetchUsuariosXlegajo,

@@ -103,6 +103,10 @@ export function CalendarEvent({ eventos }) {
 }
 
 function EventoCard({ evento }) {
+  const scheduleLabel = evento.duracion
+    ? `${evento.horario_inicio} - ${evento.duracion}`
+    : evento.horario_inicio;
+
   return (
     <Card
       sx={{
@@ -170,7 +174,7 @@ function EventoCard({ evento }) {
           </Stack>
           <Chip
             icon={<AccessTimeIcon />}
-            label={evento.horario_inicio}
+            label={scheduleLabel}
             size="large"
             sx={{
               alignSelf: { xs: "flex-start", sm: "center" },
@@ -211,7 +215,7 @@ function EventoCard({ evento }) {
           }}
           mt={2.3}
         >
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={3}>
+          <Stack sx={{ width: "100%" }}>
             <Stack
               direction="row"
               spacing={1.25}
@@ -223,6 +227,7 @@ function EventoCard({ evento }) {
                 borderRadius: 2,
                 bgcolor: "#f7f9fc",
                 border: "1px solid rgba(17, 53, 101, 0.08)",
+                width: "100%",
               }}
             >
               <PersonOutlineIcon
@@ -248,46 +253,6 @@ function EventoCard({ evento }) {
                   }}
                 >
                   {evento.encargado}
-                </Typography>
-              </Box>
-            </Stack>
-
-            <Stack
-              direction="row"
-              spacing={1.25}
-              alignItems="flex-start"
-              sx={{
-                flex: 1,
-                minWidth: 0,
-                p: 1.5,
-                borderRadius: 2,
-                bgcolor: "#f7f9fc",
-                border: "1px solid rgba(17, 53, 101, 0.08)",
-              }}
-            >
-              <AccessTimeIcon
-                sx={{ mt: 0.2, fontSize: 20, color: "var(--primary)" }}
-              />
-              <Box sx={{ minWidth: 0 }}>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    color: "text.secondary",
-                    fontWeight: 800,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Duracion
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: 15,
-                    fontWeight: 650,
-                    color: "text.primary",
-                    overflowWrap: "anywhere",
-                  }}
-                >
-                  {evento.duracion}
                 </Typography>
               </Box>
             </Stack>

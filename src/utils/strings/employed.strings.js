@@ -135,6 +135,9 @@ export const HEALTH_STRING = {
   turnsFinish: "Turnos Finalizadas",
   turnsMissingID: "Ingrese un legajo para continuar",
   turnsMissingDegree: "Ingrese una carrera para continuar",
+  turnsMoveMissingData:
+    "Completá paciente, asunto, especialista, fecha y hora antes de mover el turno. Para cancelar no hace falta completar esos datos.",
+  turnsDropToState: "Soltar para mover a",
 
   turnsHeader: "Modulo de Salud",
   turnsTitle: "Turnero",
@@ -448,6 +451,17 @@ export const SPORTS_STRINGS = {
 
   scheduleStartTime: "Hora de Inicio",
   scheduleEndTime: "Hora de Fin",
+  scheduleValidationDay: "Seleccioná un día",
+  scheduleValidationStartTime: "Ingresá la hora de inicio",
+  scheduleValidationEndTime: "Ingresá la hora de fin",
+  scheduleValidationEndTimeAfterStart:
+    "La hora de fin debe ser posterior a la de inicio",
+  scheduleValidationPlace: "Seleccioná un espacio deportivo",
+  scheduleValidationTeacher: "Seleccioná un docente",
+  scheduleValidationConflictDay: "Revisá el día",
+  scheduleValidationConflictTime: "Ya existe un horario con esos datos",
+  scheduleValidationConflictAssignment:
+    "El espacio o docente ya tiene un horario superpuesto",
 
   active: "Activo",
   inactive: "Desactivado",

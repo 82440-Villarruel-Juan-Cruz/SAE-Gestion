@@ -243,9 +243,9 @@ function EmployedAdminContent() {
             </SAEButton>
           </Stack>
         </Box>
+        {/*CALENDARIO */}
+        <EmployedCalendar embedded />
       </Card>
-      {/*CALENDARIO */}
-      <EmployedCalendar />
 
       <GestionarHorariosDialog open={horariosDialogOpen} />
       <DialogHealth />
@@ -468,7 +468,8 @@ function DialogHealth() {
                       helperText={fieldErrors.descripcion}
                       multiline
                       fullWidth
-                      rows={2} // Número inicial de filas
+                      minRows={4}
+                      maxRows={8}
                     />
                   </Grid>
                   {dialogMode === "edit" && (
