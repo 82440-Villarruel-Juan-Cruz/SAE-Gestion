@@ -23,7 +23,7 @@ import TitleBox from "../../../assets/components/titleBox";
 import { SportsProvider as EmployedSportsProvider } from "../../../employed/context/providers/sportsProvider";
 import { useSportsContext } from "../../context/studentContext";
 import { SportsProvider } from "../../context/providers/sportsProvider";
-import SportsCalendar from "../../../employed/pages/sports/SportsCalendar";
+import SportsCalendar from "../../../employed/pages/sports/sportsCalendar";
 import { SPORTS_STRINGS } from "../../../utils/strings/student.strings";
 import SAEDataGrid from "../../../assets/components/datagrid/SAEDataGrid.jsx";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
