@@ -411,9 +411,9 @@ export default function DeportesMasonry({ deportes, onInscribirClick }) {
             scrollbarWidth: "none",
             "&::-webkit-scrollbar": { display: "none" },
             "& > *": {
-              width: "86vw !important",
+              width: "min(86vw, 360px) !important",
               maxWidth: "360px",
-              flex: "0 0 86vw",
+              flex: "0 0 min(86vw, 360px)",
               scrollSnapAlign: "start",
               margin: "0 !important",
             },
@@ -429,8 +429,7 @@ export default function DeportesMasonry({ deportes, onInscribirClick }) {
             <Card
               sx={{
                 borderRadius: 4,
-                minHeight: { xs: "auto", sm: "330px" },
-                maxHeight: { xs: "none", sm: "330px" }, // Mantiene las cards parejas en desktop sin recortar contenido en mobile.
+                minHeight: { xs: "auto", sm: 330 },
                 px: 0,
                 py: 0,
                 m: { xs: 0, sm: 1 },
@@ -452,6 +451,7 @@ export default function DeportesMasonry({ deportes, onInscribirClick }) {
               <CardContent
                 sx={{
                   p: 0,
+                  flex: "1 1 auto",
                   "&:last-child": { pb: 0 },
                 }}
               >
@@ -560,7 +560,14 @@ export default function DeportesMasonry({ deportes, onInscribirClick }) {
                   </Box>
                 </Box>
               </CardContent>
-              <CardActions sx={{ mt: "auto", p: { xs: 2.25, sm: 1 } }}>
+              <CardActions
+                sx={{
+                  mt: "auto",
+                  p: { xs: 2.25, sm: 1.25 },
+                  pt: { xs: 1, sm: 1 },
+                  flexShrink: 0,
+                }}
+              >
                 <SAEButton
                   size="medium"
                   variant="contained"
@@ -570,6 +577,16 @@ export default function DeportesMasonry({ deportes, onInscribirClick }) {
                   onClick={() => handleOpen(index)} // Abrir el diálogo específico del card
                   color={card.esta_inscripto === false ? "primary" : "error"}
                   fullWidth
+                  sx={{
+                    minHeight: 42,
+                    px: 1.5,
+                    whiteSpace: "normal",
+                    lineHeight: 1.15,
+                    "& .MuiButton-startIcon": {
+                      mr: 0.75,
+                      flexShrink: 0,
+                    },
+                  }}
                 >
                   {card.esta_inscripto === false
                     ? "Inscribir"
