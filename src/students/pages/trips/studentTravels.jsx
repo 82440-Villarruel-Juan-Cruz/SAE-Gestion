@@ -14,7 +14,6 @@ import {
   Grid,
   IconButton,
   useMediaQuery,
-  Divider,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -43,6 +42,7 @@ import SAEPage from "../../../assets/components/page/SAEPage";
 import SAESpinner from "../../../assets/components/spinner/SAESpinner";
 import SAEButton from "../../../assets/components/buttons/SAEButton";
 import DocumentCard from "../../../assets/components/documents/DocumentCard";
+import DocumentPreviewDialog from "../../../assets/components/documents/DocumentPreviewDialog";
 import TitleBox from "../../../assets/components/titleBox";
 import StudentHeaderPage from "../../../assets/components/headerPage/headerPageStudent.jsx";
 
@@ -129,7 +129,16 @@ export default function StudentTravels() {
 
 function StudentTravelContent() {
   const { user } = useAuth();
-  const { travelsLegajo, loadingTravel, fetchTravelsLegajo } = useTravel();
+  const {
+    travelsLegajo,
+    loadingTravel,
+    fetchTravelsLegajo,
+    documentosParaMostrar,
+    loadingDocumentos,
+  } = useTravel();
+  const hasPendingRequiredDocuments = documentosParaMostrar.some(
+    (documento) => documento.required && !documento.subido,
+  );
 
   useEffect(() => {
     fetchTravelsLegajo(user.legajo);
@@ -143,11 +152,14 @@ function StudentTravelContent() {
         backgroundImage="images/carrousel/EntradaUTN.jpg"
         icon={LocalAirportIcon}
       />
-      {!loadingTravel && travelsLegajo?.length > 0 && (
+      {!loadingTravel &&
+        !loadingDocumentos &&
+        travelsLegajo?.length > 0 &&
+        hasPendingRequiredDocuments && (
         <NotificacionEstudiante />
       )}
       <CarrouselVertical />
-      <DocSection />
+      <TravelDocumentsSection />
       <InformationSection />
     </SAEPage>
   );
@@ -471,10 +483,11 @@ function CarrouselVertical() {
     </Box>
   );
 }
-function DocSection() {
+function TravelDocumentsSection() {
   const {
     loadingTravel,
     travelsLegajo,
+    closePreview,
     handlePreview,
     handleArchivoChange,
     requestDeleteDocument,
@@ -483,103 +496,69 @@ function DocSection() {
     documentoAEliminar,
     openPopup,
     closeDeleteDialog,
-    handleDelete
+    handleDelete,
+    preview,
   } = useTravel();
-  const isMobile = useMediaQuery("(max-width:599px)");
+
   return (
     <>
       {!loadingTravel && travelsLegajo.length > 0 && (
         <section id="Documentacion">
-          <Card
-            sx={{
-              borderRadius: 5,
-              mt: 10,
-              p: 4,
-              boxShadow: "0 18px 45px rgba(21, 61, 113, 0.3)"
-            }}
-            style={{
-              background: "rgba(255,255,255,0.18)" // Funciona directamente
-            }}
-          >
-            <Typography
-              pt={2}
-              variant="h4"
-              fontWeight={800}
-              textAlign={"center"}
-            >
-              {C.myDocumentTitle}
-            </Typography>
-           
-            <Grid container spacing={2} sx={{ mt: 4 }}>
-
-             {loadingDocumentos && (
-              <Grid size={12} display={"flex"} justifyContent={"center"}>
-                <SAESpinner size="L"/>
-              </Grid>
-            )}
-             {documentosParaMostrar.map((item) => (
-                <React.Fragment key={item.id_tipo_documento ?? item.nombre}>
-                  {isMobile && (
-                  <Divider 
-                 
-                    sx={{ 
-                      borderStyle: 'dashed',
-                      width:"100%",
-                      borderWidth: 1,
-                      borderColor: 'black', 
-                      opacity: 1, // Asegura que no sea transparente
-                      '&::before, &::after': {
-                        borderColor: 'black', // Fuerza el color en los pseudo-elementos internos de MUI
-                        borderWidth: 1,
-                        borderStyle: 'dashed'
-                      }
-                    }} 
+          <TitleBox
+            title={C.myDocumentTitle}
+            description={C.myDocumentSubtitle}
+          />
+          {loadingDocumentos ? (
+            <Stack alignItems="center" sx={{ py: 5 }}>
+              <SAESpinner size="S" />
+            </Stack>
+          ) : (
+            <Grid container spacing={3} sx={{ mt: 1 }}>
+              {documentosParaMostrar.map((item) => (
+                <Grid
+                  key={item.id_tipo_documento ?? item.nombre}
+                  size={{ xs: 12, sm: 6, md: 4 }}
+                  sx={{ justifyContent: "center", alignItems: "center" }}
+                >
+                  <DocumentCard
+                    documento={item}
+                    onPreview={handlePreview}
+                    onFileChange={handleArchivoChange}
+                    onDelete={requestDeleteDocument}
+                    uploadDisabled={item.subido}
+                    deleteDisabled={!item.subido}
+                    notUploadedLabel={C.docStateNotUploaded}
+                    uploadedLabel={C.docStataUplodaded}
+                    showRequirement
                   />
-                  )}
-                  
-                  <Grid
-                    container
-                    // La key ya está en el Fragment, pero Grid también puede necesitarla si se reordena
-                    size={{ xs: 12, sm: 6, md: 4 }}
-                    sx={{ justifyContent: "center", alignItems: "center" }}
-                  >
-
-                    {!loadingDocumentos &&(
-                      <DocumentCard
-                        documento={item}
-                        onPreview={handlePreview}
-                        onFileChange={handleArchivoChange}
-                        onDelete={requestDeleteDocument}
-                        uploadDisabled={item.subido}
-                        deleteDisabled={!item.subido}
-                        notUploadedLabel={"No Subido"}
-                        uploadedLabel={"Subido!"}
-                        showRequirement
-                      />
-                    )}
-                    
-                  </Grid>
-                </React.Fragment>
+                </Grid>
               ))}
             </Grid>
-          </Card>
+          )}
         </section>
       )}
       <Dialog open={openPopup} onClose={closeDeleteDialog}>
-          <DialogTitle>{C.deleteDocTitle}</DialogTitle>
-  
-          <DialogContent>
-            <DialogContentText>
-              {C.deleteDocMessage(documentoAEliminar?.archivoNombre)}
-            </DialogContentText>
-          </DialogContent>
-  
-          <DialogActions>
-            <SAEButton onClick={() => handleDelete(documentoAEliminar)} autoFocus>
-              {C.deleteDocButton}
-            </SAEButton>
-          </DialogActions>
-        </Dialog>
+        <DialogTitle>{C.deleteDocTitle}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {C.deleteDocMessage(documentoAEliminar?.archivoNombre)}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <SAEButton onClick={() => handleDelete(documentoAEliminar)} autoFocus>
+            {C.deleteDocButton}
+          </SAEButton>
+        </DialogActions>
+      </Dialog>
+      <DocumentPreviewDialog
+        open={preview.open}
+        onClose={closePreview}
+        title={preview.title}
+        imageSrc={preview.imageSrc}
+        isPdf={preview.isPdf}
+        loading={preview.loading}
+        error={preview.error}
+      />
     </>
   );
 }

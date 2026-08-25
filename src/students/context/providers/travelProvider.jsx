@@ -30,7 +30,8 @@ const mergeDocuments = (requiredDocs, profileDocs) => {
   return requiredDocs.map((reqDoc) => {
     // Buscar el documento correspondiente en la data del perfil
     const uploadedDoc = profileDocs.find(
-      (pDoc) => pDoc.id_tipo_documento === reqDoc.id_tipo_documento
+      (pDoc) =>
+        Number(pDoc.id_tipo_documento) === Number(reqDoc.id_tipo_documento),
     );
     // Si existe en el perfil, fusionamos los datos; si no, mantenemos el estado base
     if (uploadedDoc) {
@@ -97,7 +98,7 @@ const mergeDocuments = (requiredDocs, profileDocs) => {
     useEffect(() => {
         fetchTravelsLegajo();
     }, [fetchTravelsLegajo]);
-    const [preview, setPreview] = useState(createPreviewState);
+    const [preview, setPreview] = useState(createPreviewState());
     const [openPopup, setOpenPopup] = useState(false);
     const [documentoAEliminar, setDocumentoAEliminar] = useState(null);
 

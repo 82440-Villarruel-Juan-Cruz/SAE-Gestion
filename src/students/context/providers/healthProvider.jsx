@@ -191,7 +191,7 @@ export const HealthUsersProvider = ({ children }) => {
         setDialogSaving(false);
         return;
       }
-      if (dialogData.id_estado_turno === 1) {
+      if (dialogMode !== "delete" && dialogData.id_estado_turno === 1) {
         setDialogError("Faltan valores");
         setDialogSaving(false);
         return;
@@ -215,18 +215,20 @@ export const HealthUsersProvider = ({ children }) => {
 
       const id_nuevo = dialogData.id === "" ? 0 : Number(dialogData.id);
       const asunto =
-        especialidad +
-        ": " +
-        dialogData.asunto +
-        ". Disponibilidad: " +
-        disponibilidades.join("; ");
+        dialogMode === "create"
+          ? especialidad +
+            ": " +
+            dialogData.asunto +
+            ". Disponibilidad: " +
+            disponibilidades.join("; ")
+          : dialogData.asunto;
       const cuil_medico =
-        dialogData.cuil_medico === null || dialogData.cuil_medico.trim() === ""
+        dialogData.cuil_medico == null || dialogData.cuil_medico.trim() === ""
           ? null
           : dialogData.cuil_medico.trim();
 
       const horario_atencion =
-        dialogData.hora_atencion === null ||
+        dialogData.hora_atencion == null ||
         dialogData.hora_atencion.trim() === ""
           ? null
           : dialogData.hora_atencion.trim();

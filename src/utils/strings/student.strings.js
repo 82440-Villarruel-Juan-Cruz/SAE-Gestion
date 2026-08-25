@@ -327,7 +327,11 @@ export const TRIPS_STRINGS = {
   documentationButton: "Revisar documentación",
   travelCardMessage: "Conoce mas de este viaje →",
 
-  myDocumentTitle:"Tu Documentación",
+  myDocumentTitle: "Documentación",
+  myDocumentSubtitle:
+    "En esta sección podés consultar y cargar la documentación requerida para participar en viajes.",
+  docStataUplodaded: "Subido",
+  docStateNotUploaded: "No subido",
   deleteDocTitle: "Eliminar Documento",
     deleteDocMessage: (nombreDoc) =>
     `¿Estás seguro de que deseas eliminar ${nombreDoc}?`,
