@@ -316,7 +316,7 @@ export const HealthUsersProvider = ({ children }) => {
         const body = {
           id: id_turno,
           cuil_medico: foundTurn.cuil_medico,
-          especialista: "Se define con el cuil",
+          especialista: foundTurn.especialista,
           legajo: foundTurn.legajo,
           paciente: foundTurn.paciente,
           fecha_solicitud: foundTurn.fecha_solicitud
@@ -442,8 +442,10 @@ export const HealthUsersProvider = ({ children }) => {
       const body = {
         id: id_nuevo,
         cuil_medico:
-          dialogData.cuil_medico?.trim() === "" ? null : dialogData.cuil_medico,
-        especialista: "Se define con el cuil",
+          String(dialogData.cuil_medico ?? "").trim() === ""
+            ? null
+            : dialogData.cuil_medico,
+        especialista: dialogData.especialista,
         legajo:
           dialogMode === "create" ? usuarioSelected.legajo : dialogData.legajo,
         paciente:
@@ -507,9 +509,18 @@ export const HealthUsersProvider = ({ children }) => {
         const respuestaBackend = await CrearTurnos(body);
 
         // Si tu backend retorna el objeto creado con su ID, usalo. Si no, usa el body.
-        const turnoCreadoCompleto = respuestaBackend?.data || {
+        const turnoCreadoCompleto = {
           ...body,
-          id: respuestaBackend?.id || Date.now(),
+          ...(respuestaBackend?.data ?? respuestaBackend ?? {}),
+          id:
+            respuestaBackend?.data?.id ??
+            respuestaBackend?.id ??
+            body.id ??
+            Date.now(),
+          especialista:
+            respuestaBackend?.data?.especialista ??
+            respuestaBackend?.especialista ??
+            body.especialista,
         };
         turnoCreadoCompleto.id_estado_turno = dialogData.id_estado_turno; // Asegurar propiedad para lógica local
 

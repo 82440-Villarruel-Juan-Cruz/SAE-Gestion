@@ -100,6 +100,7 @@ export const EMPTY_COMPLETE_SCHEDULE = {
 export const EMPTY_TURNO = {
   id: 0,
   cuil_medico: "",
+  id_especialidad: null,
   especialista: "",
   legajo: "",
   paciente: "",

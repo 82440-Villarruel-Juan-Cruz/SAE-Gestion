@@ -21,7 +21,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import { generateRows,generateColumns } from "../../../utils/datagrid.utils.jsx";
-import { formatDate, formatTime, toApiDateTime } from "../../../utils/date.utils.js";
+import { toApiDateTime, toApiTime } from "../../../utils/date.utils.js";
 import { EMPTY_EVENTO_PUBLICO, EMPTY_INTERESADOS, EMPTY_STANDS } from "../../../utils/common/common.config.js";
 import { JPA_STRINGS } from "../../../utils/strings/employed.strings.js";
 import { isEmpty } from "../../../utils/text.utils.js";
@@ -224,8 +224,8 @@ export function JPAProvider({ children }) {
         fecha_evento: toApiDateTime(dialogData.fecha_evento),
         id: id_nuevo,
         ubicacion: lugar,
-        horario_inicio: formatTime(dialogData.horario_inicio),
-        horario_fin: formatTime(dialogData.horario_fin),
+        horario_inicio: toApiTime(dialogData.horario_inicio),
+        horario_fin: toApiTime(dialogData.horario_fin),
         informacion_interna: false,
       };
       if (dialogMode === "create") {
@@ -310,11 +310,11 @@ export function JPAProvider({ children }) {
           : id; /* Si esta vacio debemos mandar un valor para que no se rompa el objeto */
       const body = {
         ...rest,
-        fecha_evento: formatDate(dialogData.fecha_evento),
+        fecha_evento: toApiDateTime(dialogData.fecha_evento),
         id: id_nuevo,
         ubicacion: lugar,
-        horario_inicio: formatTime(dialogData.horario_inicio),
-        horario_fin: formatTime(dialogData.horario_fin),
+        horario_inicio: toApiTime(dialogData.horario_inicio),
+        horario_fin: toApiTime(dialogData.horario_fin),
         informacion_interna: true,
       };
       if (dialogMode === "create") {
@@ -391,8 +391,8 @@ export function JPAProvider({ children }) {
       const body = {
         ...rest,
         id: id_nuevo,
-        horario_inicio: formatTime(dialogData.horario_inicio),
-        horario_fin: formatTime(dialogData.horario_fin),
+        horario_inicio: toApiTime(dialogData.horario_inicio),
+        horario_fin: toApiTime(dialogData.horario_fin),
       };
       if (dialogMode === "create") {
         await crearStand(body);

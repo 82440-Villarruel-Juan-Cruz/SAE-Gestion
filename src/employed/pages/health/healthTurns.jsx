@@ -82,6 +82,9 @@ const getTurnStatusLabel = (statusId) => {
   }
 };
 
+const getMedicLabel = (medic) =>
+  medic ? `${medic.apellido}, ${medic.nombre}` : "";
+
 export function TurnGrid() {
   const {
     //Visualizacion de Turnos No Activos
@@ -104,6 +107,7 @@ export function TurnGrid() {
     openShowNoActivos,
     // Personal y estados
     personal,
+    especialidadesActivas,
     estadosTurno,
   } = useHealth();
 
@@ -155,6 +159,35 @@ export function TurnGrid() {
   const dialogStatus = Number(dialogData?.id_estado_turno ?? 0);
   const dialogStatusColor = getTurnStatusColor(dialogStatus);
   const dialogStatusTextColor = getTurnStatusTextColor(dialogStatus);
+  const selectedMedic = useMemo(
+    () =>
+      personal?.find(
+        (medic) => String(medic.cuil) === String(dialogData?.cuil_medico),
+      ) ??
+      null,
+    [dialogData.cuil_medico, personal],
+  );
+  const selectedSpecialtyId = dialogData?.id_especialidad
+    ? dialogData.id_especialidad
+    : selectedMedic?.id_especialidad ?? null;
+  const selectedSpecialty = useMemo(
+    () =>
+      especialidadesActivas?.find(
+        (specialty) => Number(specialty.id) === Number(selectedSpecialtyId),
+      ) ?? null,
+    [especialidadesActivas, selectedSpecialtyId],
+  );
+  const filteredPersonal = useMemo(
+    () =>
+      selectedSpecialtyId
+        ? personal.filter(
+            (medic) =>
+              medic.activo &&
+              Number(medic.id_especialidad) === Number(selectedSpecialtyId),
+          )
+        : [],
+    [personal, selectedSpecialtyId],
+  );
 
   const handlePatientSearch = () => {
     const studentId = String(dialogData.legajo ?? "")
@@ -485,39 +518,89 @@ export function TurnGrid() {
                     )}
                     <Grid size={{ xs: 12 }}>
                       <Divider textAlign="center">
-                        <Chip label="Especialista" size="small" />
+                        <Chip label="Especialidad y especialista" size="small" />
                       </Divider>
                     </Grid>
-                    <Grid size={{ xs: 12 }} m={0}>
+                    <Grid size={{ xs: 12, md: 6 }} m={0}>
                       <Autocomplete
                         disablePortal
-                        options={personal}
-                        getOptionLabel={(option) =>
-                          option.apellido + ", " + option.nombre
+                        options={especialidadesActivas}
+                        getOptionLabel={(option) => option.nombre}
+                        onChange={(_event, newValue) => {
+                          handleDataChange(
+                            "id_especialidad",
+                            newValue ? newValue.id : null,
+                          );
+                          if (
+                            !newValue ||
+                            Number(selectedMedic?.id_especialidad) !==
+                              Number(newValue.id)
+                          ) {
+                            handleDataChange("cuil_medico", null);
+                            handleDataChange("especialista", "");
+                          }
+                        }}
+                        isOptionEqualToValue={(option, value) =>
+                          option.id === value.id
                         }
-                        onChange={(event, newValue) => {
+                        value={selectedSpecialty}
+                        renderInput={(params) => (
+                          <SAETextField
+                            {...params}
+                            label={C.employSpeciality}
+                            inputProps={{
+                              ...params.inputProps,
+                              readOnly: true,
+                            }}
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 6 }} m={0}>
+                      <Autocomplete
+                        disablePortal
+                        options={filteredPersonal}
+                        getOptionLabel={getMedicLabel}
+                        disabled={!selectedSpecialtyId}
+                        onChange={(_event, newValue) => {
                           // 'newValue' es el objeto completo del perfil seleccionado (o null)
                           if (newValue) {
                             handleDataChange("cuil_medico", newValue.cuil);
+                            handleDataChange(
+                              "especialista",
+                              getMedicLabel(newValue),
+                            );
+                            handleDataChange(
+                              "id_especialidad",
+                              newValue.id_especialidad,
+                            );
                           } else {
                             // Maneja el caso de que se borre la selección
                             handleDataChange("cuil_medico", null);
+                            handleDataChange("especialista", "");
                           }
                         }}
                         // Asegura que la comparación se haga por id
                         isOptionEqualToValue={(option, value) =>
-                          option.cuil === value.cuil_medico
+                          String(option.cuil) === String(value.cuil)
                         }
                         value={
-                          personal?.find(
-                            (especialidad) =>
-                              especialidad.cuil === dialogData?.cuil_medico,
-                          ) ?? null
+                          selectedMedic &&
+                          (!selectedSpecialtyId ||
+                            Number(selectedMedic.id_especialidad) ===
+                              Number(selectedSpecialtyId))
+                            ? selectedMedic
+                            : null
                         } // Pasa el objeto completo
                         renderInput={(params) => (
                           <SAETextField
                             {...params}
                             label={C.turnsMedic}
+                            helperText={
+                              selectedSpecialtyId
+                                ? undefined
+                                : "Seleccioná una especialidad para filtrar"
+                            }
                             inputProps={{
                               ...params.inputProps,
                               readOnly: true, // Esto evita la escritura

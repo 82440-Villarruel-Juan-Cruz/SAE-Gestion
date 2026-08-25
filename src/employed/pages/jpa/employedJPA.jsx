@@ -33,6 +33,7 @@ import { useNotification } from "../../../shared/context/sharedContext.js";
 
 import { getDialogTitle } from "../../../utils/util.jsx";
 import { JPA_STRINGS } from "../../../utils/strings/employed.strings.js";
+import { toTimeInput } from "../../../utils/date.utils.js";
 
 const C = JPA_STRINGS;
 function CopyURLButton() {
@@ -363,7 +364,7 @@ function DialogJpa() {
                       <SAETimeField
                         label={C.eventStartTime}
                         value={
-                          dialogData?.horario_inicio?.split?.("hs")?.[0] || ""
+                          toTimeInput(dialogData?.horario_inicio)
                         }
                         onChange={(value) =>
                           handleValidatedDataChange("horario_inicio", value)
@@ -379,7 +380,7 @@ function DialogJpa() {
                       <SAETimeField
                         label={C.eventEndTime}
                         value={
-                          dialogData?.horario_fin?.split?.("hs")?.[0] || ""
+                          toTimeInput(dialogData?.horario_fin)
                         }
                         onChange={(value) =>
                           handleValidatedDataChange("horario_fin", value)
@@ -527,7 +528,7 @@ function DialogJpa() {
                       <SAETimeField
                         label={C.eventStartTime}
                         value={
-                          dialogData?.horario_inicio?.split?.("hs")?.[0] || ""
+                          toTimeInput(dialogData?.horario_inicio)
                         }
                         onChange={(value) =>
                           handleValidatedDataChange("horario_inicio", value)
@@ -543,7 +544,7 @@ function DialogJpa() {
                       <SAETimeField
                         label={C.eventEndTime}
                         value={
-                          dialogData?.horario_fin?.split?.("hs")?.[0] || ""
+                          toTimeInput(dialogData?.horario_fin)
                         }
                         onChange={(value) =>
                           handleValidatedDataChange("horario_fin", value)
@@ -679,7 +680,7 @@ function DialogJpa() {
                       <SAETimeField
                         label={C.eventStartTime}
                         value={
-                          dialogData?.horario_inicio?.split?.("hs")?.[0] || ""
+                          toTimeInput(dialogData?.horario_inicio)
                         }
                         onChange={(value) =>
                           handleValidatedDataChange("horario_inicio", value)
@@ -695,7 +696,7 @@ function DialogJpa() {
                       <SAETimeField
                         label={C.eventEndTime}
                         value={
-                          dialogData?.horario_fin?.split?.("hs")?.[0] || ""
+                          toTimeInput(dialogData?.horario_fin)
                         }
                         onChange={(value) =>
                           handleValidatedDataChange("horario_fin", value)
