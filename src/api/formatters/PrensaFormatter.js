@@ -1,12 +1,10 @@
 export const mapPublicacionPublica = (publicacion) => {
-  // 1. Convertimos el texto en un array de objetos reales una sola vez+
   const todosLosArchivos = parseFiles(publicacion.documentos_asociados);
-
-  // 2. Sacamos el primer archivo para la portada (si existe)
   const portada = todosLosArchivos.length > 0 ? todosLosArchivos[0] : null;
-
-  // 3. El resto de los archivos van a la lista de documentos
   const documentos = todosLosArchivos.slice(1);
+  console.log("Archivos:",todosLosArchivos);
+  console.log("Portada",portada);
+  console.log("Dcoumentos",documentos);
   return {
     id: publicacion.id,
     titulo_publicacion: publicacion.titulo_publicacion,
@@ -16,8 +14,8 @@ export const mapPublicacionPublica = (publicacion) => {
     prioridad: publicacion.prioridad,
     no_dar_baja: publicacion.no_dar_baja,
     visualizaciones: publicacion.visualizaciones,
-    portada: portada, // 👈 Primera imagen (ya no aparece en documentos)
-    documentos: documentos, // 👈 Todo lo demás
+    portada: portada,
+    documentos: documentos,
     ruta_publicacion: "https://www.instagram.com/sae.utn.frc/",
   };
 };
@@ -38,7 +36,7 @@ function parseFiles(filesString) {
 
   return limpia
     .split("-")
-    .filter((item) => item.includes(",")) // 👈 Ignora textos vacíos o mal formados como "Documento2"
+    .filter((item) => item.includes(","))
     .map((item) => {
       const [id, filename] = item.split(",");
       return {

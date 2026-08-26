@@ -128,13 +128,10 @@ export async function apiRequest(
   const isFormData = body instanceof FormData;
   const authorizationToken = token ?? (auth ? getSessionToken() : null);
 
-  console.log("Prueba para saltearnos el CORS");
   // Opción 3: Limpiamos customHeaders para evitar que valores 'undefined' rompan la petición
   const cleanCustomHeaders = Object.fromEntries(
     Object.entries(customHeaders).filter((entry) => entry[1] != null)
   );
-  console.log("BASE: ",appConfig.apiUrl);
-  console.log("Endpoint:",resolveApiUrl(endpoint));
   const headers = {
     // SÓLO agrega la cabecera si warning es true Y la URL de destino NO es localhost
     ...(warning && !resolveApiUrl(endpoint).includes("localhost") 
@@ -148,7 +145,6 @@ export async function apiRequest(
       : {}),
     ...cleanCustomHeaders, // Aplicamos las cabeceras externas ya saneadas
   };
-  console.log("Solicitud", method, headers, signal,body);
 
   const response = await fetch(resolveApiUrl(endpoint), {
     method,
@@ -158,7 +154,6 @@ export async function apiRequest(
     body:
       body == null ? undefined : isFormData ? body : JSON.stringify(body),
   });
-  console.log("Respuesta",response);
   if (!response.ok) {
     const errorData = await parseErrorResponse(response);
 
