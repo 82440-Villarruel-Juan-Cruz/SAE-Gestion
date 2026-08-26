@@ -1,11 +1,7 @@
 export const mapPublicacionPublica = (publicacion) => {
-  console.log("Empieza con: ",publicacion.documentos_asociados);
   const todosLosArchivos = parseFiles(publicacion.documentos_asociados);
   const portada = todosLosArchivos.length > 0 ? todosLosArchivos[0] : null;
   const documentos = todosLosArchivos.slice(1);
-  console.log("Archivos:",todosLosArchivos);
-  console.log("Portada",portada);
-  console.log("Dcoumentos",documentos);
   return {
     id: publicacion.id,
     titulo_publicacion: publicacion.titulo_publicacion,
@@ -24,7 +20,7 @@ export const mapPublicacionPublica = (publicacion) => {
 function removerHoras(isoString) {
   if (!isoString) return "";
   const [year, month, day] = isoString.split("T")[0].split("-");
-  return year + "/" + month + "/" + day;
+  return year + "/" + month + "/" + day; 
 }
 
 function parseFiles(filesString) {

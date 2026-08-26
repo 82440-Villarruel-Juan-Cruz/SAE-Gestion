@@ -85,7 +85,6 @@ export async function ObtenerNoticiasPublicas() {
       "/Prensa/ListarPublicacionesActivas",
       { auth: false, includeHeaders: true },
     );
-
     if (response.status === 204 || !response.data?.length) {
       return {
         success: false,
