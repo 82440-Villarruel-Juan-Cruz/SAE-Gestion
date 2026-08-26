@@ -1,4 +1,5 @@
 export const mapPublicacionPublica = (publicacion) => {
+  console.log("Empieza con: ",publicacion.documentos_asociados);
   const todosLosArchivos = parseFiles(publicacion.documentos_asociados);
   const portada = todosLosArchivos.length > 0 ? todosLosArchivos[0] : null;
   const documentos = todosLosArchivos.slice(1);
@@ -33,7 +34,7 @@ function parseFiles(filesString) {
   const limpia = filesString.endsWith("-")
     ? filesString.slice(0, -1)
     : filesString;
-
+  console.log("Limpiado la cadena queda: ",limpia)
   return limpia
     .split("-")
     .filter((item) => item.includes(","))
