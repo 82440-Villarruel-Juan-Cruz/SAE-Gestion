@@ -42,6 +42,30 @@ import { USER_STRINGS } from "../../../utils/strings/employed.strings";
 import SAESpinner from "../../../assets/components/spinner/SAESpinner.jsx";
 
 const C = USER_STRINGS;
+
+const formatProfileList = (perfiles = []) => {
+  const profileNames = perfiles.map((perfil) => perfil?.nombre).filter(Boolean);
+
+  if (profileNames.length === 0) return C.employWarningEnd;
+  if (profileNames.length === 1) {
+    return `Desde esta pestaña se podrá crear el perfil ${profileNames[0]}.`;
+  }
+
+  const lastProfile = profileNames.at(-1);
+  const previousProfiles = profileNames.slice(0, -1).join(", ");
+
+  return `Desde esta pestaña se podrán crear los perfiles ${previousProfiles} y ${lastProfile}.`;
+};
+
+const getSpecialtyLabel = (specialty) =>
+  specialty?.nombre_especialidad ?? specialty?.nombre ?? "";
+
+const getSpecialtyDomain = (specialty) =>
+  specialty?.nombre_carrera ??
+  specialty?.sigla ??
+  specialty?.nombre_especialidad ??
+  "";
+
 function EmployedAdminContent() {
   const {
     empleadosRows,
@@ -51,7 +75,7 @@ function EmployedAdminContent() {
     dialogType,
     horariosDialogOpen,
     setHorariosDialogOpen,
-    openCreateUsuarios
+    openCreateUsuarios,
   } = useEmploy();
 
   const sectionConfig = useMemo(
@@ -66,12 +90,7 @@ function EmployedAdminContent() {
         loading: loadingEmpleados,
       },
     }),
-    [
-      empleadosRows,
-      empleadosColumns,
-      loadingEmpleados,
-      openCreateEmpleados
-    ],
+    [empleadosRows, empleadosColumns, loadingEmpleados, openCreateEmpleados],
   );
 
   return (
@@ -131,7 +150,7 @@ function EmployedAdminContent() {
             </SAEButton>
           </Stack>
         </Box>
-      <StudentSection/>
+        <StudentSection />
       </Card>
       <SAEDataGrid sectionConfig={sectionConfig} />
 
@@ -190,13 +209,19 @@ function EmployedAdminContent() {
       {dialogType === "empleados" && <EmpleadosDialog />}
       {dialogType === "usuarios" && <UsuariosDialog />}
       <GestionarHorariosDialog open={horariosDialogOpen} />
-
     </SAEPage>
   );
 }
 
 function EmpleadosDialog() {
-  const { perfiles, handleEmpleadosSave,fieldErrors,setFieldErrors, setTouchedFields,validateField } = useEmploy();
+  const {
+    perfiles,
+    handleEmpleadosSave,
+    fieldErrors,
+    setFieldErrors,
+    setTouchedFields,
+    validateField,
+  } = useEmploy();
   const {
     dialogOpen,
     dialogData,
@@ -205,8 +230,13 @@ function EmpleadosDialog() {
     dialogSaving,
     setDialogError,
     handleDataChange,
+    setDialogData,
     closeDialog,
   } = useNotification();
+  const employWarningEnd = useMemo(
+    () => formatProfileList(perfiles),
+    [perfiles],
+  );
 
   return (
     <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
@@ -237,36 +267,35 @@ function EmpleadosDialog() {
             <Grid container spacing={1}>
               <Grid size={{ xs: 12, md: 3 }} m={0}>
                 <SAETextField
-                  label={C.employID ||""}
+                  label={C.employID || ""}
                   type="number"
                   fullWidth
                   value={dialogData.id}
-                  onChange={(e) => handleDataChange("id", e.target.value,
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      }
-                  )}
+                  onChange={(e) =>
+                    handleDataChange("id", e.target.value, {
+                      setTouched: setTouchedFields,
+                      setErrors: setFieldErrors,
+                      validateFn: validateField,
+                    })
+                  }
                   disabled
                 />
               </Grid>
               <Grid size={{ xs: 12, md: 9 }} m={0}>
                 <SAETextField
-                  label={C.employCompleteName ||""}
+                  label={C.employCompleteName || ""}
                   value={dialogData.nombre_empleado}
                   disabled
                   onChange={(e) =>
-                    handleDataChange("nombre_empleado", e.target.value,
-                     {
-                        setTouched: setTouchedFields, 
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      })
+                    handleDataChange("nombre_empleado", e.target.value, {
+                      setTouched: setTouchedFields,
+                      setErrors: setFieldErrors,
+                      validateFn: validateField,
+                    })
                   }
                   fullWidth
-                error={Boolean(fieldErrors.nombre_empleado)}
-                helperText={fieldErrors.nombre_empleado ?? ""}                  
+                  error={Boolean(fieldErrors.nombre_empleado)}
+                  helperText={fieldErrors.nombre_empleado ?? ""}
                 />
               </Grid>
             </Grid>
@@ -293,51 +322,52 @@ function EmpleadosDialog() {
                     {C.employWarningBody1}
                     <br />
                     <br />
-                    {C.employWarningEnd}
+                    {employWarningEnd}
                   </Typography>
                 </CardContent>
               </Card>
 
               <SAETextField
-                label={C.employNames ||""}
+                label={C.employNames || ""}
                 value={dialogData.nombres}
-                onChange={(e) => handleDataChange("nombres", e.target.value,
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      })}
-                fullWidth
-                error={Boolean(fieldErrors.nombres)}
-                helperText={fieldErrors.nombres ?? ""}                     
-              />
-              <SAETextField
-                label={C.employLastName ||""}
-                value={dialogData.apellidos}
-                onChange={(e) => handleDataChange("apellidos", e.target.value,
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      })}
-                fullWidth
-                error={Boolean(fieldErrors.apellidos)}
-                helperText={fieldErrors.apellidos ?? ""}                     
-              />
-              <SAETextField
-                label={C.employUserName ||""}
-                value={dialogData.nombre_usuario}
                 onChange={(e) =>
-                  handleDataChange("nombre_usuario", e.target.value,
-                  {
+                  handleDataChange("nombres", e.target.value, {
                     setTouched: setTouchedFields,
                     setErrors: setFieldErrors,
-                    validateFn: validateField
+                    validateFn: validateField,
+                  })
+                }
+                fullWidth
+                error={Boolean(fieldErrors.nombres)}
+                helperText={fieldErrors.nombres ?? ""}
+              />
+              <SAETextField
+                label={C.employLastName || ""}
+                value={dialogData.apellidos}
+                onChange={(e) =>
+                  handleDataChange("apellidos", e.target.value, {
+                    setTouched: setTouchedFields,
+                    setErrors: setFieldErrors,
+                    validateFn: validateField,
+                  })
+                }
+                fullWidth
+                error={Boolean(fieldErrors.apellidos)}
+                helperText={fieldErrors.apellidos ?? ""}
+              />
+              <SAETextField
+                label={C.employUserName || ""}
+                value={dialogData.nombre_usuario}
+                onChange={(e) =>
+                  handleDataChange("nombre_usuario", e.target.value, {
+                    setTouched: setTouchedFields,
+                    setErrors: setFieldErrors,
+                    validateFn: validateField,
                   })
                 }
                 fullWidth
                 error={Boolean(fieldErrors.nombre_usuario)}
-                helperText={fieldErrors.nombre_usuario ?? ""}                     
+                helperText={fieldErrors.nombre_usuario ?? ""}
               />
             </>
           )}
@@ -346,15 +376,16 @@ function EmpleadosDialog() {
             label={C.studentID}
             value={dialogData.legajo}
             disabled={dialogMode !== "create"}
-            onChange={(e) => handleDataChange("legajo", e.target.value,
-              {
+            onChange={(e) =>
+              handleDataChange("legajo", e.target.value, {
                 setTouched: setTouchedFields,
                 setErrors: setFieldErrors,
-                validateFn: validateField
-              })}
+                validateFn: validateField,
+              })
+            }
             fullWidth
             error={Boolean(fieldErrors.legajo)}
-            helperText={fieldErrors.legajo ?? ""}              
+            helperText={fieldErrors.legajo ?? ""}
           />
 
           <Autocomplete
@@ -362,12 +393,11 @@ function EmpleadosDialog() {
             options={perfiles}
             getOptionLabel={(option) => option.nombre}
             onChange={(_event, newValue) => {
-              handleDataChange("id_perfil", newValue ? newValue.id : null,
-                  {
-                    setTouched: setTouchedFields,
-                    setErrors: setFieldErrors,
-                    validateFn: validateField
-                  });
+              handleDataChange("id_perfil", newValue ? newValue.id : null, {
+                setTouched: setTouchedFields,
+                setErrors: setFieldErrors,
+                validateFn: validateField,
+              });
             }}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             value={
@@ -383,10 +413,9 @@ function EmpleadosDialog() {
                   readOnly: true,
                 }}
                 error={Boolean(fieldErrors.id_perfil)}
-                helperText={fieldErrors.id_perfil ?? ""} 
+                helperText={fieldErrors.id_perfil ?? ""}
               />
             )}
-              
           />
 
           {dialogMode === "edit" && (
@@ -395,17 +424,16 @@ function EmpleadosDialog() {
                 <Switch
                   checked={dialogData.activo}
                   onChange={(e) =>
-                    handleDataChange("activo", e.target.checked,
-                  {
-                    setTouched: setTouchedFields,
-                    setErrors: setFieldErrors,
-                    validateFn: validateField
-                  })
+                    handleDataChange("activo", e.target.checked, {
+                      setTouched: setTouchedFields,
+                      setErrors: setFieldErrors,
+                      validateFn: validateField,
+                    })
                   }
                   color="primary"
                 />
               }
-              label={dialogData.activo ? C.employActive: C.employNoActive}
+              label={dialogData.activo ? C.employActive : C.employNoActive}
               error={Boolean(fieldErrors.activo)}
               helperText={fieldErrors.activo ?? ""}
             />
@@ -437,7 +465,14 @@ function EmpleadosDialog() {
 }
 
 function UsuariosDialog() {
-  const { carreras, handleUsuariosSave,fieldErrors,setFieldErrors, setTouchedFields,validateField  } = useEmploy();
+  const {
+    carreras,
+    handleUsuariosSave,
+    fieldErrors,
+    setFieldErrors,
+    setTouchedFields,
+    validateField,
+  } = useEmploy();
   const {
     dialogOpen,
     dialogData,
@@ -446,9 +481,9 @@ function UsuariosDialog() {
     dialogSaving,
     setDialogError,
     handleDataChange,
+    setDialogData,
     closeDialog,
   } = useNotification();
-
   return (
     <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="xl" fullWidth>
       <DialogTitle
@@ -459,7 +494,7 @@ function UsuariosDialog() {
         }}
       >
         <Typography variant="h6" component="span" sx={{ fontWeight: "bold" }}>
-          {dialogMode === "create" ? C.userCreate: C.userUpdate}
+          {dialogMode === "create" ? C.userCreate : C.userUpdate}
         </Typography>
         <IconButton onClick={closeDialog} size="small">
           <CloseIcon />
@@ -473,135 +508,189 @@ function UsuariosDialog() {
               {dialogError}
             </Alert>
           )}
-            <Card
+          <Card
+            sx={{
+              bgcolor: "rgba(235, 235, 41, 0.7)",
+              border: "1px solid rgba(235, 41, 41, 0.1)",
+            }}
+          >
+            <CardContent sx={{ p: 2 }}>
+              <Typography
+                variant="subtitle2"
+                color="textPrimary"
+                fontWeight={600}
+                gutterBottom
+              >
+                {C.employWarningTitle}
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                {C.userWarningBody2}
+              </Typography>
+            </CardContent>
+          </Card>
+          <Grid
+            container
+            spacing={2}
+            display={"flex"}
+            justifyContent={"center"}
+            size={12}
+          >
+            <Grid size={{ xs: 12, sm: 3 }}>
+              <SAETextField
+                label={C.studentID}
+                value={dialogData.legajo}
+                disabled={dialogMode !== "create"}
+                onChange={(e) =>
+                  handleDataChange("legajo", e.target.value, {
+                    setTouched: setTouchedFields,
+                    setErrors: setFieldErrors,
+                    validateFn: validateField,
+                  })
+                }
+                fullWidth
+                error={Boolean(fieldErrors.legajo)}
+                helperText={fieldErrors.legajo ?? ""}
+              />
+            </Grid>
+            <Grid
+              size={{ xs: 12, sm: 1 }}
+              display={"flex"}
+              justifyContent={"center"}
+            >
+              <Typography
+                variant="subtitle2"
+                alignSelf={"center"}
                 sx={{
-                  bgcolor: "rgba(235, 235, 41, 0.7)",
-                  border: "1px solid rgba(235, 41, 41, 0.1)",
+                  fontSize: { xs: "20px", sm: "22px" },
+                  color: "text.secondary",
+                  fontWeight: 700,
+                  lineHeight: { sm: "56px" },
                 }}
               >
-                <CardContent sx={{ p: 2 }}>
-                  <Typography
-                    variant="subtitle2"
-                    color="textPrimary"
-                    fontWeight={600}
-                    gutterBottom
-                  >
-                    {C.employWarningTitle}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {C.userWarningBody2}
-                  </Typography>
-                </CardContent>
-              </Card>
-              <Grid container spacing={2} display={"flex"} justifyContent={"center"} size={12}>
-                <Grid size={{xs:12,sm:3}}>
-                  <SAETextField
-                    label={C.studentID}
-                    value={dialogData.legajo}
-                    disabled={dialogMode !== "create"}
-                    onChange={(e) => handleDataChange("legajo", e.target.value,
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      })}
-                    fullWidth
-                    error={Boolean(fieldErrors.legajo)}
-                    helperText={fieldErrors.legajo ?? ""}                     
-                  />
-                </Grid>
-                <Grid size={{xs:12,sm:1}} display={"flex"} justifyContent={"center"}>
-                <Typography
-                    variant="subtitle2"
-                     alignSelf={"center"}
-                    sx={{
-                      fontSize:{xs:"20px",sm:"22px"},
-                      color: "text.secondary",
-                      fontWeight: 700,
-                      lineHeight: { sm: "56px" },
-                    }}
-                  > @
-                  </Typography>
-                </Grid>
-                <Grid size={{xs:12,sm:6}}>
-                  <Autocomplete
-                    disablePortal
-                    options={carreras || []} // Ensure options is never undefined
-                    getOptionLabel={(option) => option.nombre}
-                    onChange={(_event, newValue) => {
-                      handleDataChange(
-                        "id_carrera",
-                        newValue ? newValue.id : null,
-                        {
-                          setTouched: setTouchedFields,
-                          setErrors: setFieldErrors,
-                          validateFn: validateField
-                        }
-                      );
-                    }}
-                    isOptionEqualToValue={(option, value) => option.id === value?.id} // Safe navigation
-                    value={
-                      carreras?.find(
-                        (carrera) => carrera.id === dialogData.id_carrera,
-                      ) ?? null // Use ?? to strictly catch null/undefined
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label={C.userDegree}
-                        inputProps={{
-                          ...params.inputProps,
-                          readOnly: true,
-                        }}
-                        error={Boolean(fieldErrors.id_carrera)}
-                        helperText={fieldErrors.id_carrera ?? ""}                         
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid size={{xs:12,sm:2}} display={"flex"} justifyContent={"center"}>
-                  <Typography
-                    variant="body1"
-                    textAlign={"center"}
-                    alignSelf={"center"}
-                    sx={{
-                      color: "text.secondary",
-                      fontWeight: 500,
-                      lineHeight: { sm: "56px" },
-                    }}
-                  > {C.dominio}
-                  </Typography>
-                </Grid>
-              </Grid>
-              
-              
+                {" "}
+                @
+              </Typography>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Autocomplete
+                disablePortal
+                options={carreras ?? []}
+                getOptionLabel={getSpecialtyLabel}
+                onChange={(_event, newValue) => {
+                  const nombreCarrera = getSpecialtyDomain(newValue);
+                  const idEspecialidad = newValue?.id ?? "";
 
-              <SAETextField
-                label={C.employNames}
-                value={dialogData.nombres}
-                onChange={(e) => handleDataChange("nombres", e.target.value,
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      })}
-                fullWidth
-                error={Boolean(fieldErrors.nombres)}
-                helperText={fieldErrors.nombres ?? ""}                 
+                  setDialogData((previous) => ({
+                    ...previous,
+                    nombre_carrera: nombreCarrera,
+                    id_especialidad: idEspecialidad,
+                  }));
+                  setTouchedFields((previous) => ({
+                    ...previous,
+                    nombre_carrera: true,
+                    id_especialidad: true,
+                  }));
+                  setFieldErrors((previous) => ({
+                    ...previous,
+                    nombre_carrera: validateField(
+                      "nombre_carrera",
+                      nombreCarrera,
+                      {
+                        ...dialogData,
+                        nombre_carrera: nombreCarrera,
+                        id_especialidad: idEspecialidad,
+                      },
+                    ),
+                    id_especialidad: validateField(
+                      "id_especialidad",
+                      idEspecialidad,
+                      {
+                        ...dialogData,
+                        nombre_carrera: nombreCarrera,
+                        id_especialidad: idEspecialidad,
+                      },
+                    ),
+                  }));
+                }}
+                isOptionEqualToValue={(option, value) =>
+                  Number(option?.id) === Number(value?.id)
+                }
+                value={
+                  carreras?.find(
+                    (carrera) =>
+                      Number(carrera.id) ===
+                      Number(dialogData.id_especialidad),
+                  ) ?? null // Use ?? to strictly catch null/undefined
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={C.userDegree}
+                    inputProps={{
+                      ...params.inputProps,
+                      readOnly: true,
+                    }}
+                    error={Boolean(
+                      fieldErrors.nombre_carrera || fieldErrors.id_especialidad,
+                    )}
+                    helperText={
+                      fieldErrors.nombre_carrera ??
+                      fieldErrors.id_especialidad ??
+                      ""
+                    }
+                  />
+                )}
               />
-              <SAETextField
-                label={C.employLastName}
-                value={dialogData.apellidos}
-                onChange={(e) => handleDataChange("apellidos", e.target.value,
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      })}
-                fullWidth
-                error={Boolean(fieldErrors.apellidos)}
-                helperText={fieldErrors.apellidos ?? ""}                 
-              />
+            </Grid>
+            <Grid
+              size={{ xs: 12, sm: 2 }}
+              display={"flex"}
+              justifyContent={"center"}
+            >
+              <Typography
+                variant="body1"
+                textAlign={"center"}
+                alignSelf={"center"}
+                sx={{
+                  color: "text.secondary",
+                  fontWeight: 500,
+                  lineHeight: { sm: "56px" },
+                }}
+              >
+                {" "}
+                {C.dominio}
+              </Typography>
+            </Grid>
+          </Grid>
+
+          <SAETextField
+            label={C.employNames}
+            value={dialogData.nombres}
+            onChange={(e) =>
+              handleDataChange("nombres", e.target.value, {
+                setTouched: setTouchedFields,
+                setErrors: setFieldErrors,
+                validateFn: validateField,
+              })
+            }
+            fullWidth
+            error={Boolean(fieldErrors.nombres)}
+            helperText={fieldErrors.nombres ?? ""}
+          />
+          <SAETextField
+            label={C.employLastName}
+            value={dialogData.apellidos}
+            onChange={(e) =>
+              handleDataChange("apellidos", e.target.value, {
+                setTouched: setTouchedFields,
+                setErrors: setFieldErrors,
+                validateFn: validateField,
+              })
+            }
+            fullWidth
+            error={Boolean(fieldErrors.apellidos)}
+            helperText={fieldErrors.apellidos ?? ""}
+          />
         </Stack>
       </DialogContent>
 
@@ -615,7 +704,7 @@ function UsuariosDialog() {
         </SAEButton>
         <SAEButton
           variant="contained"
-          onClick={handleUsuariosSave}
+          onClick={() => handleUsuariosSave()}
           disabled={dialogSaving}
           startIcon={
             dialogSaving ? <CircularProgress size={16} color="inherit" /> : null
@@ -628,40 +717,40 @@ function UsuariosDialog() {
   );
 }
 
-function StudentSection(){
- const {
-      estudianteBuscado,
-      handleUsuariosSave,
-      setEstudiante,
-      loadingUsuarios,
-      fetchUsuariosXLegajo
-    } = useEmploy();
+function StudentSection() {
+  const {
+    estudianteBuscado,
+    handleUsuariosSave,
+    setEstudiante,
+    loadingUsuarios,
+    fetchUsuariosXLegajo,
+  } = useEmploy();
 
   const {
     handleDataChange,
     dialogData,
     setDialogData,
     setDialogType,
-    showNotification
+    showNotification,
   } = useNotification();
 
-  const [loadingCard,setLoadingCard] = useState(false);
+  const [loadingCard, setLoadingCard] = useState(false);
 
-  const handleStudentSearch = async(student) => {
+  const handleStudentSearch = async (student) => {
     const resultado = await fetchUsuariosXLegajo(student);
     setDialogData({
       ...resultado,
-      "id_carrera":0,
-      "nombres":"a",
-      "apellidos":"b"
+      nombre_carrera: "",
+      nombres: "a",
+      apellidos: "b",
     }); //Para las validaciones
     setDialogType("usuarios");
     return resultado;
   };
-  const handleStudentClear = () =>{
+  const handleStudentClear = () => {
     setEstudiante(null);
-    setDialogData({legajo:"",nombre_usuario:""});
-  }
+    setDialogData({ legajo: "", nombre_usuario: "" });
+  };
   const handleSelectStudent = (student) => {
     setEstudiante(student);
   };
@@ -672,60 +761,65 @@ function StudentSection(){
     await handleUsuariosSave(updatedStudent);
     setLoadingCard(false);
   };
-  return(
-
-     <Grid container spacing={2} my={{xs:2,md:4}} px={{xs:2,md:4}}
+  return (
+    <Grid
+      container
+      spacing={2}
+      my={{ xs: 2, md: 4 }}
+      px={{ xs: 2, md: 4 }}
       sx={{
-          display: 'flex',
-          justifyContent: 'center', 
-          alignItems: 'center',
-      }}>
-
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       {loadingUsuarios && (
         <Stack alignItems="center" sx={{ py: 5 }}>
           <SAESpinner size="L" />
         </Stack>
       )}
       {!loadingUsuarios && !estudianteBuscado && (
-      <Grid size={{ xs: 12 }} m={0} >
-        <SearchStudent 
-          legajo={dialogData?.legajo ?? ""}
-          onLegajoChange={(value) =>
-            handleDataChange("legajo", value)
-          }
-          onSelectStudent={handleSelectStudent}
-          onClearStudent={handleStudentClear}
-          onSearchStudent={handleStudentSearch}
-          onError={showNotification}
-        />
-      </Grid>
+        <Grid size={{ xs: 12 }} m={0}>
+          <SearchStudent
+            legajo={dialogData?.legajo ?? ""}
+            onLegajoChange={(value) => handleDataChange("legajo", value)}
+            onSelectStudent={handleSelectStudent}
+            onClearStudent={handleStudentClear}
+            onSearchStudent={handleStudentSearch}
+            onError={showNotification}
+          />
+        </Grid>
       )}
       {!loadingUsuarios && estudianteBuscado && (
         <>
-
-          <Grid size={{ xs: 2, md: 1 }} m={0} pl={{xs:0,md:2}} position={"relative"}>
-          {loadingCard && (
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              bgcolor: "rgba(255, 255, 255, 0.7)", // Fondo blanco semitransparente
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 2, //
-              borderRadius: 3,
-              backdropFilter: "blur(2px)",
-            }}
+          <Grid
+            size={{ xs: 2, md: 1 }}
+            m={0}
+            pl={{ xs: 0, md: 2 }}
+            position={"relative"}
           >
-            <SAESpinner size="S" />
-          </Box>
-          )}            
+            {loadingCard && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  bgcolor: "rgba(255, 255, 255, 0.7)", // Fondo blanco semitransparente
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 2, //
+                  borderRadius: 3,
+                  backdropFilter: "blur(2px)",
+                }}
+              >
+                <SAESpinner size="S" />
+              </Box>
+            )}
             <SAETextField
-              label={C.employID||""}
+              label={C.employID || ""}
               type="number"
               fullWidth
               value={estudianteBuscado?.id}
@@ -734,7 +828,7 @@ function StudentSection(){
           </Grid>
           <Grid size={{ xs: 10, md: 3 }} m={0}>
             <SAETextField
-              label={C.studentID||""}
+              label={C.studentID || ""}
               value={estudianteBuscado?.legajo ?? ""}
               disabled
               fullWidth
@@ -742,7 +836,7 @@ function StudentSection(){
           </Grid>
           <Grid size={{ xs: 12, md: 4 }} m={0}>
             <SAETextField
-              label={C.userName||""}
+              label={C.userName || ""}
               value={estudianteBuscado?.nombre_usuario ?? "Not Found"}
               disabled
               fullWidth
@@ -751,25 +845,29 @@ function StudentSection(){
           <Grid
             size={{ xs: 6, md: 2 }}
             sx={{
-                display: 'flex',
-                justifyContent: 'center', 
-                alignItems: 'center',
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
             }}
-            >
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={estudianteBuscado?.activo}
-                    onChange={(e) => handleSearchedChange("activo", e.target.checked)}
-                    color="primary"
-                  />
-                }
-                disabled={loadingCard}
-                label={estudianteBuscado.activo ? C.employActive: C.employNoActive}
-              />
-            </Grid>
+          >
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={estudianteBuscado?.activo}
+                  onChange={(e) =>
+                    handleSearchedChange("activo", e.target.checked)
+                  }
+                  color="primary"
+                />
+              }
+              disabled={loadingCard}
+              label={
+                estudianteBuscado.activo ? C.employActive : C.employNoActive
+              }
+            />
+          </Grid>
           <Grid
-            size={{ xs:6,sm:6, md: 2 }}
+            size={{ xs: 6, sm: 6, md: 2 }}
             m={0}
             display="flex"
             justifyContent="center"
@@ -783,13 +881,11 @@ function StudentSection(){
               {C.clean}
             </SAEButton>
           </Grid>
-
         </>
       )}
     </Grid>
   );
 }
-
 
 export default function AdminEmployed() {
   return (

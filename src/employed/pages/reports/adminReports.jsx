@@ -135,7 +135,9 @@ function ReportsNav() {
               },
             }}
           >
-            {section.title}
+            <Typography variant="subtitle2" color="var(--primary)">
+              {section.title}
+            </Typography>
           </Box>
         ))}
       </Stack>
@@ -213,7 +215,7 @@ function SchoolarshipChart() {
             borderRadius: "25px",
           }}
         >
-          <Typography variant="h6" color="var(--primary)"  gutterBottom>
+          <Typography variant="h6" color="var(--primary)" gutterBottom>
             Becarios SAE vs Nacionales
           </Typography>
           <LineChart
@@ -253,8 +255,8 @@ function SchoolarshipChart() {
             alignItems: "center",
             borderRadius: "25px",
           }}
-        > 
-          <Typography variant="h6" color="var(--primary)"  gutterBottom>
+        >
+          <Typography variant="h6" color="var(--primary)" gutterBottom>
             Becarios Nacional
           </Typography>
           <PieChart
@@ -299,7 +301,11 @@ function SportsChart() {
       sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
     >
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <ReportChartCard title="Deportistas por Deporte">
+        <ReportChartCard
+          title="Deportistas por Deporte"
+          sx={{ height: 390 }}
+          contentSx={{ overflow: "auto" }}
+        >
           <PieChart
             series={[
               {

@@ -23,19 +23,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import SAEButton from "../../../assets/components/buttons/SAEButton";
 import SAETextField from "../../../assets/components/inputs/SAETextField";
 import { useSports } from "../../context/employedContext";
-import { toApiDateTime } from "../../../utils/date.utils";
+import { getTodayInputDate, toApiDateTime } from "../../../utils/date.utils";
 import { EMPTY_TOURNAMENT_FORM } from "../../../utils/common/common.config";
 import { SPORTS_STRINGS } from "../../../utils/strings/employed.strings";
 import { isEmpty } from "../../../utils/text.utils";
 
 const C = SPORTS_STRINGS;
-const requiredMessage = "Este campo es obligatorio";
-const capacityMessage = "Ingrese un cupo valido";
-const sportMessage = "Seleccione un deporte";
-const teacherMessage = "Seleccione un docente responsable";
-const endDateMessage = "La fecha de fin no puede ser anterior al inicio";
-const limitDateMessage =
-  "El limite de inscripcion no puede ser posterior al inicio";
 
 export default function TorneoFormDialog({
   open,
@@ -46,6 +39,7 @@ export default function TorneoFormDialog({
 }) {
   const { obtenerDeportesCompleto, obtenerDocentesDeportivos } = useSports();
   const isEdit = mode === "edit";
+  const todayInputDate = getTodayInputDate();
 
   const [formData, setFormData] = useState(EMPTY_TOURNAMENT_FORM);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -86,32 +80,35 @@ export default function TorneoFormDialog({
       case "fecha_inicio":
       case "fecha_fin":
       case "fecha_limite_inscripcion":
-        if (isEmpty(value)) return requiredMessage;
+        if (isEmpty(value)) return C.tournamentRequired;
         if (
           field === "fecha_fin" &&
           data.fecha_inicio &&
           value < data.fecha_inicio
         ) {
-          return endDateMessage;
+          return C.tournamentEndDateBeforeStart;
+        }
+        if (field === "fecha_limite_inscripcion" && value < todayInputDate) {
+          return C.tournamentLimitDateBeforeToday;
         }
         if (
           field === "fecha_limite_inscripcion" &&
           data.fecha_inicio &&
           value > data.fecha_inicio
         ) {
-          return limitDateMessage;
+          return C.tournamentLimitDateAfterStart;
         }
         return "";
       case "cupo_jugadores": {
         const numberValue = Number(value);
         return Number.isInteger(numberValue) && numberValue > 0
           ? ""
-          : capacityMessage;
+          : C.tournamentCapacityInvalid;
       }
       case "id_deporte":
-        return Number(value) >= 0 ? "" : sportMessage;
+        return Number(value) >= 0 ? "" : C.tournamentSportRequired;
       case "cuil_responsable":
-        return isEmpty(value) ? teacherMessage : "";
+        return isEmpty(value) ? C.tournamentTeacherRequired : "";
       default:
         return "";
     }
@@ -190,7 +187,10 @@ export default function TorneoFormDialog({
       await onSave(body);
       onClose();
     } catch (err) {
-      setError(err.message || C.errorSaveTournament);
+      setError(
+        err.message ||
+          (isEdit ? C.errorUpdateTournament : C.errorCreateTournament),
+      );
     } finally {
       setSaving(false);
     }

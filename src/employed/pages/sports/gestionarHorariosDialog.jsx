@@ -171,7 +171,7 @@ function HorarioFormFields({
           fullWidth
           error={Boolean(errors.id_espacio_deportivo)}
         >
-          <InputLabel>Espacio deportivo</InputLabel>
+          <InputLabel>{C.schedulePlace}</InputLabel>
           <Select
             value={form.id_espacio_deportivo}
             label={C.schedulePlace}
@@ -200,7 +200,7 @@ function HorarioFormFields({
           <InputLabel>{C.scheduleTeacher}</InputLabel>
           <Select
             value={form.cuil_docente}
-            label="Docente"
+            label={C.scheduleTeacher}
             onChange={(e) => onChange("cuil_docente", e.target.value)}
           >
             <MenuItem value="">
@@ -293,10 +293,12 @@ function HorarioCard({ horario, espacios, docentes, onSaved, onDeleted }) {
     try {
       await eliminarHorarioDeportivo(horario.id);
       setConfirmDelete(false);
-      onDeleted();
-    } catch {
-      setDeleting(false);
+      onDeleted(horario.id);
+    } catch (err) {
+      setError(err.message || C.errorScheduleLoad);
       setConfirmDelete(false);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -333,7 +335,7 @@ function HorarioCard({ horario, espacios, docentes, onSaved, onDeleted }) {
       };
       await modificarHorarioDeportivo(horario.id, body);
       setEditing(false);
-      onSaved();
+      await onSaved();
     } catch (err) {
       if (isConflictError(err)) {
         setFieldErrors(getConflictFieldErrors());
@@ -758,7 +760,7 @@ function NuevoHorarioCard({
           : "",
         dia: form.dia,
       });
-      onCreated();
+      await onCreated();
     } catch (err) {
       if (isConflictError(err)) {
         setFieldErrors(getConflictFieldErrors());
@@ -905,8 +907,10 @@ export default function GestionarHorariosDialog({ open, onClose }) {
       try {
         const data = await obtenerHorariosXDeporte(idDeporte);
         setHorarios(data);
+        return data;
       } catch (err) {
         setHorariosError(err.message || C.errorScheduleLoad);
+        throw err;
       } finally {
         setLoadingHorarios(false);
       }
@@ -924,14 +928,17 @@ export default function GestionarHorariosDialog({ open, onClose }) {
     [fetchHorarios],
   );
 
-  const handleSaved = useCallback(() => {
-    if (selectedDeporte) fetchHorarios(selectedDeporte.id);
+  const refreshHorarios = useCallback(async () => {
+    if (selectedDeporte) await fetchHorarios(selectedDeporte.id);
   }, [selectedDeporte, fetchHorarios]);
 
-  const handleCreated = useCallback(() => {
+  const handleSaved = refreshHorarios;
+  const handleDeleted = refreshHorarios;
+
+  const handleCreated = useCallback(async () => {
+    await refreshHorarios();
     setShowNuevoForm(false);
-    if (selectedDeporte) fetchHorarios(selectedDeporte.id);
-  }, [selectedDeporte, fetchHorarios]);
+  }, [refreshHorarios]);
 
   const handleClose = () => {
     setSelectedDeporte(null);
@@ -1073,7 +1080,7 @@ export default function GestionarHorariosDialog({ open, onClose }) {
                       espacios={espacios}
                       docentes={docentes}
                       onSaved={handleSaved}
-                      onDeleted={handleSaved}
+                      onDeleted={handleDeleted}
                     />
                   ))}
               </Stack>

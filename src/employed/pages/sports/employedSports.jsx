@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Box, Card, Stack, Typography } from "@mui/material";
 
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
@@ -34,6 +34,7 @@ export default function EmployedSports() {
 }
 
 function EmployedSportsContent() {
+  const [scheduleRefreshKey, setScheduleRefreshKey] = useState(0);
   const {
     torneosRows,
     loadingTorneos,
@@ -61,6 +62,11 @@ function EmployedSportsContent() {
     torneosColumns,
     crearTorneo,
   } = useSports();
+
+  const handleSchedulesDialogClose = () => {
+    setHorariosDialogOpen(false);
+    setScheduleRefreshKey((key) => key + 1);
+  };
 
   const gestionSectionConfig = useMemo(
     () => ({
@@ -203,7 +209,7 @@ function EmployedSportsContent() {
             </SAEButton>
           </Stack>
         </Box>
-        <SportsCalendar embedded />
+        <SportsCalendar key={scheduleRefreshKey} embedded />
       </Card>
 
       <SportsEntityDialog />
@@ -211,7 +217,7 @@ function EmployedSportsContent() {
 
       <GestionarHorariosDialog
         open={horariosDialogOpen}
-        onClose={() => setHorariosDialogOpen(false)}
+        onClose={handleSchedulesDialogClose}
       />
 
       <TorneoFormDialog

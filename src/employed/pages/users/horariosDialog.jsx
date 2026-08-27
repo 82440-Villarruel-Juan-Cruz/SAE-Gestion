@@ -51,7 +51,7 @@ const headerChipSx = {
 const C = USER_STRINGS;
 
 const getDayLabel = (days, day) =>
-  days.find((calendarDay) => calendarDay.value === day)?.label ||
+  days?.find((calendarDay) => calendarDay.value === day)?.label ||
   "Día no encontrado";
 
 const getTimeRangeLabel = (startTime, endTime) =>
@@ -146,7 +146,6 @@ function NuevoHorarioCard() {
     errorHorario,
     handleCreateHorario,
     setErrorHorario,
-    DAYS,
     form,
     setShowNuevoForm,
   } = useEmploy();
@@ -168,7 +167,7 @@ function NuevoHorarioCard() {
       </Typography>
       <Chip
         size="small"
-        label={getDayLabel(DAYS, form.dia)}
+        label={getDayLabel(calendarDays, form.dia)}
         sx={headerChipSx}
       />
       <Chip
@@ -703,7 +702,7 @@ export default function GestionarHorariosDialog({ open }) {
 
                 {!selectedHorariosLoading &&
                   !dialogError &&
-                  selectedHorarios.map((h) => (
+                  selectedHorarios?.map((h) => (
                     <HorarioCard key={h.id} horario={h} />
                   ))}
               </Stack>

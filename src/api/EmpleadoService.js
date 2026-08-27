@@ -33,9 +33,18 @@ export function ModificarUsuario(id, body) {
   );
 }
 
-export function CrearRegistroUsuario(body, nombres, apellidos, idEspecialidad) {
+export function CrearRegistroUsuario(body, nombres, apellidos, idEspecialidad = null) {
+  const params = new URLSearchParams({
+    nombres: nombres ?? "",
+    apellidos: apellidos ?? "",
+  });
+
+  if (idEspecialidad !== null && idEspecialidad !== undefined && idEspecialidad !== "") {
+    params.set("id_especialidad", String(idEspecialidad));
+  }
+
   return RequestAPI(
-    `/Usuarios/CrearRegistroUsuario?nombres=${encodeURIComponent(nombres)}&apellidos=${encodeURIComponent(apellidos)}&id_especialidad=${encodeURIComponent(idEspecialidad)}`,
+    `/Usuarios/CrearRegistroUsuario?${params.toString()}`,
     "POST",
     body,
   );

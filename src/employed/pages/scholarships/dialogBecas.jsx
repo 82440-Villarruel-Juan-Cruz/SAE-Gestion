@@ -264,7 +264,12 @@ export default function DialogBecas() {
 
   const handleYearChange = (value) => {
     setFieldErrors((prev) => ({ ...prev, anio_beca: "" }));
-    handleDataChange("anio_beca", String(value ?? "").replace(/\D/g, "").slice(0, 4));
+    handleDataChange(
+      "anio_beca",
+      String(value ?? "")
+        .replace(/\D/g, "")
+        .slice(0, 4),
+    );
   };
 
   const handleDateChange = (value) => {
@@ -358,6 +363,10 @@ export default function DialogBecas() {
 
   const validateBecarioData = () => {
     const errors = {};
+
+    if (dialogMode === "create" && !dialogData.nombre_becario) {
+      errors.student = BS.validationStudentRequired;
+    }
 
     if (!dialogData.anio_beca) {
       errors.anio_beca = BS.validationYearRequired;
@@ -467,6 +476,9 @@ export default function DialogBecas() {
                     onClearStudent={handleStudentClear}
                     onSearchStudent={handleBuscarBecarioPorLegajo}
                     onError={setDialogError}
+                    showValidationErrors={Boolean(fieldErrors.student)}
+                    legajoError={BS.validationStudentRequired}
+                    careerError={BS.validationCareerRequired}
                   />
                 </Grid>
               )}
@@ -781,7 +793,7 @@ export default function DialogBecas() {
                       )}
                     />
                   </Grid>
-                  
+
                   {dialogData.beca?.tipo ===
                     SCHOLARSHIP_TYPES.INVESTIGACION && (
                     <Grid size={{ xs: 12, md: 6 }} m={0}>

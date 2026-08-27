@@ -226,77 +226,82 @@ export const USER_STRINGS = {
   employID: "ID",
   employCompleteName: "Nombre Completo",
 
-  employWarningTitle:"¡ATENCIÓN!",
-  employWarningBody1:"Al crear un nuevo empleado debe escribirse sin errores su legajo, ya que esta sera la unica forma que pueda acceder a la aplicacion.",
-  employWarningEnd:"Desde esta pestaña solo se podran crear perfiles de empleados, comedor, salud y administrador.",
+  employWarningTitle: "¡ATENCIÓN!",
+  employWarningBody1:
+    "Al crear un nuevo empleado debe escribirse sin errores su legajo, ya que esta sera la unica forma que pueda acceder a la aplicacion.",
+  employWarningEnd:
+    "Desde esta pestaña solo se podran crear perfiles de empleados, comedor, salud y administrador.",
 
-  userWarningBody2:"Al crear el usuario desde esta pestaña se crea como estudiante sin que se tenga la posibilidad de cambiar ese rol.",
+  userWarningBody2:
+    "Al crear el usuario desde esta pestaña se crea como estudiante sin que se tenga la posibilidad de cambiar ese rol.",
 
   employNames: "Nombres",
   employLastName: "Apellidos",
   employUserName: "Nombre de Usuario",
 
   studentID: "Legajo",
-  employProfile:"Perfíl",
-  employActive:"Usuario Activo",
-  employNoActive:"Usuario NO Activo",
+  employProfile: "Perfíl",
+  employActive: "Usuario Activo",
+  employNoActive: "Usuario NO Activo",
 
-  cancel:"Cancelar",
-  create:"Crear",
-  save:"Guardar",
-  delete:"Eliminar",
-  clean:"Volver a Buscar",
-  close:"Cerrar",
+  cancel: "Cancelar",
+  create: "Crear",
+  save: "Guardar",
+  delete: "Eliminar",
+  clean: "Volver a Buscar",
+  close: "Cerrar",
 
   userCreate: "Nuevo Usuario",
   userUpdate: "Editar Usuario",
   userDegree: "Carrera",
 
-  userTitle:"Estudiantes",
-  userDescription:"Permite la busqueda de estudiante registrados",
-  userName:"Nombre de Usuario",
-  userSearch:"Buscar Usuarios",
-  dominio:"frc.utn.edu.ar",
+  userTitle: "Estudiantes",
+  userDescription: "Permite la busqueda de estudiante registrados",
+  userName: "Nombre de Usuario",
+  userSearch: "Buscar Usuarios",
+  dominio: "frc.utn.edu.ar",
 
   //Horarios
   scheduleCreate: "Nuevo horario",
   scheduleEdit: "Editar horario",
-  scheduleDelete:"Eliminar horario",
+  scheduleDelete: "Eliminar horario",
+  scheduleDeleteSuccess: "Horario eliminado correctamente",
 
-  day:"Día",
-  startTime:"Hora inicio",
-  endTime:"Hora fin",
-  selectDay:"Selecciona un día...",
-  scheduleDeleteButton:"Eliminar Horario",
-  scheduleDeleteWarning:"¿Estás seguro que querés eliminar este horario? Esta acción no se puede deshacer.",
-  scheduleEditing:"Editando horario",
-  scheduleManagmentTitle:"Gestionar horarios de los empleados",
-  scheduleSelectEmploy:"Seleccionar empleado...",
-  scheduleFilterMsg:"Escribí para filtrar...",
-  scheduleSelectMsg:"Seleccioná un empleado para ver sus horarios",
-  scheduleMsg:"Horarios registrados —",
-  scheduleNoData:"No hay horarios registrados para este empleado.",
+  day: "Día",
+  startTime: "Hora inicio",
+  endTime: "Hora fin",
+  selectDay: "Selecciona un día...",
+  scheduleDeleteButton: "Eliminar Horario",
+  scheduleDeleteWarning:
+    "¿Estás seguro que querés eliminar este horario? Esta acción no se puede deshacer.",
+  scheduleEditing: "Editando horario",
+  scheduleManagmentTitle: "Gestionar horarios de los empleados",
+  scheduleSelectEmploy: "Seleccionar empleado...",
+  scheduleFilterMsg: "Escribí para filtrar...",
+  scheduleSelectMsg: "Seleccioná un empleado para ver sus horarios",
+  scheduleMsg: "Horarios registrados —",
+  scheduleNoData: "No hay horarios registrados para este empleado.",
   //Provider
-  validationID:"No posee ID, error",
+  validationID: "No posee ID, error",
   validationStudentID: "Ingrese un legajo",
   validationNames: "Este campo no puede estar vacio",
-  validationActive:"Ocurrio un error en el formulario",
-  validationProfile:"Debe seleccionar un perfil",
-  validationDegree:"Debe seleccionar una carrera",
+  validationActive: "Ocurrio un error en el formulario",
+  validationProfile: "Debe seleccionar un perfil",
+  validationDegree: "Debe seleccionar una carrera",
 
   validationOpeningTime: "Ingresá el horario de atención",
   validationClosingTime: "Ingresá el horario de cierre",
-  validationClosingTimeAfterOpening: "El horario final no puede ser anterior al inicial",
-  validationDay:"Seleccione un día valido",
-  validationEmploy:"Seleccione un empleado valido",
+  validationClosingTimeAfterOpening:
+    "El horario final no puede ser anterior al inicial",
+  validationDay: "Seleccione un día valido",
+  validationEmploy: "Seleccione un empleado valido",
 
-  userCreatedMsg:"Usuario creado!",
-  userUpdatedMsg:"Se actualizaron los datos del usuario!",
-  userErrorMsg:"Ocurrio un error al guardar",
-  userErrorUpdateMsg:"Ocurrio un error al actualizar el usuario...",
-  scheduleGetError:"Ocurrio un error recuperando los horarios",
-  
-}
+  userCreatedMsg: "Usuario creado!",
+  userUpdatedMsg: "Se actualizaron los datos del usuario!",
+  userErrorMsg: "Ocurrio un error al guardar",
+  userErrorUpdateMsg: "Ocurrio un error al actualizar el usuario...",
+  scheduleGetError: "Ocurrio un error recuperando los horarios",
+};
 
 export const TRAVEL_STRINGS = {
   headerTitle: "Módulo de Viajes",
@@ -316,23 +321,23 @@ export const TRAVEL_STRINGS = {
   businessEmail: "Email",
   businessCUIT: "CUIT",
   businessCBU: "CBU",
-  businessActive:"Empresa Activa",
-  businessNoActive:"Empresa No Activa",
+  businessActive: "Empresa Activa",
+  businessNoActive: "Empresa No Activa",
 
-  cancel:"Cancelar",
-  create:"Crear",
-  save:"Guardar",
-  delete:"Eliminar",
-  search:"Buscar",
+  cancel: "Cancelar",
+  create: "Crear",
+  save: "Guardar",
+  delete: "Eliminar",
+  search: "Buscar",
 
-  travelCreate:"Nuevo Viaje",
-  travelUpdate:"Editar Viaje",
-  travelName:"Nombre del Viaje",
-  travelCapacity:"Cupo",
-  travelStartDate:"Fecha de Inicio",
-  travelEndDate:"Fecha Vuelta",
-  travelProvince:"Pais / Provincia",
-  travelCity:"Ciudad / Localidad",
+  travelCreate: "Nuevo Viaje",
+  travelUpdate: "Editar Viaje",
+  travelName: "Nombre del Viaje",
+  travelCapacity: "Cupo",
+  travelStartDate: "Fecha de Inicio",
+  travelEndDate: "Fecha Vuelta",
+  travelProvince: "Pais / Provincia",
+  travelCity: "Ciudad / Localidad",
   travelPlace: "Complejo / Ubicacion",
 
   travelOrigin: "Origen",
@@ -387,7 +392,7 @@ export const TRAVEL_STRINGS = {
   inscriptsReviewed: "Documentacion Revisada",
   inscriptsNoReviewed: "Documentacion No Validada",
 
-  historyTravelTitle:"Historial de Viajes",
+  historyTravelTitle: "Historial de Viajes",
   filterDateFrom: "Fecha Desde",
   filterDateTo: "Fecha Hasta",
 
@@ -418,10 +423,10 @@ export const TRAVEL_STRINGS = {
   inscriptsDocsDeleted: "Documento Eliminado",
   errorInscDocDelete: "Error al eliminar el documento",
 
-  onlyExtensions:"Solo se permiten archivos:",
-  
-  inscriptsDocsUpload:"subido con exito",
-  errorInscUpload:"Error subiendo el archivo",
+  onlyExtensions: "Solo se permiten archivos:",
+
+  inscriptsDocsUpload: "subido con exito",
+  errorInscUpload: "Error subiendo el archivo",
 
   validationID: "ID no encontrado",
   validationName: "Ingresa un nombre para esta empresa",
@@ -431,13 +436,13 @@ export const TRAVEL_STRINGS = {
   validationCuil: "Ingresa un CUIL/CUIT válido",
   validationCBU: "Ingrese un CBU válido",
 
-  validationDate:"Ingresa una fecha válida",
-  validationPlace:"Todos los campos son obligatorios",
-  validationQuant:"Cantidad no válida",
-  validationBuss:"Seleccione una empresa",
-  validationCost:"Ingrese un costo valido",
-  validationMotive:"Ingrese un motivo u objetivo del viaje"
-}
+  validationDate: "Ingresa una fecha válida",
+  validationPlace: "Todos los campos son obligatorios",
+  validationQuant: "Cantidad no válida",
+  validationBuss: "Seleccione una empresa",
+  validationCost: "Ingrese un costo valido",
+  validationMotive: "Ingrese un motivo u objetivo del viaje",
+};
 
 export const SPORTS_STRINGS = {
   headerTitle: "Módulo de Deportes",
@@ -519,7 +524,18 @@ export const SPORTS_STRINGS = {
   studentAuthorized: "Autorizado",
   studentSportAuth: "Autorizado para Deporte",
 
-  errorSaveTournament: "Error al guardar el torneo.",
+  errorCreateTournament: "Error al crear el torneo.",
+  errorUpdateTournament: "Error al actualizar el torneo.",
+  tournamentRequired: "Este campo es obligatorio",
+  tournamentCapacityInvalid: "Ingresá un cupo válido",
+  tournamentSportRequired: "Seleccioná un deporte",
+  tournamentTeacherRequired: "Seleccioná un docente responsable",
+  tournamentEndDateBeforeStart:
+    "La fecha de fin no puede ser anterior al inicio",
+  tournamentLimitDateBeforeToday:
+    "El límite de inscripción no puede ser anterior a hoy",
+  tournamentLimitDateAfterStart:
+    "El límite de inscripción no puede ser posterior al inicio",
 
   tournamentEdit: "Editar Torneo",
   tournamentCreate: "Nuevo Torneo",
@@ -772,6 +788,8 @@ export const BECAS_STRINGS = {
     validationYearRequired: "Ingresá el año de la beca",
     validationRequestDateRequired: "Ingresá la fecha de solicitud",
     validationFutureDate: "La fecha no puede ser mayor a hoy",
+    validationStudentRequired: "Seleccioná un alumno mediante el buscador",
+    validationCareerRequired: "Seleccioná una carrera para buscar",
     validationScholarshipType: "Seleccioná un tipo de beca",
     validationDuplicateScholarship: "El becario ya tiene ese tipo de beca",
     validationModules: "Los módulos deben ser un número de 0 a 3",
@@ -825,7 +843,7 @@ export const BECAS_STRINGS = {
 
     validationName: "Ingresá el nombre del servicio",
     validationPhoneRequired: "Ingresá el teléfono",
-    validationPhoneFormat: "Ingresá un teléfono válido de 12 dígitos",
+    validationPhoneFormat: "Ingresá un teléfono válido de 10 dígitos",
     validationInternalPhone: "Ingresá un interno válido",
     validationEmailRequired: "Ingresá el email institucional",
     validationEmailFormat:

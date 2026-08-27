@@ -3,8 +3,7 @@ import { onlyDigits } from "./text.utils";
 export const isValidEmail = (value = "") =>
   /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(String(value).trim());
 
-
-export const isValidPhone = (value = "") => onlyDigits(value).length === 12;
+export const isValidPhone = (value = "") => onlyDigits(value).length === 10;
 
 export const isValidMinLengthPhone = (value = "", minLength = 8) =>
   onlyDigits(value).length >= minLength;
@@ -44,7 +43,6 @@ export const isValidAddress = (value = "") => {
     /^\d+$/.test(parts[3])
   );
 };
-
 
 export const isValidCbu = (value = "") => onlyDigits(value).length === 22;
 
@@ -87,7 +85,8 @@ export function validateNombreApellido(value, label) {
   const nameRegex = /^[a-zA-ZÀ-ÿ\s'-]+$/;
   if (!value.trim()) return `${label} es obligatorio`;
   if (value.trim().length < 2) return "Debe tener al menos 2 caracteres";
-  if (!nameRegex.test(value.trim())) return "Solo se permiten letras y espacios";
+  if (!nameRegex.test(value.trim()))
+    return "Solo se permiten letras y espacios";
   return null;
 }
 
@@ -98,7 +97,9 @@ export function validateFechaNacimiento(value) {
   const age =
     today.getFullYear() -
     birth.getFullYear() -
-    (today < new Date(today.getFullYear(), birth.getMonth(), birth.getDate()) ? 1 : 0);
+    (today < new Date(today.getFullYear(), birth.getMonth(), birth.getDate())
+      ? 1
+      : 0);
   if (birth >= today) return "La fecha debe ser anterior a hoy";
   if (age < 18) return "El docente debe ser mayor de 18 años";
   if (age > 100) return "La fecha ingresada no es válida";
@@ -195,6 +196,6 @@ export function validateDeporte(data) {
 }
 
 export const isBooleanValid = (value) => {
-    // Retorna true solo si el valor es explícitamente true o false
-    return typeof value === "boolean";
+  // Retorna true solo si el valor es explícitamente true o false
+  return typeof value === "boolean";
 };
