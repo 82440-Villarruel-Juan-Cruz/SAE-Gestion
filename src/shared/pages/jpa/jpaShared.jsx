@@ -241,7 +241,7 @@ const carreras = [
   },
   {
     title: "Ing. Mecanica",
-    img: `${baseUrl}images/degreesJPA/ingenieriaMecanica.jpg`,
+    img: `${baseUrl}images/degreesJPA/ingenieriaMecanica2.jpg`,
     route: "/JPA/mecanica",
     duracion: "5 años",
     intereses: ["Produccion", "Autopartes", "Nuevas Piezas"],

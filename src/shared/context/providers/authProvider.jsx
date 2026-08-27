@@ -4,7 +4,7 @@ import ObtenerTokenJWT from "../../../api/AuthService";
 import { SESSION_EXPIRED_EVENT } from "../../../api/apiClient";
 import { AuthContext } from "../sharedContext";
 
-const SESSION_EXPIRATION_WARNING_MS = 300_000; //5  Minutos
+const SESSION_EXPIRATION_WARNING_MS = 300_000;//Cuando ANTES queremos mostrar el warning
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -64,27 +64,38 @@ export function AuthProvider({ children }) {
   }, [clearSession]);
 
   useEffect(() => {
-    if (!user?.expiration) return undefined;
+  if (!user?.expiration) return undefined;
 
-    const remainingTime = user.expiration - Date.now();
-    const warningTime = Math.min(
-      SESSION_EXPIRATION_WARNING_MS,
-      Math.max(Number(appConfig.sessionTimeout) / 2, 10_000),
-    );
-    const warningTimeout = window.setTimeout(
-      () => setSessionExpired(true),
-      Math.max(remainingTime - warningTime, 0),
-    );
-    const expirationTimeout = window.setTimeout(
-      clearSession,
-      Math.max(remainingTime, 0),
-    );
+  const remainingTime = user.expiration - Date.now();
 
-    return () => {
-      window.clearTimeout(warningTimeout);
-      window.clearTimeout(expirationTimeout);
-    };
-  }, [user?.expiration, clearSession]);
+  if (remainingTime <= 0) {
+    const deferTimeout = window.setTimeout(() => {
+      clearSession();
+    }, 0);
+    return () => window.clearTimeout(deferTimeout);
+  }
+
+  const warningTime = Math.min(
+    SESSION_EXPIRATION_WARNING_MS,
+    Math.max(Number(appConfig.sessionTimeout) / 2, 10_000),
+  );
+
+  // En producción: 1.800.000 - 300.000 = 1.500.000 ms (Espera 25 minutos antes de mostrarse)
+  const timeUntilWarning = Math.max(remainingTime - warningTime, 0);
+
+  const warningTimeout = window.setTimeout(() => {
+    setSessionExpired(true);
+  }, timeUntilWarning);
+
+  const expirationTimeout = window.setTimeout(() => {
+    clearSession();
+  }, remainingTime);
+
+  return () => {
+    window.clearTimeout(warningTimeout);
+    window.clearTimeout(expirationTimeout);
+  };
+}, [user?.expiration, clearSession]);
 
   const login = async (legajo, dominio, password) => {
     const result = await ObtenerTokenJWT(legajo, dominio, password);
@@ -107,23 +118,31 @@ export function AuthProvider({ children }) {
     return null;
   };
 
-  const extendSession = () => {
-    const stored = localStorage.getItem("session");
-    if (!stored) return;
+  const extendSession = useCallback(() => {
+  const stored = localStorage.getItem("session");
+  if (!stored) return;
 
-    try {
-      const parsed = JSON.parse(stored);
-      const extended = {
-        ...parsed,
-        expiration: Date.now() + appConfig.sessionTimeout,
-      };
-      localStorage.setItem("session", JSON.stringify(extended));
-      setUser(extended);
-      setSessionExpired(false);
-    } catch {
+  try {
+    const parsed = JSON.parse(stored);
+    
+    // Validar que no estemos intentando extender una sesión ya muerta en localStorage
+    if (Date.now() > parsed.expiration) {
       clearSession();
+      return;
     }
-  };
+
+    const extended = {
+      ...parsed,
+      expiration: Date.now() + appConfig.sessionTimeout,
+    };
+
+    localStorage.setItem("session", JSON.stringify(extended));
+    setSessionExpired(false); 
+    setUser(extended); 
+  } catch {
+    clearSession();
+  }
+}, [clearSession]);
 
   const updateUser = (updates) => {
     const stored = localStorage.getItem("session");
