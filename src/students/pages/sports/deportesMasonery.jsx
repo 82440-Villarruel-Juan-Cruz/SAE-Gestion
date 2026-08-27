@@ -367,7 +367,7 @@ export default function DeportesMasonry({ deportes, onInscribirClick }) {
         {/* DERECHA */}
         <SAETextField
           size="small"
-          placeholder="Buscar Deportes..."
+          placeholder="Busqueda..."
           value={textoBusqueda}
           onChange={(e) => setTextoBusqueda(e.target.value)}
           sx={{
@@ -377,7 +377,18 @@ export default function DeportesMasonry({ deportes, onInscribirClick }) {
               md: 300,
             },
             "& .MuiOutlinedInput-root": {
-              bgcolor: "white",
+              bgcolor: "rgba(255,255,255,0.12)",
+              color: "white",
+              "& fieldset": { borderColor: "rgba(255,255,255,0.3)" },
+              "&:hover fieldset": { borderColor: "rgba(255,255,255,0.6)" },
+              "&.Mui-focused fieldset": { borderColor: "white" },
+            },
+            "& input::placeholder": {
+              color: "rgba(255,255,255,0.7)",
+              opacity: 1,
+            },
+            "& .MuiInputAdornment-root svg": {
+              color: "rgba(255,255,255,0.7)",
             },
           }}
           InputProps={{

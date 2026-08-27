@@ -437,6 +437,8 @@ export const TRAVEL_STRINGS = {
   validationCBU: "Ingrese un CBU válido",
 
   validationDate: "Ingresa una fecha válida",
+  validationTravelEndAfterStart:
+    "La fecha de vuelta debe ser igual o posterior a la fecha de inicio",
   validationPlace: "Todos los campos son obligatorios",
   validationQuant: "Cantidad no válida",
   validationBuss: "Seleccione una empresa",

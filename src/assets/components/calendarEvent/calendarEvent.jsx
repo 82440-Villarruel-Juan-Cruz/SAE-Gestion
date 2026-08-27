@@ -12,10 +12,8 @@ import {
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import SAEHorizontalCarousel from "../carousel/SAEHorizontalCarousel";
 import { formatDate } from "../../../utils/date.utils";
 const settingsSchedule = {
   dots: true,
@@ -46,10 +44,16 @@ const settingsSchedule = {
 };
 
 export function CalendarEvent({ eventos }) {
-  const isMobile = useMediaQuery("(max-width:932px)");
-  const isTablet = useMediaQuery("(max-width:1199px)");
-  const slidesToShow = isMobile ? 1 : isTablet ? 2 : 3;
-
+  const isDesktop = useMediaQuery("(min-width:1200px)", {
+    noSsr: true,
+  });
+  const isTablet = useMediaQuery("(min-width:900px)", {
+    noSsr: true,
+  });
+  const coursesSlidesToShow = Math.min(
+    eventos.length || 1,
+    isDesktop ? 3 : isTablet ? 2 : 1,
+  );
   return (
     <Box
       sx={{
@@ -86,7 +90,7 @@ export function CalendarEvent({ eventos }) {
         },
       }}
     >
-      <Slider {...settingsSchedule} responsive={[]} slidesToShow={slidesToShow}>
+      {/* <Slider {...settingsSchedule} responsive={[]} slidesToShow={slidesToShow}>
         {eventos.map((evento) => {
           return (
             <EventoCard
@@ -97,7 +101,19 @@ export function CalendarEvent({ eventos }) {
             ></EventoCard>
           );
         })}
-      </Slider>
+      </Slider> */}
+      <SAEHorizontalCarousel
+        items={eventos}
+        slidesToShow={coursesSlidesToShow}
+        getKey={(evento) => evento.id || evento.nombre_evento}
+        activeIndicatorColor="var(--primary)"
+        indicatorColor="var(--textSecondary)"
+        renderItem={(evento, index) => {
+          return (
+            <EventoCard key={evento.id || index} evento={evento}></EventoCard>
+          );
+        }}
+      />
     </Box>
   );
 }

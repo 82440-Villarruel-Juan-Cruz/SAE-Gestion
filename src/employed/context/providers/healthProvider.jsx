@@ -4,7 +4,10 @@ import { Box, IconButton, Chip } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditNoteIcon from "@mui/icons-material/EditNote";
-import {  generateColumns, generateRows } from "../../../utils/datagrid.utils.jsx";
+import {
+  generateColumns,
+  generateRows,
+} from "../../../utils/datagrid.utils.jsx";
 import {
   CrearCurso,
   CrearEspecialidad,
@@ -41,7 +44,14 @@ import {
 import { ObtenerUsuariosXLegajo } from "../../../api/EmpleadoService";
 import { HealthContext } from "../employedContext";
 import { useNotification } from "../../../shared/context/sharedContext";
-import { EMPTY_CURSO, EMPTY_ESPECIALIDAD, EMPTY_FALTA, EMPTY_HORARIO, EMPTY_PERSONAL, EMPTY_TURNO } from "../../../utils/common/common.config.js";
+import {
+  EMPTY_CURSO,
+  EMPTY_ESPECIALIDAD,
+  EMPTY_FALTA,
+  EMPTY_HORARIO,
+  EMPTY_PERSONAL,
+  EMPTY_TURNO,
+} from "../../../utils/common/common.config.js";
 import { compareDatesDesc } from "../../../utils/date.utils";
 import { HEALTH_STRING } from "../../../utils/strings/employed.strings.js";
 
@@ -49,6 +59,40 @@ import { HEALTH_STRING } from "../../../utils/strings/employed.strings.js";
 
 const C = HEALTH_STRING;
 const CANCELLED_TURN_STATUS_ID = 2;
+const getEmptyHorarioForm = () => ({
+  ...EMPTY_HORARIO,
+  dia: 1,
+  activo: true,
+});
+const parseHorarioMinutes = (time) => {
+  const [hours, minutes] = String(time ?? "")
+    .slice(0, 5)
+    .split(":")
+    .map(Number);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+  return hours * 60 + minutes;
+};
+
+const validateHorarioRange = ({ dia, hora_inicio, hora_fin } = {}) => {
+  if (dia === null || dia === undefined || dia === "") {
+    return "Seleccioná un día.";
+  }
+  if (!hora_inicio) return "Ingresá la hora de inicio.";
+  if (!hora_fin) return "Ingresá la hora de fin.";
+
+  const startMinutes = parseHorarioMinutes(hora_inicio);
+  const endMinutes = parseHorarioMinutes(hora_fin);
+
+  if (
+    startMinutes !== null &&
+    endMinutes !== null &&
+    endMinutes <= startMinutes
+  ) {
+    return "La hora de fin debe ser posterior al inicio.";
+  }
+
+  return "";
+};
 
 const sortTurnosByFechaAtencionDesc = (turnos) =>
   [...turnos].sort((a, b) =>
@@ -72,7 +116,6 @@ const canMoveTurnToState = (turno, nextStateId) =>
   nextStateId === CANCELLED_TURN_STATUS_ID || hasCompleteTurnDataForMove(turno);
 
 export const HealthUsersProvider = ({ children }) => {
-  
   //#region Importaciones Notificacion
 
   const {
@@ -87,7 +130,7 @@ export const HealthUsersProvider = ({ children }) => {
   } = useNotification();
 
   //#endregion
-  
+
   // Estados globales de Diálogo compartidos por ambas secciones
   const [horariosDialogOpen, setHorariosDialogOpen] = useState(false);
   // Estados de Notificación
@@ -124,13 +167,15 @@ export const HealthUsersProvider = ({ children }) => {
 
   const openCreateTurnos = useCallback(() => {
     setUsuarioSelected(null);
-    openDialog("turnos","create",EMPTY_TURNO);
+    openDialog("turnos", "create", EMPTY_TURNO);
   }, [openDialog]);
 
-  const openEditTurnos = useCallback((row) => {
-    openDialog("turnos","edit",row);
-
-  }, [openDialog]);
+  const openEditTurnos = useCallback(
+    (row) => {
+      openDialog("turnos", "edit", row);
+    },
+    [openDialog],
+  );
 
   const fetchTurnosFinalizados = useCallback(async () => {
     setLoadingNoActivos(true);
@@ -170,6 +215,7 @@ export const HealthUsersProvider = ({ children }) => {
     try {
       let data = await ObtenerTurnosActivos();
       data = data.map(mapTurnos);
+      console.log("Fetched turnos:", data); // Debugging line
 
       setAllTurnos(sortTurnosByFechaAtencionDesc(data));
 
@@ -212,7 +258,6 @@ export const HealthUsersProvider = ({ children }) => {
       setFinalizadoTurnos(sortTurnosByFechaAtencionDesc(finalizados));
       setCanceladoTurnos(sortTurnosByFechaAtencionDesc(cancelados));
       setReprogramadoTurnos(sortTurnosByFechaAtencionDesc(reprogramados));
-
     } catch {
       setPendienteTurnos([]);
       setAsignadosTurnos([]);
@@ -232,25 +277,28 @@ export const HealthUsersProvider = ({ children }) => {
   const [usuarioSelected, setUsuarioSelected] = useState(null);
   const [loadingUsuario, setLoadingUsuario] = useState(false);
 
-  const fetchUsuariosXlegajo = useCallback(async (legajo) => {
-    if (!legajo) return; // Evita buscar si está vacío
-    setLoadingUsuario(true);
-    setUsuarioSelected(null);
-    try {
-      const data = await ObtenerUsuariosXLegajo(legajo);
-      if (data && data.legajo) {
-        setUsuarioSelected(data);
-      } else {
+  const fetchUsuariosXlegajo = useCallback(
+    async (legajo) => {
+      if (!legajo) return; // Evita buscar si está vacío
+      setLoadingUsuario(true);
+      setUsuarioSelected(null);
+      try {
+        const data = await ObtenerUsuariosXLegajo(legajo);
+        if (data && data.legajo) {
+          setUsuarioSelected(data);
+        } else {
+          setUsuarioSelected(null);
+          setDialogError("Usuario No encontrado");
+        }
+      } catch {
         setUsuarioSelected(null);
         setDialogError("Usuario No encontrado");
+      } finally {
+        setLoadingUsuario(false);
       }
-    } catch {
-      setUsuarioSelected(null);
-      setDialogError("Usuario No encontrado");
-    } finally {
-      setLoadingUsuario(false);
-    }
-  }, [setDialogError]);
+    },
+    [setDialogError],
+  );
 
   useEffect(() => {
     fetchUsuariosXlegajo();
@@ -383,7 +431,7 @@ export const HealthUsersProvider = ({ children }) => {
         // 4. PETICIÓN A LA API
         try {
           await ModificarTurno(id_turno, body);
-          showNotification("Turno Actualizado!","success");
+          showNotification("Turno Actualizado!", "success");
         } catch {
           // REVERTIMOS SI FALLA LA API (Devolvemos el foundTurn original)
           actualizarListaPorEstado(id_estado_nuevo, "sacar");
@@ -624,7 +672,7 @@ export const HealthUsersProvider = ({ children }) => {
     setAllTurnos,
     setDialogOpen,
     setDialogData,
-      setDialogError,
+    setDialogError,
     setDialogSaving,
     showNotification,
   ]);
@@ -654,13 +702,15 @@ export const HealthUsersProvider = ({ children }) => {
   }, [fetchEspecialidades]);
 
   const openCreateEspecialidades = useCallback(() => {
-    openDialog("especialidades","create",EMPTY_ESPECIALIDAD);
+    openDialog("especialidades", "create", EMPTY_ESPECIALIDAD);
   }, [openDialog]);
 
-  const openEditEspecialidades = useCallback((row) => {
-    openDialog("especialidades","edit",row);
-  }, [openDialog]);
-
+  const openEditEspecialidades = useCallback(
+    (row) => {
+      openDialog("especialidades", "edit", row);
+    },
+    [openDialog],
+  );
 
   const handleEspecialidadesSave = async () => {
     setDialogSaving(true);
@@ -743,23 +793,28 @@ export const HealthUsersProvider = ({ children }) => {
   }, [fetchFaltas]);
 
   const openCreatePersonal = useCallback(() => {
-    openDialog("personal","create",EMPTY_PERSONAL);
+    openDialog("personal", "create", EMPTY_PERSONAL);
   }, [openDialog]);
 
-  const openEditPersonal = useCallback((row) => {
-    openDialog("personal","edit",row);
-  }, [openDialog]);
+  const openEditPersonal = useCallback(
+    (row) => {
+      openDialog("personal", "edit", row);
+    },
+    [openDialog],
+  );
 
   const openEditRegist = useCallback(
     (row) => {
-      openDialog("personal","faltas",{ cuil: row.cuil, fecha_alta: null, observacion: "" });
+      openDialog("personal", "faltas", {
+        cuil: row.cuil,
+        fecha_alta: null,
+        observacion: "",
+      });
       SetCuilFaltas(row.cuil);
       fetchFaltas();
-
     },
-    [fetchFaltas,openDialog],
+    [fetchFaltas, openDialog],
   );
-
 
   const handlePersonalSave = async () => {
     setDialogSaving(true);
@@ -829,16 +884,21 @@ export const HealthUsersProvider = ({ children }) => {
   }, [fetchCursos]);
 
   const openCreateCurso = useCallback(() => {
-    openDialog("cursos","create",EMPTY_CURSO);
+    openDialog("cursos", "create", EMPTY_CURSO);
   }, [openDialog]);
 
-  const openEditCurso = useCallback((row) => {
-    openDialog("cursos","edit",row);
-  }, [openDialog]);
-  const openDeleteCurso = useCallback((row) => {
-    openDialog("cursos","delete",row);
-  }, [openDialog]);
-
+  const openEditCurso = useCallback(
+    (row) => {
+      openDialog("cursos", "edit", row);
+    },
+    [openDialog],
+  );
+  const openDeleteCurso = useCallback(
+    (row) => {
+      openDialog("cursos", "delete", row);
+    },
+    [openDialog],
+  );
 
   const handleCursoSave = async () => {
     setDialogSaving(true);
@@ -892,7 +952,7 @@ export const HealthUsersProvider = ({ children }) => {
   const [selectedHorariosLoading, setSelectedHorariosLoading] = useState(false);
   const [showNuevoForm, setShowNuevoForm] = useState(false);
 
-  const [form, setForm] = useState(EMPTY_HORARIO);
+  const [form, setForm] = useState(getEmptyHorarioForm);
   const handleChangeForm = (field, value) =>
     setForm((p) => ({ ...p, [field]: value }));
 
@@ -920,16 +980,16 @@ export const HealthUsersProvider = ({ children }) => {
     fetchHorarios();
   }, [fetchHorarios]);
 
-  const fetchHorariosXEmpleado = useCallback(async () => {
+  const fetchHorariosXEmpleado = useCallback(async (cuil = selectedEmploy?.cuil) => {
     setSelectedHorariosLoading(true);
     setDialogError(null);
     //Todo esto es para que no guarde informacion en las tarjetas
-    setForm(EMPTY_HORARIO);
+    setForm(getEmptyHorarioForm());
     setDeleteId(null);
     setEditingId(null);
     try {
-      if (selectedEmploy) {
-        let data = await ObtenerHorariosXCUIL(selectedEmploy.cuil);
+      if (cuil) {
+        let data = await ObtenerHorariosXCUIL(cuil);
         data = data.map(mapHorarioSalud);
         setSelectedHorarios(data);
       } else {
@@ -941,7 +1001,7 @@ export const HealthUsersProvider = ({ children }) => {
     } finally {
       setSelectedHorariosLoading(false);
     }
-  }, [selectedEmploy, setSelectedHorarios,setDialogError]);
+  }, [selectedEmploy?.cuil, setSelectedHorarios, setDialogError]);
 
   useEffect(() => {
     fetchHorariosXEmpleado();
@@ -952,18 +1012,17 @@ export const HealthUsersProvider = ({ children }) => {
       setSelectedEmploy(value);
 
       setShowNuevoForm(false);
-      if (value) fetchHorariosXEmpleado(value.id);
     },
-    [fetchHorariosXEmpleado],
+    [],
   );
 
   const handleHorarioSaved = useCallback(() => {
-    if (selectedEmploy) fetchHorariosXEmpleado(selectedEmploy.id);
+    if (selectedEmploy) fetchHorariosXEmpleado(selectedEmploy.cuil);
   }, [selectedEmploy, fetchHorariosXEmpleado]);
 
   const handleHorarioCreated = useCallback(() => {
     setShowNuevoForm(false);
-    if (selectedEmploy) fetchHorariosXEmpleado(selectedEmploy.id);
+    if (selectedEmploy) fetchHorariosXEmpleado(selectedEmploy.cuil);
   }, [selectedEmploy, fetchHorariosXEmpleado]);
 
   const handleClose = () => {
@@ -974,6 +1033,14 @@ export const HealthUsersProvider = ({ children }) => {
   };
 
   const handleCreateHorario = async () => {
+    const validationMessage = validateHorarioRange(form);
+    if (!selectedEmploy || validationMessage) {
+      setErrorHorario(
+        !selectedEmploy ? "Seleccioná un empleado." : validationMessage,
+      );
+      return;
+    }
+
     setSavingHorario(true);
     setErrorHorario("");
     try {
@@ -1005,6 +1072,14 @@ export const HealthUsersProvider = ({ children }) => {
     }
   };
   const handleEditHorario = async () => {
+    const validationMessage = validateHorarioRange(form);
+    if (!selectedEmploy || validationMessage) {
+      setErrorHorario(
+        !selectedEmploy ? "Seleccioná un empleado." : validationMessage,
+      );
+      return;
+    }
+
     //Son todas cosas que queremos mostrar antes de ejecutar una query asincrona
     setSavingHorario(true);
     setErrorHorario("");
@@ -1030,7 +1105,7 @@ export const HealthUsersProvider = ({ children }) => {
       setEditingId(null);
       fetchHorarios();
       fetchHorariosXEmpleado(selectedEmploy.cuil);
-      setForm(null);
+      setForm(getEmptyHorarioForm());
     } catch (err) {
       setErrorHorario(err.message || "Error al guardar");
     } finally {
@@ -1040,7 +1115,7 @@ export const HealthUsersProvider = ({ children }) => {
   const handleDeleteHorario = async () => {
     try {
       await EliminarHorario(deleteId);
-      setForm(null);
+      setForm(getEmptyHorarioForm());
       setDeleteId(null);
       fetchHorarios();
       fetchHorariosXEmpleado(selectedEmploy.cuil);
@@ -1051,7 +1126,7 @@ export const HealthUsersProvider = ({ children }) => {
     }
   };
   const handleCancelHorario = () => {
-    setForm(null);
+    setForm(getEmptyHorarioForm());
     setEditingId(null);
     setErrorHorario("");
   };
@@ -1059,82 +1134,111 @@ export const HealthUsersProvider = ({ children }) => {
   // ------------ COLUMNAS ----------- //
 
   const noActivosColumns = useMemo(() => {
-    return generateColumns(EMPTY_TURNO,[]);
-  }, []); 
+    return generateColumns(EMPTY_TURNO, []);
+  }, []);
 
   //Especialidad//
-  const handleEditEspecialidades = useCallback((row) => {
-        openEditEspecialidades(row);
-    }, [openEditEspecialidades]);
+  const handleEditEspecialidades = useCallback(
+    (row) => {
+      openEditEspecialidades(row);
+    },
+    [openEditEspecialidades],
+  );
 
-  const especialidadesActions = useMemo(() => [{
-      icon: EditIcon,
-      color: "primary",
-      title: "Editar Especialidad",
-      onClick: handleEditEspecialidades, 
-  }
-  ], [handleEditEspecialidades]);
+  const especialidadesActions = useMemo(
+    () => [
+      {
+        icon: EditIcon,
+        color: "primary",
+        title: "Editar Especialidad",
+        onClick: handleEditEspecialidades,
+      },
+    ],
+    [handleEditEspecialidades],
+  );
 
   const especialidadesColumns = useMemo(() => {
-    return generateColumns(EMPTY_ESPECIALIDAD,especialidadesActions);
-  }, [especialidadesActions]); 
+    return generateColumns(EMPTY_ESPECIALIDAD, especialidadesActions);
+  }, [especialidadesActions]);
 
   //Faltas//
   const faltasColumns = useMemo(() => {
-    return generateColumns(EMPTY_FALTA,[]);
-  }, []); 
+    return generateColumns(EMPTY_FALTA, []);
+  }, []);
 
   //Personal//
 
-  const handleEditPersonal= useCallback((row) => {
+  const handleEditPersonal = useCallback(
+    (row) => {
       openEditPersonal(row);
-  }, [openEditPersonal]);
+    },
+    [openEditPersonal],
+  );
 
-  const handleEditRegist = useCallback((row) => {
+  const handleEditRegist = useCallback(
+    (row) => {
       openEditRegist(row);
-  }, [openEditRegist]);
+    },
+    [openEditRegist],
+  );
 
-  const personalActions = useMemo(() => [{
-      icon: EditIcon,
-      color: "primary",
-      title: "Editar Personal",
-      onClick: handleEditPersonal, 
-  },{
-      icon: EditNoteIcon,
-      color: "primary",
-      title: "Registrar Falta",
-      onClick: handleEditRegist, 
-  }
-  ], [handleEditPersonal,handleEditRegist]);
+  const personalActions = useMemo(
+    () => [
+      {
+        icon: EditIcon,
+        color: "primary",
+        title: "Editar Personal",
+        onClick: handleEditPersonal,
+      },
+      {
+        icon: EditNoteIcon,
+        color: "primary",
+        title: "Registrar Falta",
+        onClick: handleEditRegist,
+      },
+    ],
+    [handleEditPersonal, handleEditRegist],
+  );
 
   const personalColumns = useMemo(() => {
-    return generateColumns(EMPTY_PERSONAL,personalActions);
+    return generateColumns(EMPTY_PERSONAL, personalActions);
   }, [personalActions]);
 
   //Cursos//
-  const handleEditCurso = useCallback((row) => {
+  const handleEditCurso = useCallback(
+    (row) => {
       openEditCurso(row);
-  }, [openEditCurso]);
+    },
+    [openEditCurso],
+  );
 
-  const handleDeleteCurso = useCallback((row) => {
+  const handleDeleteCurso = useCallback(
+    (row) => {
       openDeleteCurso(row);
-  }, [openDeleteCurso]);
+    },
+    [openDeleteCurso],
+  );
 
-  const cursosActions = useMemo(() => [{
-      icon: EditIcon,
-      color: "primary",
-      title: "Editar Curso",
-      onClick: handleEditCurso, 
-  },{
-      icon: DeleteIcon,
-      color: "primary",
-      title: "Eliminar Curso",
-      onClick: handleDeleteCurso, 
-  }
-  ], [handleEditCurso,handleDeleteCurso]);
+  const cursosActions = useMemo(
+    () => [
+      {
+        icon: EditIcon,
+        color: "primary",
+        title: "Editar Curso",
+        onClick: handleEditCurso,
+      },
+      {
+        icon: DeleteIcon,
+        color: "primary",
+        title: "Eliminar Curso",
+        onClick: handleDeleteCurso,
+      },
+    ],
+    [handleEditCurso, handleDeleteCurso],
+  );
 
   const cursosColumns = useMemo(() => {
-    return generateColumns(EMPTY_CURSO,cursosActions);
+    return generateColumns(EMPTY_CURSO, cursosActions);
   }, [cursosActions]);
 
   return (
@@ -1215,6 +1319,7 @@ export const HealthUsersProvider = ({ children }) => {
         handleChangeForm, //Formularios
         savingHorario,
         errorHorario,
+        setErrorHorario,
         editingId,
         confirmDelete,
         deleteId, //Datos de formulario

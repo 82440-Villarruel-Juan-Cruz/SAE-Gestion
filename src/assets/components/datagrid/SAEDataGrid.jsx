@@ -8,6 +8,42 @@ import { SAETypography } from "../typography/SAETypography";
 import SAETextField from "../inputs/SAETextField";
 import SAEButton from "../buttons/SAEButton";
 
+const DEFAULT_LOCALE_TEXT = {
+  noRowsLabel: "No hay registros activos",
+  noResultsOverlayLabel: "No se encontraron resultados",
+  paginationRowsPerPage: "Filas por pagina:",
+  paginationDisplayedRows: ({ from, to, count }) =>
+    `${from}-${to} de ${count !== -1 ? count : `mas de ${to}`}`,
+  columnMenuLabel: "Menu",
+  columnMenuAriaLabel: (columnName) => `Menu de ${columnName}`,
+  columnMenuShowColumns: "Mostrar columnas",
+  columnMenuManageColumns: "Administrar columnas",
+  columnMenuFilter: "Filtrar",
+  columnMenuHideColumn: "Ocultar columna",
+  columnMenuUnsort: "Quitar orden",
+  columnMenuSortAsc: "Ordenar de forma ascendente",
+  columnMenuSortDesc: "Ordenar de forma descendente",
+  filterPanelAddFilter: "Agregar filtro",
+  filterPanelRemoveAll: "Quitar filtros",
+  filterPanelDeleteIconLabel: "Eliminar",
+  filterPanelLogicOperator: "Operador logico",
+  filterPanelOperator: "Operador",
+  filterPanelOperatorAnd: "Y",
+  filterPanelOperatorOr: "O",
+  filterPanelColumns: "Columnas",
+  filterPanelInputLabel: "Valor",
+  filterPanelInputPlaceholder: "Valor del filtro",
+  filterOperatorContains: "contiene",
+  filterOperatorDoesNotContain: "no contiene",
+  filterOperatorEquals: "es igual a",
+  filterOperatorDoesNotEqual: "es distinto de",
+  filterOperatorStartsWith: "empieza con",
+  filterOperatorEndsWith: "termina con",
+  filterOperatorIsEmpty: "esta vacio",
+  filterOperatorIsNotEmpty: "no esta vacio",
+  filterOperatorIsAnyOf: "es cualquiera de",
+};
+
 export default function SAEDataGrid({
   sectionConfig,
   currentSection,
@@ -203,7 +239,10 @@ export default function SAEDataGrid({
               pagination: { paginationModel: { pageSize: 5 } },
               ...currentConfig.initialState,
             }}
-            localeText={{ noRowsLabel: "No hay registros activos" }}
+            localeText={{
+              ...DEFAULT_LOCALE_TEXT,
+              ...currentConfig.localeText,
+            }}
             sx={{ borderRadius: 0, border: "none" }}
           />
         </Box>

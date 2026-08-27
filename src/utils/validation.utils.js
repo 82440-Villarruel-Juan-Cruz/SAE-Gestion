@@ -3,7 +3,10 @@ import { onlyDigits } from "./text.utils";
 export const isValidEmail = (value = "") =>
   /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(String(value).trim());
 
-export const isValidPhone = (value = "") => onlyDigits(value).length === 10;
+export const isValidPhone = (value = "") => {
+  const digits = onlyDigits(value);
+  return digits.length >= 10 && digits.length <= 15;
+};
 
 export const isValidMinLengthPhone = (value = "", minLength = 8) =>
   onlyDigits(value).length >= minLength;

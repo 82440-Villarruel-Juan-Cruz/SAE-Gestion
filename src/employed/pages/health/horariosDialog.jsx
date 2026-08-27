@@ -14,6 +14,7 @@ import {
   DialogTitle,
   FormControl,
   FormControlLabel,
+  FormHelperText,
   IconButton,
   InputLabel,
   MenuItem,
@@ -38,6 +39,38 @@ import { HealthUsersProvider } from "../../context/providers/healthProvider";
 import { useHealth } from "../../context/employedContext";
 import { calendarDays } from "../../../utils/common/constants";
 
+const toMinutes = (time) => {
+  const [hours, minutes] = String(time).split(":").map(Number);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+  return hours * 60 + minutes;
+};
+
+const validateHorarioForm = (form, selectedEmploy) => {
+  const errors = {};
+
+  if (!selectedEmploy) errors.general = "Seleccioná un empleado.";
+  if (form.dia === null || form.dia === undefined || form.dia === "") {
+    errors.dia = "Seleccioná un día.";
+  }
+  if (!form.hora_inicio) errors.hora_inicio = "Ingresá la hora de inicio.";
+  if (!form.hora_fin) {
+    errors.hora_fin = "Ingresá la hora de fin.";
+  } else {
+    const startMinutes = toMinutes(form.hora_inicio);
+    const endMinutes = toMinutes(form.hora_fin);
+
+    if (
+      startMinutes !== null &&
+      endMinutes !== null &&
+      endMinutes <= startMinutes
+    ) {
+      errors.hora_fin = "La hora de fin debe ser posterior al inicio.";
+    }
+  }
+
+  return errors;
+};
+
 // FORMULARIO DE HORARIOS
 function HorarioFormFields({ fieldErrors = {}, onFieldChange } = {}) {
   const { form, handleChangeForm } = useHealth();
@@ -46,20 +79,24 @@ function HorarioFormFields({ fieldErrors = {}, onFieldChange } = {}) {
     <Stack spacing={1}>
       <Grid container spacing={1}>
         <Grid size={{ xs: 12 }} m={0}>
-          <InputLabel>Día</InputLabel>
-          <Select
-            value={form.dia}
-            label="Día"
-            fullWidth
-            error={Boolean(fieldErrors.dia)}
-            onChange={(e) => handleFieldChange("dia", e.target.value)}
-          >
+          <FormControl fullWidth error={Boolean(fieldErrors.dia)}>
+            <InputLabel id="horario-dia-label">Día</InputLabel>
+            <Select
+              labelId="horario-dia-label"
+              value={form?.dia ?? ""}
+              label="Día"
+              onChange={(e) => handleFieldChange("dia", e.target.value)}
+            >
             {calendarDays.map((d) => (
               <MenuItem key={d.value} value={d.value}>
                 {d.label}
               </MenuItem>
             ))}
-          </Select>
+            </Select>
+            {fieldErrors.dia && (
+              <FormHelperText>{fieldErrors.dia}</FormHelperText>
+            )}
+          </FormControl>
         </Grid>
         <Grid size={{ xs: 12, md: 6 }} m={0}>
           <SAETimeField
@@ -245,11 +282,15 @@ function HorarioCard({ horario }) {
     handleCancelHorario,
     savingHorario,
     errorHorario,
-    setErrorHorario
+    setErrorHorario,
+    selectedEmploy,
+    form,
+    handleChangeForm,
   } = useHealth();
+  const [fieldErrors, setFieldErrors] = useState({});
 
-  const isEditing = editingId === horario.id;
-  const isDeleting = deleteId === horario.id;
+  const isEditing = String(editingId ?? "") === String(horario.id ?? "");
+  const isDeleting = String(deleteId ?? "") === String(horario.id ?? "");
   //Porque no podia usar los otros no tengo ni idea.
   const DIAS_LABEL = {
     0: "Domingo",
@@ -265,6 +306,27 @@ function HorarioCard({ horario }) {
 
     return str.substring(0, 5);
   }
+
+  const handleEditFieldChange = (field, value) => {
+    setFieldErrors((previous) => ({ ...previous, [field]: "", general: "" }));
+    setErrorHorario(null);
+    handleChangeForm(field, value);
+  };
+
+  const handleEditClick = () => {
+    const errors = validateHorarioForm(form, selectedEmploy);
+
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      setErrorHorario(
+        errors.general || "Revisá los campos marcados antes de guardar.",
+      );
+      return;
+    }
+
+    setErrorHorario(null);
+    handleEditHorario();
+  };
 
   //Luis te pido por favor que si lees esto empieces a comentar el codigo porque es complicado entender que es cada pequeña parte
   if (!isEditing) {
@@ -438,6 +500,8 @@ function HorarioCard({ horario }) {
               <IconButton
                 size="small"
                 onClick={() => {
+                  setFieldErrors({});
+                  setErrorHorario(null);
                   setForm({
                     ...horario,
                     hora_inicio: toTimeInput(horario.hora_inicio),
@@ -549,7 +613,10 @@ function HorarioCard({ horario }) {
             {errorHorario}
           </Alert>
         )}
-        <HorarioFormFields />
+        <HorarioFormFields
+          fieldErrors={fieldErrors}
+          onFieldChange={handleEditFieldChange}
+        />
         <Stack
           direction="row"
           spacing={1}
@@ -565,7 +632,7 @@ function HorarioCard({ horario }) {
           </SAEButton>
           <SAEButton
             variant="contained"
-            onClick={handleEditHorario}
+            onClick={handleEditClick}
             disabled={savingHorario}
             startIcon={
               savingHorario ? (
@@ -596,6 +663,7 @@ export default function GestionarHorariosDialog({ open }) {
     handleClose,
     showNuevoForm,
     setShowNuevoForm,
+    setForm,
     dialogError,
   } = useHealth();
   return (
@@ -679,7 +747,17 @@ export default function GestionarHorariosDialog({ open }) {
                     {selectedEmploy.nombre}
                   </Typography>
                   <IconButton
-                    onClick={() => setShowNuevoForm(true)}
+                    onClick={() => {
+                      setForm((previous) => ({
+                        ...previous,
+                        id: null,
+                        hora_inicio: "",
+                        hora_fin: "",
+                        dia: previous?.dia ?? 1,
+                        activo: true,
+                      }));
+                      setShowNuevoForm(true);
+                    }}
                     disabled={showNuevoForm}
                     sx={{
                       bgcolor: "primary.main",

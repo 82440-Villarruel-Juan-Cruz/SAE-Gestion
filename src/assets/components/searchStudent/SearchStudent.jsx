@@ -202,15 +202,20 @@ export default function SearchStudent({
       <Grid size={{ xs: 12, md: 1 }} my={2}>
         {studentSearchLoading && <CircularProgress size={36} sx={{ ml: 1 }} />}
         {!studentSearchLoading && !isMobile && (
-          <Button
+          <IconButton
+            size="medium"
             onClick={handleStudentSearch}
-            aria-label="Buscar alumno"
             disabled={disabled}
-            variant="contained"
-            size="large"
+            sx={{
+              width: 34,
+              height: 34,
+              color: "#1976d2",
+              bgcolor: "#e3f2fd",
+              "&:hover": { bgcolor: "#bbdefb" },
+            }}
           >
-            <SearchIcon />
-          </Button>
+            <SearchIcon fontSize="medium" />
+          </IconButton>
         )}
         {!studentSearchLoading && isMobile && (
           <SAEButton

@@ -85,6 +85,12 @@ const getTurnStatusLabel = (statusId) => {
 const getMedicLabel = (medic) =>
   medic ? `${medic.apellido}, ${medic.nombre}` : "";
 
+const normalizeMedicLabel = (value = "") =>
+  String(value).replace(/,/g, " ").replace(/\s+/g, " ").trim().toLowerCase();
+
+const hasValue = (value) =>
+  value !== null && value !== undefined && String(value).trim() !== "";
+
 export function TurnGrid() {
   const {
     //Visualizacion de Turnos No Activos
@@ -160,16 +166,28 @@ export function TurnGrid() {
   const dialogStatusColor = getTurnStatusColor(dialogStatus);
   const dialogStatusTextColor = getTurnStatusTextColor(dialogStatus);
   const selectedMedic = useMemo(
-    () =>
-      personal?.find(
+    () => {
+      const selectedByCuil = personal?.find(
         (medic) => String(medic.cuil) === String(dialogData?.cuil_medico),
-      ) ??
-      null,
-    [dialogData.cuil_medico, personal],
+      );
+
+      if (selectedByCuil) return selectedByCuil;
+
+      const dialogMedicName = normalizeMedicLabel(dialogData?.especialista);
+      if (!dialogMedicName) return null;
+
+      return (
+        personal?.find(
+          (medic) => normalizeMedicLabel(getMedicLabel(medic)) === dialogMedicName,
+        ) ?? null
+      );
+    },
+    [dialogData.cuil_medico, dialogData.especialista, personal],
   );
-  const selectedSpecialtyId = dialogData?.id_especialidad
+  const selectedSpecialtyId = hasValue(dialogData?.id_especialidad)
     ? dialogData.id_especialidad
     : selectedMedic?.id_especialidad ?? null;
+  const hasSelectedSpecialty = hasValue(selectedSpecialtyId);
   const selectedSpecialty = useMemo(
     () =>
       especialidadesActivas?.find(
@@ -179,14 +197,15 @@ export function TurnGrid() {
   );
   const filteredPersonal = useMemo(
     () =>
-      selectedSpecialtyId
+      hasSelectedSpecialty
         ? personal.filter(
             (medic) =>
-              medic.activo &&
+              (medic.activo ||
+                String(medic.cuil) === String(selectedMedic?.cuil)) &&
               Number(medic.id_especialidad) === Number(selectedSpecialtyId),
           )
         : [],
-    [personal, selectedSpecialtyId],
+    [hasSelectedSpecialty, personal, selectedMedic?.cuil, selectedSpecialtyId],
   );
 
   const handlePatientSearch = () => {
@@ -561,7 +580,7 @@ export function TurnGrid() {
                         disablePortal
                         options={filteredPersonal}
                         getOptionLabel={getMedicLabel}
-                        disabled={!selectedSpecialtyId}
+                        disabled={!hasSelectedSpecialty}
                         onChange={(_event, newValue) => {
                           // 'newValue' es el objeto completo del perfil seleccionado (o null)
                           if (newValue) {
@@ -586,7 +605,7 @@ export function TurnGrid() {
                         }
                         value={
                           selectedMedic &&
-                          (!selectedSpecialtyId ||
+                          (!hasSelectedSpecialty ||
                             Number(selectedMedic.id_especialidad) ===
                               Number(selectedSpecialtyId))
                             ? selectedMedic
@@ -597,7 +616,7 @@ export function TurnGrid() {
                             {...params}
                             label={C.turnsMedic}
                             helperText={
-                              selectedSpecialtyId
+                              hasSelectedSpecialty
                                 ? undefined
                                 : "Seleccioná una especialidad para filtrar"
                             }

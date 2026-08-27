@@ -6,6 +6,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 
 import * as api from "../../../api/DeporteService";
+import { ObtenerUsuariosXLegajo } from "../../../api/EmpleadoService.js";
 import {
   validateDeporte,
   validateDeportista,
@@ -15,6 +16,7 @@ import {
 
 import { SportsContext } from "../employedContext";
 import { formatHeader } from "../../../utils/datagrid.utils.jsx";
+import { getFirstRecord } from "../../../utils/util.jsx";
 import { useNotification } from "../../../shared/context/sharedContext";
 import { EMPTY_COMPLETE_SCHEDULE } from "../../../utils/common/common.config.js";
 import { SPORTS_STRINGS } from "../../../utils/strings/employed.strings.js";
@@ -302,6 +304,11 @@ export function SportsProvider({ children, autoLoad = true }) {
     },
     [handleDataChange],
   );
+
+  const buscarAlumnoPorLegajo = useCallback(async (legajo) => {
+    const alumno = await ObtenerUsuariosXLegajo(String(legajo).trim());
+    return getFirstRecord(alumno);
+  }, []);
 
   const executeSave = useCallback(async () => {
     setDialogSaving(true);
@@ -610,6 +617,7 @@ export function SportsProvider({ children, autoLoad = true }) {
     handleDownloadDoc,
     handleDialogChange,
     handleDialogSave,
+    buscarAlumnoPorLegajo,
     profesoresColumns,
     espaciosColumns,
     deportistasColumns,

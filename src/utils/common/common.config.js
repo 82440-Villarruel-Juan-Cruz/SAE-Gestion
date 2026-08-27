@@ -120,6 +120,8 @@ export const EMPTY_TURNO_PACIENTE = {
   fecha_solicitud: "",
   fecha_atencion: "",
   hora_atencion: "",
+  id_estado_turno: 0,
+  estado: "",
 };
 
 export const EMPTY_ESPECIALIDAD = {

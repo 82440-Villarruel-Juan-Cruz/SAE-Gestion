@@ -188,6 +188,7 @@ export const HEALTH_STRINGS = {
   headerDescription:
     "Permite sacar turnos médicos y ver los cursos disponibles",
   servicesTitle: "Servicios para Alumnos",
+  noServicesTitle: "No hay servicios activos",
   servicesDescription:
     "Especialidades médicas disponibles para solicitar turnos",
   servicesCardSche: "Horarios de Atención:",

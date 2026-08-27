@@ -15,6 +15,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import SAEButton from "../../../assets/components/buttons/SAEButton";
 import SAETextField from "../../../assets/components/inputs/SAETextField";
+import SearchStudent from "../../../assets/components/searchStudent/SearchStudent";
 import { useSports } from "../../context/employedContext";
 import { SPORTS_STRINGS } from "../../../utils/strings/employed.strings";
 
@@ -47,10 +48,19 @@ export default function SportsEntityDialog() {
     closeDialog,
     handleDialogChange,
     handleDialogSave,
+    buscarAlumnoPorLegajo,
   } = useSports();
 
+  const handleStudentSelect = (student) => {
+    handleDialogChange("legajo", student.legajo);
+  };
+
+  const handleStudentClear = () => {
+    handleDialogChange("legajo", "");
+  };
+
   return (
-    <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
+    <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="md" fullWidth>
       <DialogTitle
         sx={{
           display: "flex",
@@ -149,9 +159,7 @@ export default function SportsEntityDialog() {
               <SAETextField
                 label={C.sportsMaps}
                 value={dialogData.url_maps ?? ""}
-                onChange={(e) =>
-                  handleDialogChange("url_maps", e.target.value)
-                }
+                onChange={(e) => handleDialogChange("url_maps", e.target.value)}
                 fullWidth
                 error={Boolean(dialogFieldErrors.url_maps)}
                 helperText={dialogFieldErrors.url_maps}
@@ -171,15 +179,29 @@ export default function SportsEntityDialog() {
             </>
           ) : dialogType === "deportista" ? (
             <>
-              <SAETextField
-                label={C.studentID}
-                value={dialogData.legajo ?? ""}
-                onChange={(e) => handleDialogChange("legajo", e.target.value)}
-                disabled={dialogMode === "edit"}
-                fullWidth
-                error={Boolean(dialogFieldErrors.legajo)}
-                helperText={dialogFieldErrors.legajo}
-              />
+              {dialogMode === "create" ? (
+                <SearchStudent
+                  legajo={dialogData.legajo ?? ""}
+                  onLegajoChange={(value) =>
+                    handleDialogChange("legajo", value)
+                  }
+                  onSelectStudent={handleStudentSelect}
+                  onClearStudent={handleStudentClear}
+                  onSearchStudent={buscarAlumnoPorLegajo}
+                  onError={setDialogError}
+                  showValidationErrors={Boolean(dialogFieldErrors.legajo)}
+                  legajoError={dialogFieldErrors.legajo}
+                />
+              ) : (
+                <SAETextField
+                  label={C.studentID}
+                  value={dialogData.legajo ?? ""}
+                  disabled
+                  fullWidth
+                  error={Boolean(dialogFieldErrors.legajo)}
+                  helperText={dialogFieldErrors.legajo}
+                />
+              )}
               <SAETextField
                 label={C.studentExpireLicence}
                 type="date"
@@ -192,33 +214,38 @@ export default function SportsEntityDialog() {
                 error={Boolean(dialogFieldErrors.vencimiento_ficha)}
                 helperText={dialogFieldErrors.vencimiento_ficha}
               />
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={Boolean(dialogData.habilitado_deportado)}
-                    onChange={(e) =>
-                      handleDialogChange(
-                        "habilitado_deportado",
-                        e.target.checked,
-                      )
-                    }
-                    color="primary"
-                  />
-                }
-                label={C.studentAuthorized}
-              />
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={Boolean(dialogData.habilitado_deporte)}
-                    onChange={(e) =>
-                      handleDialogChange("habilitado_deporte", e.target.checked)
-                    }
-                    color="primary"
-                  />
-                }
-                label={C.studentSportAuth}
-              />
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={Boolean(dialogData.habilitado_deportado)}
+                      onChange={(e) =>
+                        handleDialogChange(
+                          "habilitado_deportado",
+                          e.target.checked,
+                        )
+                      }
+                      color="primary"
+                    />
+                  }
+                  label={C.studentAuthorized}
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={Boolean(dialogData.habilitado_deporte)}
+                      onChange={(e) =>
+                        handleDialogChange(
+                          "habilitado_deporte",
+                          e.target.checked,
+                        )
+                      }
+                      color="primary"
+                    />
+                  }
+                  label={C.studentSportAuth}
+                />
+              </Stack>
             </>
           ) : (
             <>
@@ -247,7 +274,11 @@ export default function SportsEntityDialog() {
         </Stack>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <SAEButton variant="outlined" onClick={closeDialog} disabled={dialogSaving}>
+        <SAEButton
+          variant="outlined"
+          onClick={closeDialog}
+          disabled={dialogSaving}
+        >
           {C.cancel}
         </SAEButton>
         <SAEButton

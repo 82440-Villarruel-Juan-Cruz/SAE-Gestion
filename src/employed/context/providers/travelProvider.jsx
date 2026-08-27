@@ -40,6 +40,8 @@ const isValidTravelPlace = (value = "") => {
     const parts = String(value).split(/\s+-\s+/);
     return parts.length === 3 && parts.every((part) => !isEmpty(part));
 };
+const isEndDateBeforeStartDate = (startDate, endDate) =>
+    !isEmpty(startDate) && !isEmpty(endDate) && String(endDate) < String(startDate);
 
 export function TravelProvider({ children }){
     const navigate = useNavigate();
@@ -86,7 +88,10 @@ export function TravelProvider({ children }){
             case field === "fecha_inicio":
                 return  isEmpty(value) ? C.validationDate:"";
             case field === "fecha_fin":
-                return  isEmpty(value) ? C.validationDate:"";
+                if (isEmpty(value)) return C.validationDate;
+                return isEndDateBeforeStartDate(data.fecha_inicio, value)
+                    ? C.validationTravelEndAfterStart
+                    : "";
             case field === "seguro":
                 return  typeof value === "boolean" ? "" : C.validationActive;
             case field === "origen":

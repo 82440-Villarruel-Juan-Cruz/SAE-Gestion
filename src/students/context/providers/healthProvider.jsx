@@ -50,6 +50,18 @@ import { EMPTY_TURNO_PACIENTE } from "../../../utils/common/common.config.js";
 import { toApiDateTime } from "../../../utils/date.utils.js";
 import { HealthContext } from "../studentContext";
 
+const TURN_STATUS_COLORS = {
+  0: "#8A8A8A",
+  1: "#576DDC",
+  2: "#E77575",
+  3: "#B8CDFF",
+  4: "#99F6B9",
+  5: "#F1C6A3",
+};
+
+const getTurnStatusTextColor = (statusId) =>
+  [3, 4, 5].includes(Number(statusId)) ? "#153b6f" : "white";
+
 export const HealthUsersProvider = ({ children }) => {
   const {
     showNotification,
@@ -168,6 +180,31 @@ export const HealthUsersProvider = ({ children }) => {
         flex: 0.8,
         minWidth: 140,
         maxWidth: 180,
+        renderCell: ({ row, value }) => {
+          const statusId = row.id_estado_turno;
+
+          return (
+            <Chip
+              size="small"
+              label={value || "-"}
+              sx={{
+                bgcolor: TURN_STATUS_COLORS[statusId] || "var(--secondary)",
+                color: getTurnStatusTextColor(statusId),
+                fontWeight: 700,
+              }}
+            />
+          );
+        },
+      },
+      id_estado_turno: {
+        hide: true,
+        hideable: false,
+        filterable: false,
+        sortable: false,
+        disableColumnMenu: true,
+        width: 0,
+        minWidth: 0,
+        maxWidth: 0,
       },
     });
   }, []);

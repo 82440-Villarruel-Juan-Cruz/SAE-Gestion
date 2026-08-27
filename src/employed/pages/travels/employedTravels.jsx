@@ -501,7 +501,7 @@ function BussinessDialog() {
 }
 
 function TravelsDialog() {
-  const { bussiness, handleTravelSave,fieldErrors, setFieldErrors, setTouchedFields,validateField, resetValidation } = useTravel();
+  const { bussiness, handleTravelSave,fieldErrors, setFieldErrors, touchedFields, setTouchedFields,validateField, resetValidation } = useTravel();
   const {
     dialogOpen,
     dialogMode,
@@ -522,6 +522,11 @@ function TravelsDialog() {
   const handleDialogChange = (field, value) => {
     const nextData = { ...dialogData, [field]: value };
     const message = validateField(field, value, nextData);
+    const shouldValidateEndDate =
+      ["fecha_inicio", "fecha_fin"].includes(field) &&
+      (field === "fecha_fin" ||
+        touchedFields.fecha_fin ||
+        Boolean(fieldErrors.fecha_fin));
 
     handleDataChange(field, value);
     setTouchedFields((previous) => ({ ...previous, [field]: true }));
@@ -533,6 +538,20 @@ function TravelsDialog() {
       } else {
         delete nextErrors[field];
         setDialogError("");
+      }
+
+      if (shouldValidateEndDate) {
+        const fechaFinMessage = validateField(
+          "fecha_fin",
+          nextData.fecha_fin,
+          nextData,
+        );
+
+        if (fechaFinMessage) {
+          nextErrors.fecha_fin = fechaFinMessage;
+        } else {
+          delete nextErrors.fecha_fin;
+        }
       }
 
       return nextErrors;
@@ -666,7 +685,10 @@ function TravelsDialog() {
                       })
                 }
                 fullWidth
-                slotProps={{ inputLabel: { shrink: true } }}
+                slotProps={{
+                  inputLabel: { shrink: true },
+                  htmlInput: { min: dialogData.fecha_inicio || undefined },
+                }}
                 error={Boolean(fieldErrors.fecha_fin)}
                 helperText={fieldErrors.fecha_fin}
               />

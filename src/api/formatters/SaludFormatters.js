@@ -55,6 +55,7 @@ export const mapTurnosPaciente = (turno) => ({
   fecha_atencion:removerHoras(turno.fecha_atencion),
   hora_atencion: turno.hora_atencion,
   asunto: turno.asunto,
+  id_estado_turno: turno.estadosTurno.id,
   estado: turno.estadosTurno.estado_turno
 });
 
