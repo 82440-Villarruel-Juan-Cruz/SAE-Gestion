@@ -69,14 +69,14 @@ const TRAVELS_INFORMATION = [
   },
   {
     id: "vaca-muerta",
-    category: "Quimica",
-    question: "Explotacion de YPF",
+    category: "Química",
+    question: "Explotación de YPF",
     answer:
-      "No solo es un viaje para quimica sino que incluye otras carreras, como civil y mecanica. YPF es la compañía pionera, principal inversora y mayor operadora en el yacimiento de Vaca Muerta. La petrolera nacional descubrió el potencial de esta formación en 2011 y hoy concentra allí la mayor parte de su estrategia para convertir a Argentina en un polo exportador mundial de gas y petróleo. ",
+      "No solo es un viaje para química sino que incluye otras carreras, como civil y mecánica. YPF es la compañía pionera, principal inversora y mayor operadora en el yacimiento de Vaca Muerta. La petrolera nacional descubrió el potencial de esta formación en 2011 y hoy concentra allí la mayor parte de su estrategia para convertir a Argentina en un polo exportador mundial de gas y petróleo. ",
   },
   {
     id: "electrica",
-    category: "Electrica",
+    category: "Eléctrica",
     question: "Visitas EPEC",
     answer:
       "La Central Nuclear Embalse es una planta de generación nucleoeléctrica ubicada en la costa sur del lago Ministro Pistarini, a unos 4 km de la ciudad de Embalse, Córdoba. La UTN (Universidad Tecnológica Nacional) frecuentemente organiza visitas técnicas a sus instalaciones para estudiantes de carreras de ingeniería.",

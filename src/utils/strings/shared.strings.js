@@ -38,12 +38,12 @@ export const MAIN_STRINGS ={
 
 export const NEWS_STRINGS = {
   title: "Novedades Estudiantiles",
-  description: "Información actualizada sobre actividades, comunicados y novedades académicas.",
+  description: "Información actualizada sobre actividades, comúnicados y novedades académicas.",
   noData:"No hay noticias por ahora!",
   documentsSubtitle:"Documentos adjuntos",
   showDocumentButton: "Visualizar documento",
   downloadDocumentButton: "Descargar documento",
-  showMore: "Ver mas"
+  showMore: "Ver más"
 };
 
 export const LOGIN_STRINGS = {
@@ -67,8 +67,8 @@ export const LOGIN_STRINGS = {
     copyright:"© 2026 SAE Gestión - UTN FRC",
     loadingMessage:"Ingresando...",
     
-    completeMsg:"Completa tus datos de usuario",
-    completeDescription:"No poseemos tu nombre completo, por favor dejanos tu nombre como aparece en el sistema academico.",
+    completeMsg:"Completá tus datos de usuario",
+    completeDescription:"No poseemos tu nombre completo, por favor dejanos tu nombre como aparece en el sistema académico.",
     completeSaving:"Guardando...",
     completeSaveButton:"Confirmar"
 }
@@ -76,7 +76,7 @@ export const LOGIN_STRINGS = {
 export const JPA_STRINGS = {
     participateButton:"Quiero participar",
     universityChip:"Universidad Tecnológica Nacional - Córdoba",
-    heroSubtitle:"Formate en una de las intituciones educativas mas importantes de la Argentina y descubrí una experiencia universitaria que va mucho más allá del aula.",
+    heroSubtitle:"Formate en una de las intituciones educativas más importantes de la Argentina y descubrí una experiencia universitaria que va mucho más allá del aula.",
     heroExplore:"Explorar Carreras",
     heroNextEvents:"Próximos Eventos",
     heroCard1:"Carreras",
@@ -86,13 +86,13 @@ export const JPA_STRINGS = {
 
     ourDegreesTitle:"Conocé nuestras carreras",
     ourDegressDescription:"Elegí el camino para transformar el mundo.",
-    ourDegreesCaption:"Empeza tu aventura hoy →",
+    ourDegreesCaption:"Empezá tu aventura hoy →",
 
     journeyTitle:"Tu camino en la UTN",
     journeyDescription:"Descubrí todo lo que podés vivir durante tu formación.",
 
     eventsTitle:"Eventos en nuestra Universidad.",
-    eventsDescription:"La Universidad no es solo para los que ya estan sino para toda la comunidad, preparate para una experiencia unica!",
+    eventsDescription:"La Universidad no es solo para los que ya están sino para toda la comunidad, preparate para una experiencia única!",
 
     participateTitle:"Participá de JPA",
     participateDescription:"Sumate a la experiencia universitaria desde tu institución, empresa o como estudiante.",
@@ -107,7 +107,7 @@ export const JPA_STRINGS = {
 
     participateName:"Nombre de la organización",
     participateEmail:"Ingrese el email",
-    participatePhone:"Telefono",
+    participatePhone:"Teléfono",
     participateQuant:"Cantidad",
     participateDate:"Fecha de visita",
     participateSend:"Enviar solicitud",

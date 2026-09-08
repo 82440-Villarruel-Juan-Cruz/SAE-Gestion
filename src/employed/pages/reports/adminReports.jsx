@@ -20,35 +20,35 @@ export default function AdminReport() {
     <SAEPage>
       <HeaderPageEmployed
         header=" Módulo de Reportes"
-        title="Reportes y Estadisticas"
+        title="Reportes y Estadísticas"
         description="Brinda soporte a la toma de decisiones en base a las decisiones."
       />
       <ReportsNav />
 
-      <ReportSection id="becas" title="Estadisticas de Becas">
+      <ReportSection id="becas" title="Estadísticas de Becas">
         <SchoolarshipChart />
       </ReportSection>
-      <ReportSection id="deportes" title="Estadisticas de Deportes">
+      <ReportSection id="deportes" title="Estadísticas de Deportes">
         <SportsChart />
       </ReportSection>
       <ReportSection
         id="links-frecuentes"
-        title="Estadisticas de Links Frecuentes"
+        title="Estadísticas de Links Frecuentes"
       >
         <FrequentLinksChart />
       </ReportSection>
-      <ReportSection id="salud" title="Estadisticas de Salud">
+      <ReportSection id="salud" title="Estadísticas de Salud">
         <HealthChart />
       </ReportSection>
-      <ReportSection id="viajes" title="Estadisticas de Viajes">
+      <ReportSection id="viajes" title="Estadísticas de Viajes">
         <TravelsChart />
       </ReportSection>
     </SAEPage>
   );
 }
 const mockData = [
-  { id: 0, value: 35, label: "Economica" },
-  { id: 1, value: 40, label: "Investigacion" },
+  { id: 0, value: 35, label: "Económica" },
+  { id: 1, value: 40, label: "Investigación" },
   { id: 2, value: 15, label: "Servicio" },
 ];
 const lineDataX = ["2021", "2022", "2023", "2024", "2025", "2026"];
@@ -59,8 +59,8 @@ const pieData = [
 ];
 
 const sportsByDisciplineData = [
-  { id: 0, value: 42, label: "Futbol" },
-  { id: 1, value: 36, label: "Basquet" },
+  { id: 0, value: 42, label: "Fútbol" },
+  { id: 1, value: 36, label: "Básquet" },
   { id: 2, value: 28, label: "Voley" },
   { id: 3, value: 18, label: "Handball" },
   { id: 4, value: 14, label: "Atletismo" },
@@ -70,14 +70,14 @@ const sportsMonths = ["Feb", "Mar", "Abr", "May", "Jun", "Jul"];
 const sportsByCareerData = [
   { career: "Sistemas", deportistas: 34 },
   { career: "Industrial", deportistas: 27 },
-  { career: "Mecanica", deportistas: 22 },
+  { career: "Mecánica", deportistas: 22 },
   { career: "Civil", deportistas: 19 },
-  { career: "Quimica", deportistas: 14 },
-  { career: "Electronica", deportistas: 12 },
+  { career: "Química", deportistas: 14 },
+  { career: "Electrónica", deportistas: 12 },
 ];
 
 const frequentLinksData = [
-  { link: "Calendario Academico", views: 1280 },
+  { link: "Calendario Académico", views: 1280 },
   { link: "Autogestion", views: 1140 },
   { link: "Becas", views: 820 },
   { link: "Comedor", views: 760 },
@@ -85,11 +85,11 @@ const frequentLinksData = [
 ];
 
 const healthCompletedTurnsData = [
-  { turn: "Clinica", completados: 86 },
-  { turn: "Psicologia", completados: 64 },
-  { turn: "Nutricion", completados: 42 },
-  { turn: "Odontologia", completados: 39 },
-  { turn: "Enfermeria", completados: 31 },
+  { turn: "Clínica", completados: 86 },
+  { turn: "Psicología", completados: 64 },
+  { turn: "Nutrición", completados: 42 },
+  { turn: "Odontología", completados: 39 },
+  { turn: "Enfermería", completados: 31 },
 ];
 
 const travelMonths = ["Feb", "Mar", "Abr", "May", "Jun", "Jul"];
@@ -98,7 +98,7 @@ const travelOccupancyData = [
   { travel: "Carlos Paz", inscriptos: 38, cupo: 45 },
   { travel: "Mendoza", inscriptos: 52, cupo: 60 },
   { travel: "Rosario", inscriptos: 28, cupo: 35 },
-  { travel: "Cordoba Norte", inscriptos: 18, cupo: 25 },
+  { travel: "Córdoba Norte", inscriptos: 18, cupo: 25 },
 ];
 
 function ReportsNav() {
@@ -135,7 +135,12 @@ function ReportsNav() {
               },
             }}
           >
-            <Typography variant="subtitle2" color="var(--primary)">
+            <Typography
+              variant="subtitle2"
+              sx={{
+                color: "inherit",
+              }}
+            >
               {section.title}
             </Typography>
           </Box>
@@ -447,7 +452,7 @@ function HealthChart() {
       sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
     >
       <Grid size={{ xs: 12, md: 8, lg: 5 }}>
-        <ReportChartCard title="Turnos Completados mas Usados">
+        <ReportChartCard title="Turnos Completados más Usados">
           <BarChart
             xAxis={[
               {
@@ -512,7 +517,7 @@ function TravelsChart() {
       </Grid>
 
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <ReportChartCard title="Inscriptos segun Cupo">
+        <ReportChartCard title="Inscriptos según Cupo">
           <BarChart
             xAxis={[
               {

@@ -321,7 +321,7 @@ export const PERSONAL_FIELDS = [
     md: 3,
     InputLabelProps: { shrink: true },
   },
-  { name: "telefono", label: "Telefono", type: "text", md: 3 },
+  { name: "telefono", label: "Teléfono", type: "text", md: 3 },
   { name: "email", label: "Mail", type: "email", md: 6 },
   { name: "legajo", label: "Legajo", type: "text", md: 6 },
   { name: "direccion", label: "Domicilio", type: "text", md: 12 },
@@ -345,7 +345,7 @@ const TRAVELS_REQUIRED_DOCUMENTS = [
   },
   {
     id: 6,
-    nombre: "Informe Tecnico Viaje",
+    nombre: "Informe Técnico Viaje",
     extension: ".pdf",
   },
 ];
@@ -379,7 +379,7 @@ export const SPORTS_REQUIRED_DOCUMENTS = [
   },
   {
     id_tipo_documento: null,
-    nombre: "Ficha Medica o E.M.M.A.C",
+    nombre: "Ficha Médica o E.M.M.A.C",
     descripcion:
       "Certificado médico vigente que indica que estás apto para realizar actividad física.",
     subido: false,
@@ -408,8 +408,8 @@ export const SCHOLARSHIPS_REQUERID_DOCUMENTS = [
   },
   {
     id_tipo_documento: null,
-    nombre: "Declaracion Jurada",
-    descripcion: "Descarga, completa, firma y adjunta la declaracion jurada.",
+    nombre: "Declaración Jurada",
+    descripcion: "Descargá, completá, firmá y adjuntá la declaración jurada.",
     externalUrl:
       "https://docs.google.com/document/d/1wbuUbySrYoNTnyOcojTkkMGHOleb0Afq/edit?usp=drivesdk&ouid=116947469098280320832&rtpof=true&sd=true",
     externalUrlLabel: "Ejemplo",
@@ -441,7 +441,7 @@ export const ECONOMIC_DOCUMENTS = [
   {
     nombre: "Comprobante Ingresos Mensuales",
     descripcion:
-      "Recibos de sueldo, monotributo, jubilacion u otros ingresos del hogar.",
+      "Recibos de sueldo, monotributo, jubilación u otros ingresos del hogar.",
     required: true,
     extension: null,
     id_tipo_documento: null,
@@ -483,7 +483,7 @@ export const ECONOMIC_OPTIONAL_DOCUMENTS = [
   {
     nombre: "Constancia de Desocupado",
     descripcion:
-      "Constancia emitida por ANSES si algun integrante no tiene empleo.",
+      "Constancia emitida por ANSES si algún integrante no tiene empleo.",
     required: false,
     extension: null,
     id_tipo_documento: null,
@@ -496,7 +496,7 @@ export const ECONOMIC_OPTIONAL_DOCUMENTS = [
   {
     nombre: "Libreta Casamiento o Partida Hermanos",
     descripcion:
-      "Documentacion que acredite hermanos menores a cargo del grupo familiar.",
+      "Documentación que acredite hermanos menores a cargo del grupo familiar.",
     required: false,
     extension: null,
     id_tipo_documento: null,
@@ -508,7 +508,7 @@ export const ECONOMIC_OPTIONAL_DOCUMENTS = [
   },
   {
     nombre: "Libreta Casamiento y Partida Hijos",
-    descripcion: "Documentacion que acredite conyuge o hijos a cargo.",
+    descripcion: "Documentación que acredite cónyuge o hijos a cargo.",
     required: false,
     extension: null,
     id_tipo_documento: null,
@@ -521,7 +521,7 @@ export const ECONOMIC_OPTIONAL_DOCUMENTS = [
   {
     nombre: "Contrato Alquiler y Pago",
     descripcion:
-      "Contrato de alquiler y comprobante del ultimo pago realizado.",
+      "Contrato de alquiler y comprobante del último pago realizado.",
     required: false,
     extension: null,
     id_tipo_documento: null,
@@ -532,8 +532,8 @@ export const ECONOMIC_OPTIONAL_DOCUMENTS = [
     id_archivo: null,
   },
   {
-    nombre: "Pago Credito Hipotecario",
-    descripcion: "Comprobante del pago mensual del credito hipotecario.",
+    nombre: "Pago Crédito Hipotecario",
+    descripcion: "Comprobante del pago mensual del crédito hipotecario.",
     required: false,
     extension: null,
     id_tipo_documento: null,
@@ -573,7 +573,7 @@ export const TRAVEL_REQUIRED_DOCUMENTS = [
   },
   {
     id_tipo_documento:13,
-    nombre: "Declaracion Jurada",
+    nombre: "Declaración Jurada",
     descripcion:
       "Certificadofirmado en el cual establece un heredero a tu fortuna.",
     subido: false,
@@ -600,8 +600,8 @@ export const PURCHASE_DOCUMENTS = [
   {
     key: "informe",
     id_tipo_documento: null,
-    nombre: "Informe tecnico",
-    descripcion: "Informe tecnico de la compra en PDF.",
+    nombre: "Informe técnico",
+    descripcion: "Informe técnico de la compra en PDF.",
     formatoNombre: "{nombreCompra}_InformeTecnico",
     extension: ".pdf",
     multiple: false,

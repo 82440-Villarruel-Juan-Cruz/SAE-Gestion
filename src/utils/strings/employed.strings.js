@@ -8,8 +8,8 @@ export const MAIN_STRINGS = {
   panelDescription:
     "Módulos operativos principales para el trabajo diario del equipo.",
 
-  eventsTitle: "Tus horarios y proximos eventos",
-  eventsDescription: "Permite visualizar tus horarios y los eventos proximos",
+  eventsTitle: "Tus horarios y próximos eventos",
+  eventsDescription: "Permite visualizar tus horarios y los eventos próximos",
 };
 
 export const CONSULTATIONS_STRINGS = {
@@ -20,17 +20,17 @@ export const CONSULTATIONS_STRINGS = {
   headerNoName: "Empleado",
 
   aclarationFAQS:
-    "El contenido a continuacion debe controlarse mediante la solicitud al equipo de sistemas. Esto se debe a que no esta implementado un componente que permita modificarlo por la misma SAE.",
+    "El contenido a continuación debe controlarse mediante la solicitud al equipo de sistemas. Esto se debe a que no está implementado un componente que permita modificarlo por la misma SAE.",
   faqsTitle: "Preguntas publicadas",
   link: "Enlace: ",
   quickFaqsTitle: "Respuestas rápidas publicadas",
   emailDescription:
     "Las consultas preparadas por estudiantes se dirigen actualmente a: ",
 
-  errorName: "Nombre vacio o no valido",
-  errorRequiredLink: "Ingresa un hipervinculo",
-  errorLink: "Ingresa un hipervinculo valido con http:// o https://",
-  errorSaving: "Revisa los campos marcados antes de guardar.",
+  errorName: "Nombre vacío o no válido",
+  errorRequiredLink: "Ingresá un hipervínculo",
+  errorLink: "Ingresá un hipervínculo válido con http:// o https://",
+  errorSaving: "Revisá los campos marcados antes de guardar.",
 
   formID: "ID",
   formIcon: "Icono",
@@ -42,10 +42,10 @@ export const CONSULTATIONS_STRINGS = {
   save: "Guardar",
 
   //Provider
-  errorNoLink: "No hay hipervinculo para copiar",
-  copyLinkMsg: "Hipervinculo copiado",
-  errorCopyLink: "No se pudo copiar el hipervinculo",
-  errorNoUpdate: "La modificacion de links frecuentes no esta disponible.",
+  errorNoLink: "No hay hipervínculo para copiar",
+  copyLinkMsg: "Hipervínculo copiado",
+  errorCopyLink: "No se pudo copiar el hipervínculo",
+  errorNoUpdate: "La modificación de links frecuentes no está disponible.",
 
   creationMsg: "Link Frecuente creado!",
   updateMSg: "Link Frecuente modificado correctamente",
@@ -55,7 +55,7 @@ export const CONSULTATIONS_STRINGS = {
 
 export const HEALTH_STRING = {
   headerMainTitle: "Módulo de Salud",
-  headerMainSubtitle: "Gestión de las capacidades medicas de nuestra area",
+  headerMainSubtitle: "Gestión de las capacidades médicas de nuestra área",
   headerMainDescription:
     "Permite cargar especialidades, personal, cursos, horarios para el personal y gestionar los turnos de los estudiantes",
 
@@ -84,19 +84,19 @@ export const HEALTH_STRING = {
   employFault: "Registrar Falta",
   employHistoryFault: "Faltas Previas",
   employCreateFault: "Registrar Nueva Falta",
-  faultObservation: "Observacion de la Falta",
+  faultObservation: "Observación de la Falta",
   faultDate: "Fecha de la Falta",
 
   employSubtitle: "¡ATENCIÓN!",
   employAclaration:
-    "Al crear el personal medico se le solicitara el CUIL, el mismo NO podra ser modificado despues, es decir, que despues de la carga de esta persona solo el equipo de sistemas podra eliminar dicho registro.",
+    "Al crear el personal médico se le solicitará el CUIL, el mismo NO podrá ser modificado después, es decir, que después de la carga de esta persona solo el equipo de sistemas podrá eliminar dicho registro.",
   employCUIL: "CUIL",
   employName: "Nombre",
   employLastName: "Apellido",
   employSpeciality: "Especialidad",
   employUpdateSubtitle: "¡IMPORTANTE!",
   employUpdateAclaration:
-    "Si la especialidad no se encuentra activa aparecera como dato pero no sera seleccionable.",
+    "Si la especialidad no se encuentra activa aparecerá como dato pero no será seleccionable.",
   employActive: "Personal Activo",
   employNoActive: "Personal NO activo",
 
@@ -132,16 +132,16 @@ export const HEALTH_STRING = {
   scheduleAll: "Todos los empleados",
 
   turnsCancel: "Turnos Cancelados",
-  turnsFinish: "Turnos Finalizadas",
+  turnsFinish: "Turnos Finalizados",
   turnsMissingID: "Ingrese un legajo para continuar",
   turnsMissingDegree: "Ingrese una carrera para continuar",
   turnsMoveMissingData:
     "Completá paciente, asunto, especialista, fecha y hora antes de mover el turno. Para cancelar no hace falta completar esos datos.",
   turnsDropToState: "Soltar para mover a",
 
-  turnsHeader: "Modulo de Salud",
+  turnsHeader: "Módulo de Salud",
   turnsTitle: "Turnero",
-  turnsCreation: "Creacion de Turnos",
+  turnsCreation: "Creación de Turnos",
   turnsCreationButton: "Crear Turno",
 
   turnsCreate: "Nuevo Turno",
@@ -168,11 +168,11 @@ export const HEALTH_STRING = {
 
 export const JPA_STRINGS = {
   headerMainTitle: "Módulo de Salud",
-  headerMainSubtitle: "Gestión de las capacidades medicas de nuestra area",
+  headerMainSubtitle: "Gestión de las capacidades médicas de nuestra área",
   headerMainDescription:
     "Permite cargar especialidades, personal, cursos, horarios para el personal y gestionar los turnos de los estudiantes",
 
-  eventDeleteConfirm: "Esta seguro que quiere eliminar el evento:",
+  eventDeleteConfirm: "Está seguro que quiere eliminar el evento:",
   eventID: "ID",
   eventName: "Nombre del Evento",
   eventManager: "Encargado",
@@ -181,15 +181,15 @@ export const JPA_STRINGS = {
   eventStartTime: "Hora inicio",
   eventEndTime: "Hora fin",
 
-  standDeleteConfirm: "Esta seguro que quiere eliminar el stand:",
+  standDeleteConfirm: "Está seguro que quiere eliminar el stand:",
   standName: "Nombre del Stand",
   standExpo: "Expositor",
   standUbi: "Ubicación en la facultad",
 
-  interestDeleteConfirm: "Esta seguro que quiere eliminar el interesado:",
+  interestDeleteConfirm: "Está seguro que quiere eliminar el interesado:",
   interestName: "Nombre del Interesado",
-  interestPhone: "Contacto Telefonico",
-  interestEmail: "Contacto Electronico",
+  interestPhone: "Contacto Telefónico",
+  interestEmail: "Contacto Electrónico",
   interestEmailHelp: "Ingrese un correo electrónico válido",
 
   cancel: "Cancelar",
@@ -197,18 +197,18 @@ export const JPA_STRINGS = {
   save: "Guardar",
   delete: "Eliminar",
   //Provider
-  eventDeleteMsg: "Se elimino el evento correctamente",
+  eventDeleteMsg: "Se eliminó el evento correctamente",
   eventCreateMsg: "Evento creado!",
   eventEditMsg: "Evento modificado correctamente",
   eventError: "Ocurrió un error al guardar",
 
   standCreateMsg: "Puesto creado!",
   standEditMsg: "Puesto modificado correctamente",
-  standDeleteMsg: "Se elimino el puesto correctamente",
+  standDeleteMsg: "Se eliminó el puesto correctamente",
 
   interestCreateMsg: "Interesado creado!",
   interestEditMsg: "Interesado modificado correctamente",
-  interestDeleteMsg: "Se elimino el interesado correctamente",
+  interestDeleteMsg: "Se eliminó el interesado correctamente",
 };
 
 export const USER_STRINGS = {
@@ -228,9 +228,9 @@ export const USER_STRINGS = {
 
   employWarningTitle: "¡ATENCIÓN!",
   employWarningBody1:
-    "Al crear un nuevo empleado debe escribirse sin errores su legajo, ya que esta sera la unica forma que pueda acceder a la aplicacion.",
+    "Al crear un nuevo empleado debe escribirse sin errores su legajo, ya que esta será la única forma que pueda acceder a la aplicación.",
   employWarningEnd:
-    "Desde esta pestaña solo se podran crear perfiles de empleados, comedor, salud y administrador.",
+    "Desde esta pestaña solo se podrán crear perfiles de empleados, comedor, salud y administrador.",
 
   userWarningBody2:
     "Al crear el usuario desde esta pestaña se crea como estudiante sin que se tenga la posibilidad de cambiar ese rol.",
@@ -256,7 +256,7 @@ export const USER_STRINGS = {
   userDegree: "Carrera",
 
   userTitle: "Estudiantes",
-  userDescription: "Permite la busqueda de estudiante registrados",
+  userDescription: "Permite la búsqueda de estudiante registrados",
   userName: "Nombre de Usuario",
   userSearch: "Buscar Usuarios",
   dominio: "frc.utn.edu.ar",
@@ -270,7 +270,7 @@ export const USER_STRINGS = {
   day: "Día",
   startTime: "Hora inicio",
   endTime: "Hora fin",
-  selectDay: "Selecciona un día...",
+  selectDay: "Seleccioná un día...",
   scheduleDeleteButton: "Eliminar Horario",
   scheduleDeleteWarning:
     "¿Estás seguro que querés eliminar este horario? Esta acción no se puede deshacer.",
@@ -284,8 +284,8 @@ export const USER_STRINGS = {
   //Provider
   validationID: "No posee ID, error",
   validationStudentID: "Ingrese un legajo",
-  validationNames: "Este campo no puede estar vacio",
-  validationActive: "Ocurrio un error en el formulario",
+  validationNames: "Este campo no puede estar vacío",
+  validationActive: "Ocurrió un error en el formulario",
   validationProfile: "Debe seleccionar un perfil",
   validationDegree: "Debe seleccionar una carrera",
 
@@ -293,14 +293,14 @@ export const USER_STRINGS = {
   validationClosingTime: "Ingresá el horario de cierre",
   validationClosingTimeAfterOpening:
     "El horario final no puede ser anterior al inicial",
-  validationDay: "Seleccione un día valido",
-  validationEmploy: "Seleccione un empleado valido",
+  validationDay: "Seleccione un día válido",
+  validationEmploy: "Seleccione un empleado válido",
 
   userCreatedMsg: "Usuario creado!",
   userUpdatedMsg: "Se actualizaron los datos del usuario!",
-  userErrorMsg: "Ocurrio un error al guardar",
-  userErrorUpdateMsg: "Ocurrio un error al actualizar el usuario...",
-  scheduleGetError: "Ocurrio un error recuperando los horarios",
+  userErrorMsg: "Ocurrió un error al guardar",
+  userErrorUpdateMsg: "Ocurrió un error al actualizar el usuario...",
+  scheduleGetError: "Ocurrió un error recuperando los horarios",
 };
 
 export const TRAVEL_STRINGS = {
@@ -309,7 +309,7 @@ export const TRAVEL_STRINGS = {
   headerMainDescription:
     "En este módulo podrás gestionar los viajes de la empresa, incluyendo la creación, edición de las empresa como la gestión de los inscriptos y la documentación relacionada.",
 
-  errorPhone: "El contacto solo puede contener numeros.",
+  errorPhone: "El contacto solo puede contener números.",
   errorEmail: "Ingresá un email válido.",
   errorCUIT: "Ingresá un CUIT válido de 11 dígitos.",
   errorCBU: "El CBU debe tener 22 dígitos.",
@@ -317,7 +317,7 @@ export const TRAVEL_STRINGS = {
 
   travelID: "ID",
   businessName: "Nombre de la Empresa",
-  businessPhone: "Telefono",
+  businessPhone: "Teléfono",
   businessEmail: "Email",
   businessCUIT: "CUIT",
   businessCBU: "CBU",
@@ -336,9 +336,9 @@ export const TRAVEL_STRINGS = {
   travelCapacity: "Cupo",
   travelStartDate: "Fecha de Inicio",
   travelEndDate: "Fecha Vuelta",
-  travelProvince: "Pais / Provincia",
+  travelProvince: "País / Provincia",
   travelCity: "Ciudad / Localidad",
-  travelPlace: "Complejo / Ubicacion",
+  travelPlace: "Complejo / Ubicación",
 
   travelOrigin: "Origen",
   travelDestiny: "Destino",
@@ -359,7 +359,7 @@ export const TRAVEL_STRINGS = {
   travelDownloadDocs: "Descargar",
   travelDeleteDocs: "Eliminar Documento",
   travelClose: "Cerrar",
-  travelWarningMsg: "Esta seguro que quiere eliminar el documento: ",
+  travelWarningMsg: "Está seguro que quiere eliminar el documento: ",
 
   travelLoadDocs: "✅Cargado:",
   travelDrop: "Arrastra tu archivo aquí 📄",
@@ -369,8 +369,8 @@ export const TRAVEL_STRINGS = {
   inscriptsList: "Planilla de Inscriptos",
   inscriptsNoData: "Sin Inscriptos",
 
-  errorNoID: "Ingresa un legajo para buscar.",
-  errorNoDegree: "Selecciona una carrera para buscar.",
+  errorNoID: "Ingresá un legajo para buscar.",
+  errorNoDegree: "Seleccioná una carrera para buscar.",
 
   inscriptsSearch: "Buscar estudiante para agregar",
   studentID: "Legajo",
@@ -379,18 +379,18 @@ export const TRAVEL_STRINGS = {
   studentSelected: "Usuario Seleccionado",
   studentAdd: "Agregar estudiante",
   studentSearchAgain: "Volver a buscar",
-  studentDocs: "Documentacion del Inscripto",
-  studentsDelete: "Eliminar Inscripcion",
+  studentDocs: "Documentación del Inscripto",
+  studentsDelete: "Eliminar Inscripción",
   inscriptsWarningTitle: "¡ATENCIÓN!",
   inscriptsWarningBody:
-    "Esta a punto de eliminar este inscripto de la lista del viaje. Si esta persona subio documentacion relacionada, se mantendra a menos que se elimine de manera particular.",
+    "Está a punto de eliminar este inscripto de la lista del viaje. Si esta persona subió documentación relacionada, se mantendrá a menos que se elimine de manera particular.",
   inscriptsWarningConfirm: "¿Quiere continuar?",
 
   helperID: "Sin @ ni dominio.",
-  helperDegree: "Selecciona el dominio de la carrera.",
+  helperDegree: "Seleccioná el dominio de la carrera.",
 
-  inscriptsReviewed: "Documentacion Revisada",
-  inscriptsNoReviewed: "Documentacion No Validada",
+  inscriptsReviewed: "Documentación Revisada",
+  inscriptsNoReviewed: "Documentación No Validada",
 
   historyTravelTitle: "Historial de Viajes",
   filterDateFrom: "Fecha Desde",
@@ -411,44 +411,44 @@ export const TRAVEL_STRINGS = {
 
   errorUserNF: "Usuario no Encontrado",
 
-  inscriptsCreated: "Se inscribio esta persona al viaje",
-  inscriptsDeleted: "Se elimino el estudiante del viaje",
+  inscriptsCreated: "Se inscribió esta persona al viaje",
+  inscriptsDeleted: "Se eliminó el estudiante del viaje",
 
-  errorInscDelete: "Ocurrio un error al intentar eliminar este inscripto",
+  errorInscDelete: "Ocurrió un error al intentar eliminar este inscripto",
 
   inscriptsUpdated: "Actualizado!",
 
-  errorInscriptsDoc: "Ocurrio un error al tratar de descargar el documento",
+  errorInscriptsDoc: "Ocurrió un error al tratar de descargar el documento",
 
   inscriptsDocsDeleted: "Documento Eliminado",
   errorInscDocDelete: "Error al eliminar el documento",
 
   onlyExtensions: "Solo se permiten archivos:",
 
-  inscriptsDocsUpload: "subido con exito",
+  inscriptsDocsUpload: "subido con éxito",
   errorInscUpload: "Error subiendo el archivo",
 
   validationID: "ID no encontrado",
-  validationName: "Ingresa un nombre para esta empresa",
-  validationPhone: "El telefono debe contener 12 digitos Ej:(54 355 222 4924)",
+  validationName: "Ingresá un nombre para esta empresa",
+  validationPhone: "El teléfono debe contener 12 dígitos Ej:(54 355 222 4924)",
   validationActive: "Error al leer este campo",
-  validationEmail: "Escriba un correo electronico válido",
-  validationCuil: "Ingresa un CUIL/CUIT válido",
+  validationEmail: "Escriba un correo electrónico válido",
+  validationCuil: "Ingresá un CUIL/CUIT válido",
   validationCBU: "Ingrese un CBU válido",
 
-  validationDate: "Ingresa una fecha válida",
+  validationDate: "Ingresá una fecha válida",
   validationTravelEndAfterStart:
     "La fecha de vuelta debe ser igual o posterior a la fecha de inicio",
   validationPlace: "Todos los campos son obligatorios",
   validationQuant: "Cantidad no válida",
   validationBuss: "Seleccione una empresa",
-  validationCost: "Ingrese un costo valido",
+  validationCost: "Ingrese un costo válido",
   validationMotive: "Ingrese un motivo u objetivo del viaje",
 };
 
 export const SPORTS_STRINGS = {
   headerTitle: "Módulo de Deportes",
-  headerMainSubtitle: "Gestion de Deportes",
+  headerMainSubtitle: "Gestión de Deportes",
   headerMainDescription:
     "Administra torneos, profesores, espacios y deportistas desde un solo lugar.",
 
@@ -596,9 +596,9 @@ export const SPORTS_STRINGS = {
 };
 export const COMPRAS_STRINGS = {
   headerTitle: "Módulo de Compras",
-  headerSubtitle: "Gestion de las Compras",
+  headerSubtitle: "Gestión de las Compras",
   headerDescription:
-    "En este módulo se registran todas las compras que hace la secretaria.",
+    "En este módulo se registran todas las compras que hace la secretaría.",
 
   sectionTitle: "Compras",
   addButton: "Registrar Compra",
@@ -624,7 +624,7 @@ export const COMPRAS_STRINGS = {
   fieldRealPrice: "Precio real",
   fieldRequesterName: "Nombre solicitante",
   fieldWinnerName: "Nombre ganador",
-  fieldTenderDate: "Fecha licitacion",
+  fieldTenderDate: "Fecha licitación",
   fieldReportDate: "Fecha informe",
 
   currencyPlaceholder: "99.999,99",
@@ -654,7 +654,7 @@ export const COMPRAS_STRINGS = {
   saveError: "Ocurrió un error al guardar",
   saveMissingPurchaseId: "No se pudo obtener el id de la compra.",
   saveMissingInvoiceType: "No se encontró el tipo de documento Facturas.",
-  saveMissingReportType: "No se encontró el tipo de documento Informe tecnico.",
+  saveMissingReportType: "No se encontró el tipo de documento Informe técnico.",
   saveRequiredPurchaseData:
     "Completá empleado, nombre de la compra, precio sugerido, motivo y fecha de compra.",
   saveRequiredInvoice: "Adjuntá al menos una factura para crear la compra.",
@@ -705,8 +705,8 @@ export const PRENSA_STRINGS = {
   documentPreview: {
     fallbackTitle: "Vista previa",
     fallbackName: "archivo",
-    noId: "No se encontro el id del documento para previsualizar.",
-    notSupported: "Solo se permite vista previa para imagenes o PDF.",
+    noId: "No se encontró el id del documento para previsualizar.",
+    notSupported: "Solo se permite vista previa para imágenes o PDF.",
     loadError: "No se pudo cargar la imagen.",
   },
   snackCreated: "Publicación creada correctamente.",
@@ -757,9 +757,9 @@ export const PRENSA_STRINGS = {
 
 export const BECAS_STRINGS = {
   headerTitle: "Módulo de Becas",
-  headerSubtitle: "Gestion de Becas",
+  headerSubtitle: "Gestión de Becas",
   headerDescription:
-    "EAdministra becas, proyectos de investigacion y servicios desde un solo lugar.",
+    "EAdministra becas, proyectos de investigación y servicios desde un solo lugar.",
 
   scholarshipTypeEconomica: "Beca económica",
   scholarshipTypeServicio: "Servicio interno",
@@ -769,18 +769,18 @@ export const BECAS_STRINGS = {
   loadInternalServicesError: "Error al cargar servicios internos:",
   loadScholarshipHoldersError: "Error al cargar becarios completos:",
 
-  saveDefaultSuccess: "La accion se realizo exitosamente",
+  saveDefaultSuccess: "La acción se realizó éxitosamente",
   saveGenericSuccess: "Se guardó con éxito",
-  saveResearchProjectCreated: "Proyecto de investigación creado exitosamente",
-  saveResearchProjectUpdated: "Proyecto de investigación editado exitosamente",
-  saveInternalServiceCreated: "Servicio interno creado exitosamente",
-  saveInternalServiceUpdated: "Servicio interno editado exitosamente",
-  saveScholarshipHolderCreated: "Becario creado exitosamente",
-  saveScholarshipHolderUpdated: "Becario editado exitosamente",
+  saveResearchProjectCreated: "Proyecto de investigación creado éxitosamente",
+  saveResearchProjectUpdated: "Proyecto de investigación editado éxitosamente",
+  saveInternalServiceCreated: "Servicio interno creado éxitosamente",
+  saveInternalServiceUpdated: "Servicio interno editado éxitosamente",
+  saveScholarshipHolderCreated: "Becario creado éxitosamente",
+  saveScholarshipHolderUpdated: "Becario editado éxitosamente",
   saveNoChanges: "No se detectaron cambios para guardar",
-  saveMissingCardLogic: "No hay logica de guardado definida para esta card:",
-  saveError: "Ocurrio un error al guardar",
-  missingScholarshipId: (name) => `No se encontro el id de la beca ${name}`,
+  saveMissingCardLogic: "No hay lógica de guardado definida para esta card:",
+  saveError: "Ocurrió un error al guardar",
+  missingScholarshipId: (name) => `No se encontró el id de la beca ${name}`,
 
   becarioDialog: {
     entityTitle: "Becarios",

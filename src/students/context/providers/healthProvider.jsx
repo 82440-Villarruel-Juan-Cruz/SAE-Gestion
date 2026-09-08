@@ -227,7 +227,7 @@ export const HealthUsersProvider = ({ children }) => {
         dialogMode === "create" &&
         (!dialogData.disponibilidades || dialogData.disponibilidades.length === 0)
       ) {
-        setDialogError("Agrega al menos una disponibilidad");
+        setDialogError("Agregá al menos una disponibilidad");
         setDialogSaving(false);
         return;
       }

@@ -382,7 +382,7 @@ export function TravelProvider({ children }){
     {
         icon: FolderIcon,
         color: "primary",
-        title: "Documentacion",
+        title: "Documentación",
         onClick: handleOpenSeeDocTravels,
     },
     {
@@ -397,7 +397,7 @@ export function TravelProvider({ children }){
     {
         icon: FolderIcon,
         color: "primary",
-        title: "Documentacion",
+        title: "Documentación",
         onClick: handleOpenSeeDocTravels,
     },
     {

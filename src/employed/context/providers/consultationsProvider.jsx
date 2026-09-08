@@ -123,7 +123,7 @@ export const ConsultationProvider = ({ children }) => {
       let id_nuevo = id === "" ? 0 : id;
       const body = {
         id: id_nuevo,
-        titulo: dialogData.titulo??"Sin Titulo",
+        titulo: dialogData.titulo ?? "Sin Título",
         id_index_ico: Number(dialogData.id_index_ico) || 0,
         hipervinculo: dialogData.hipervinculo,
         contador_clicks: Number(dialogData.contador_clicks) || 0,

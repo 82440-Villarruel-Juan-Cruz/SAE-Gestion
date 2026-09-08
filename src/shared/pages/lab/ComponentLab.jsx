@@ -307,20 +307,20 @@ export default function ComponentLab() {
           El menos usado h4
         </SAETypography>
         <SAETypography variant="h5" fontWeight="bold">
-          Tambien usado poco, usemos bold
+          También usado poco, usemos bold
         </SAETypography>
         <SAETypography variant="h6">
            Para algunas cosas no muy grandes
         </SAETypography>
 
         <SAETypography variant="body1">
-          Esto es para los textos que son muuuuuy largos como los lorem ipsum que pones cuando estas sin ideas o como cuando describis todo lo que puede hacer la aplicacion de SAE Gestion.
+          Esto es para los textos que son muuuuuy largos como los lorem ipsum que ponés cuando estás sin ideas o como cuando describís todo lo que puede hacer la aplicación de SAE Gestión.
         </SAETypography>
         <SAETypography variant="body2">
-          Esto es una variante para decir BOCA YO TE AMO y esas cosas que no te animas porque estas mojado por la vida. A veces los problemas nos parecen mas de lo que realmente son, es dificil no tratar de medirse con todos los demas
+          Esto es una variante para decir BOCA YO TE AMO y esas cosas que no te animás porque estás mojado por la vida. A veces los problemas nos parecen más de lo que realmente son, es difícil no tratar de medirse con todos los demás
         </SAETypography>
         <SAETypography variant="subtitle1">
-          Esto son simplemente subtitulos
+          Esto son simplemente subtítulos
         </SAETypography>
         <SAETypography variant="subtitle2">
           El subtitulo 2 para probar

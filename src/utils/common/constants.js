@@ -23,9 +23,9 @@ export const SCHOLARSHIPS_STATES = {
 };
 
 export const SCHOLARSHIP_TYPE = {
-  ECONOMICA: "Beca Economica",
+  ECONOMICA: "Beca Económica",
   SERVICIO: "Beca de Servicio",
-  INVESTIGACION: "Beca de Investigacion",
+  INVESTIGACION: "Beca de Investigación",
 };
 
 export const SCHOLARSHIP_TYPES = {
@@ -76,18 +76,18 @@ export const IMAGE_EXTENSIONS = new Set([
 export const DOCUMENT_PREVIEW_DEFAULT_MESSAGES = {
   fallbackTitle: "Vista previa",
   fallbackName: "archivo",
-  noId: "No se encontro el id del documento para previsualizar.",
-  notSupported: "Solo se permite vista previa para imagenes o PDF.",
+  noId: "No se encontró el id del documento para previsualizar.",
+  notSupported: "Solo se permite vista previa para imágenes o PDF.",
   loadError: "No se pudo cargar la imagen.",
 };
 
 export const CAREERS = [
   { value: "sistemas", label: "Sistemas" },
-  { value: "electrica", label: "Electrica" },
-  { value: "electronica", label: "Electronica" },
-  { value: "mecanica", label: "Mecanica" },
-  { value: "metalurgica", label: "Metalurgica" },
-  { value: "quimica", label: "Quimica" },
+  { value: "electrica", label: "Eléctrica" },
+  { value: "electronica", label: "Electrónica" },
+  { value: "mecanica", label: "Mecánica" },
+  { value: "metalurgica", label: "Metalúrgica" },
+  { value: "quimica", label: "Química" },
   { value: "industrial", label: "Industrial" },
   { value: "civil", label: "Civil" },
   { value: "frc", label: "FRC" },

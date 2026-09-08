@@ -408,7 +408,7 @@ function DialogConsultation() {
                         </Box>
                         <Box sx={{ minWidth: 0 }}>
                           <Typography fontWeight={700} noWrap>
-                            {dialogData.titulo || "Titulo del link"}
+                            {dialogData.titulo || "Título del link"}
                           </Typography>
                           <Typography
                             variant="body2"

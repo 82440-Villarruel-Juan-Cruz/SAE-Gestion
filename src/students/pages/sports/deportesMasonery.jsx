@@ -367,7 +367,7 @@ export default function DeportesMasonry({ deportes, onInscribirClick }) {
         {/* DERECHA */}
         <SAETextField
           size="small"
-          placeholder="Busqueda..."
+          placeholder="Búsqueda..."
           value={textoBusqueda}
           onChange={(e) => setTextoBusqueda(e.target.value)}
           sx={{

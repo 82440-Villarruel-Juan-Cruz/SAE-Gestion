@@ -11,11 +11,11 @@ import SAEButton from "../buttons/SAEButton";
 const DEFAULT_LOCALE_TEXT = {
   noRowsLabel: "No hay registros activos",
   noResultsOverlayLabel: "No se encontraron resultados",
-  paginationRowsPerPage: "Filas por pagina:",
+  paginationRowsPerPage: "Filas por página:",
   paginationDisplayedRows: ({ from, to, count }) =>
-    `${from}-${to} de ${count !== -1 ? count : `mas de ${to}`}`,
-  columnMenuLabel: "Menu",
-  columnMenuAriaLabel: (columnName) => `Menu de ${columnName}`,
+    `${from}-${to} de ${count !== -1 ? count : `más de ${to}`}`,
+  columnMenuLabel: "Menú",
+  columnMenuAriaLabel: (columnName) => `Menú de ${columnName}`,
   columnMenuShowColumns: "Mostrar columnas",
   columnMenuManageColumns: "Administrar columnas",
   columnMenuFilter: "Filtrar",
@@ -26,7 +26,7 @@ const DEFAULT_LOCALE_TEXT = {
   filterPanelAddFilter: "Agregar filtro",
   filterPanelRemoveAll: "Quitar filtros",
   filterPanelDeleteIconLabel: "Eliminar",
-  filterPanelLogicOperator: "Operador logico",
+  filterPanelLogicOperator: "Operador lógico",
   filterPanelOperator: "Operador",
   filterPanelOperatorAnd: "Y",
   filterPanelOperatorOr: "O",
@@ -39,8 +39,8 @@ const DEFAULT_LOCALE_TEXT = {
   filterOperatorDoesNotEqual: "es distinto de",
   filterOperatorStartsWith: "empieza con",
   filterOperatorEndsWith: "termina con",
-  filterOperatorIsEmpty: "esta vacio",
-  filterOperatorIsNotEmpty: "no esta vacio",
+  filterOperatorIsEmpty: "está vacío",
+  filterOperatorIsNotEmpty: "no está vacío",
   filterOperatorIsAnyOf: "es cualquiera de",
 };
 
@@ -175,7 +175,7 @@ export default function SAEDataGrid({
           >
             {beforeSearch}
             <SAETextField
-              placeholder="Busqueda..."
+              placeholder="Búsqueda..."
               size="small"
               value={busquedaGestion}
               onChange={(event) => setBusquedaGestion(event.target.value)}

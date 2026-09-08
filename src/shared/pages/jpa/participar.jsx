@@ -36,9 +36,9 @@ const C = JPA_STRINGS;
 const checkImage = `${import.meta.env.BASE_URL}images/logos/comprobado.png`;
 const requiredMessage = "Este campo es obligatorio";
 const emailRequiredMessage = "Ingrese el email";
-const emailFormatMessage = "Ingrese un email valido";
-const phoneRequiredMessage = "Ingrese el telefono";
-const phoneFormatMessage = "Ingrese un telefono valido";
+const emailFormatMessage = "Ingrese un email válido";
+const phoneRequiredMessage = "Ingrese el teléfono";
+const phoneFormatMessage = "Ingrese un teléfono válido";
 const amountRequiredMessage = "Ingrese la cantidad";
 const amountFormatMessage = "Ingrese una cantidad valida";
 

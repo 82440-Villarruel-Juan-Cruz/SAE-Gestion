@@ -20,42 +20,42 @@ export const SCHOLARSHIP_STRINGS = {
   documentationSubtitle:
     "En esta sección podés consultar y cargar la documentación requerida para participar en deportes.",
   cardSolicitarTitle: "Solicitar Beca",
-  cardSolicitarSubtitle: "Solicita una nueva beca",
-  alquilarTitle: "Alquila?",
+  cardSolicitarSubtitle: "Solicitá una nueva beca",
+  alquilarTitle: "¿Alquilás?",
   DatosPersonales: "Datos Personales",
   TiposBecas: "Tipos de Becas",
   tipoBecaLabel: "Tipo Beca",
-  proyectoInvestigacionLabel: "Proyecto Investigacion",
-  areaLabel: "Area",
-  descripcionSituacionLabel: "Describe tu situacion economica",
+  proyectoInvestigacionLabel: "Proyecto Investigación",
+  areaLabel: "Área",
+  descripcionSituacionLabel: "Describe tu situación económica",
   requiredDocumentsTitle: "Documentos Requeridos",
-  economicDocumentsTitle: "Documentos de Beca Economica",
+  economicDocumentsTitle: "Documentos de Beca Económica",
   addOptionalEconomicDocumentLabel: "Agregar documento si corresponde",
   addButton: "Agregar",
   cancelButton: "Cancelar",
   saveButton: "Guardar",
   savingButton: "Guardando...",
   savingRequest: "Guardando solicitud...",
-  validationSelectScholarshipType: "Selecciona un tipo de beca",
-  validationSelectScholarshipOption: "Selecciona una opcion para la beca",
-  validationAttachDocuments: (documents) => `Adjunta: ${documents}`,
-  validationDescribeEconomicSituation: "Describi tu situacion economica",
+  validationSelectScholarshipType: "Seleccioná un tipo de beca",
+  validationSelectScholarshipOption: "Seleccioná una opción para la beca",
+  validationAttachDocuments: (documents) => `Adjuntá: ${documents}`,
+  validationDescribeEconomicSituation: "Describí tu situación económica",
   uploadAllowedExtensions: (extension) =>
     `Solo se permiten archivos: ${extension}`,
   uploadMaxSize: (maxSize) => `El archivo no puede superar los ${maxSize} MB.`,
   documentTypeNotFound: (documentName) =>
-    `No se encontro el tipo de documento: ${documentName}`,
-  uploadSuccess: "Archivo subido con exito",
+    `No se encontró el tipo de documento: ${documentName}`,
+  uploadSuccess: "Archivo subido con éxito",
   uploadError: "Error al subir el archivo",
-  createEconomicScholarshipSuccess: "Se creo la beca economica correctamente",
+  createEconomicScholarshipSuccess: "Se creó la beca económica correctamente",
   createInvestigationScholarshipSuccess:
-    "Se creo la beca de investigacion correctamente",
-  createServiceScholarshipSuccess: "Se creo la beca de servicio correctamente",
-  invalidScholarshipType: "Tipo de beca invalido",
+    "Se creó la beca de investigación correctamente",
+  createServiceScholarshipSuccess: "Se creó la beca de servicio correctamente",
+  invalidScholarshipType: "Tipo de beca inválido",
   createScholarshipError: "Hubo un error al crear la beca",
   listaTiposBecas: [
-    { nombre: "Beca Economica", icon: "AttaachMoney" },
-    { nombre: "Beca de Investigacion", icon: "Science" },
+    { nombre: "Beca Económica", icon: "AttaachMoney" },
+    { nombre: "Beca de Investigación", icon: "Science" },
     { nombre: "Beca de Servicio", icon: "SettingsAccessibility" },
   ],
 
@@ -77,25 +77,25 @@ export const SCHOLARSHIP_STRINGS = {
   docWithoutFile: "Sin archivo",
   docAllowedFormats: (extension) => `Formatos permitidos: ${extension}`,
   myDocumentsTitle: "Mis Documentos",
-  economicScholarshipDocumentsTitle: "Documentos - Beca Economica",
+  economicScholarshipDocumentsTitle: "Documentos - Beca Económica",
 
   incompleteProfileTitle: "Advertencia",
   incompleteProfileMessage:
-    "Para solicitar la beca debe completar los datos en la seccion de Perfil.",
+    "Para solicitar la beca debe completar los datos en la sección de Perfil.",
   incompleteProfileButton: "Ir a Perfil",
 
   requestedDateLabel: "Fecha Solicitud:",
-  assignedModulesLabel: "Modulos Asignados:",
+  assignedModulesLabel: "Módulos Asignados:",
   projectLabel: "Proyecto:",
   serviceLabel: "Servicio:",
   emptyValue: "-",
 
   cbuTitle: "CBU",
-  cbuDescription: "Ingresa tu CBU para pagos.",
+  cbuDescription: "Ingresá tu CBU para pagos.",
   cbuLabel: "CBU",
   cbuSaveButton: "Guardar CBU",
-  cbuSavedSuccess: "CBU guardado con exito",
-  cbuInvalid: "El CBU debe tener exactamente 22 digitos",
+  cbuSavedSuccess: "CBU guardado con éxito",
+  cbuInvalid: "El CBU debe tener exactamente 22 dígitos",
 
   utnLogoAlt: "UTN girando",
   loadScholarshipsError: "No se pudieron cargar tus becas",
@@ -105,7 +105,7 @@ export const SCHOLARSHIP_STRINGS = {
   deleteDocMessage: (nombreDoc) =>
     `¿Estás seguro de que deseas eliminar ${nombreDoc}?`,
   deleteDocButton: "Eliminar",
-  docEliminado: "El documento ha sido eliminado con exito",
+  docEliminado: "El documento ha sido eliminado con éxito",
   docEliminadoError: "No se pudo eliminar el documento",
 };
 
@@ -120,7 +120,7 @@ export const SPORTS_STRINGS = {
     "En esta sección podés consultar y cargar la documentación requerida para participar en deportes.",
 
   sportsTitle: "Deportes",
-  sportsSubTitle: "Listado de deportes a los que te podes inscribir",
+  sportsSubTitle: "Listado de deportes a los que te podés inscribir",
 
   tournamnetsTitle: "Torneos",
   tournamnetsSubTitle: "Listado de torneos disponibles",
@@ -198,7 +198,7 @@ export const HEALTH_STRINGS = {
   activeTurnsDescription:
     "Podrás ver aquellos turnos que tengas activos en estos días.",
   activeTurnsReminder:
-    "Recorda que los turnos pueden cambiar de horario sin previo aviso.",
+    "Recordá que los turnos pueden cambiar de horario sin previo aviso.",
   noActiveTurns: "No hay turnos activos",
   turnsCardPacient: "Paciente: ",
   turnsCardSuject: "Asunto: ",
@@ -223,14 +223,14 @@ export const HEALTH_STRINGS = {
   cancelTurnsTitle: "Turnos Cancelados",
   cancelTurnTitle: "Cancelar turno",
   cancelTurnSummary: "Turno a cancelar",
-  confirmCancelTurn: "Confirmar cancelacion",
+  confirmCancelTurn: "Confirmar cancelación",
   realizedTurnsTitle: "Turnos Finalizados",
   requestTurnTitle: "Solicitar turno",
   turnCancellationDisclaimer:
-    "La solicitud queda sujeta a confirmacion del area de salud. El turno puede ser cancelado o cambiado de horario segun disponibilidad del especialista.",
+    "La solicitud queda sujeta a confirmación del área de salud. El turno puede ser cancelado o cambiado de horario según disponibilidad del especialista.",
   dialogSubtitle: "¡ATENCIÓN!",
   creationAclaration:
-    "Una vez generado el turno no podrá ser modificado.En caso de equivocación debera eliminarlo y despues volverlo a crear.",
+    "Una vez generado el turno no podrá ser modificado.En caso de equivocación deberá eliminarlo y después volverlo a crear.",
   yourData: "Sus datos",
   youtID: "Tu legajo:",
   solicitudDate: "Fecha de Solicitud",
@@ -238,18 +238,18 @@ export const HEALTH_STRINGS = {
   selectedSpecialty: "Especialidad seleccionada",
   specialtySchedules: "Horarios de la especialidad",
   availabilityHint:
-    "Agrega uno o mas dias y horarios en los que podrias asistir.",
+    "Agregá uno o más días y horarios en los que podrías asistir.",
   addAvailability: "Agregar disponibilidad",
   selectedAvailability: "Disponibilidad cargada",
-  noAvailability: "Todavia no agregaste disponibilidad",
-  availabilityRequired: "Agrega al menos una disponibilidad.",
-  day: "Dia",
+  noAvailability: "Todavía no agregaste disponibilidad",
+  availabilityRequired: "Agregá al menos una disponibilidad.",
+  day: "Día",
   subject: "Asunto:",
   estimateSchedule: "Hora Aproximada",
   seeMedicAvaila: "Revisar los horarios de inicio y fin del especialista",
   yourSympthoms: "Explique su dolencia",
   deleteAclaration:
-    "Esta por cancelar el turno, toda la informacion que se haya utilizado en este turno se perdera como tambien la disponibilidad.",
+    "Está por cancelar el turno, toda la información que se haya utilizado en este turno se perderá como también la disponibilidad.",
   dialogIdTurn: "ID Turno",
   dialogStudentId: "Legajo Estudiante",
   dialogDate: "Fecha de Atención",
@@ -315,18 +315,18 @@ export const PROFILE_STRINGS = {
     "Completá provincia, ciudad/localidad, calle y altura.",
 
   savedProfile: "Sus datos fueron modificados correctamente!",
-  errorProfile: "Ocurrio un error al modificar sus datos",
+  errorProfile: "Ocurrió un error al modificar sus datos",
 };
 export const TRIPS_STRINGS = {
   headerTitle: "Viajes",
-  headerDescription: "Experimenta aventuras con nuestra universidad",
+  headerDescription: "Experimentá aventuras con nuestra universidad",
 
   documentationTitle: "Documentación pendiente",
   documentationAclaration:
     "Para confirmar tu participación en el viaje, verificá que toda la documentación requerida haya sido presentada.",
 
   documentationButton: "Revisar documentación",
-  travelCardMessage: "Conoce mas de este viaje →",
+  travelCardMessage: "Conocé más de este viaje →",
 
   myDocumentTitle: "Documentación",
   myDocumentSubtitle:
