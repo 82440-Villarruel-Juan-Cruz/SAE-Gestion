@@ -47,7 +47,7 @@ import { generateColumns,generateRows} from "../../../utils/datagrid.utils.jsx";
 import { useNotification } from "../../../shared/context/sharedContext";
 import { calendarDays} from "../../../utils/common/constants";
 import { EMPTY_TURNO_PACIENTE } from "../../../utils/common/common.config.js";
-import { toApiDateTime } from "../../../utils/date.utils.js";
+import { toApiDateTime, toTimeInput } from "../../../utils/date.utils.js";
 import { HealthContext } from "../studentContext";
 
 const TURN_STATUS_COLORS = {
@@ -205,6 +205,9 @@ export const HealthUsersProvider = ({ children }) => {
         width: 0,
         minWidth: 0,
         maxWidth: 0,
+      },
+      hora_atencion: {
+        renderCell: (params) => toTimeInput(params.value),
       },
     });
   }, []);

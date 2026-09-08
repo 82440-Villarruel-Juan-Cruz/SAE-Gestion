@@ -59,7 +59,8 @@ const PALETTE = [
   "#FF8E2C", //Reprogramado
 ];
 
-const getTurnStatusColor = (statusId) => PALETTE[Number(statusId)] ?? PALETTE[0];
+const getTurnStatusColor = (statusId) =>
+  PALETTE[Number(statusId)] ?? PALETTE[0];
 
 const getTurnStatusTextColor = () => "white";
 
@@ -90,6 +91,9 @@ const normalizeMedicLabel = (value = "") =>
 
 const hasValue = (value) =>
   value !== null && value !== undefined && String(value).trim() !== "";
+
+const formatAvailabilityTimes = (value) =>
+  String(value ?? "").replace(/\b(\d{1,2}:\d{2}):\d{2}\b/g, "$1");
 
 export function TurnGrid() {
   const {
@@ -165,35 +169,35 @@ export function TurnGrid() {
   const dialogStatus = Number(dialogData?.id_estado_turno ?? 0);
   const dialogStatusColor = getTurnStatusColor(dialogStatus);
   const dialogStatusTextColor = getTurnStatusTextColor(dialogStatus);
-  const selectedMedic = useMemo(
-    () => {
-      const selectedByCuil = personal?.find(
-        (medic) => String(medic.cuil) === String(dialogData?.cuil_medico),
-      );
+  const selectedMedic = useMemo(() => {
+    const selectedByCuil = personal?.find(
+      (medic) => String(medic.cuil) === String(dialogData?.cuil_medico),
+    );
 
-      if (selectedByCuil) return selectedByCuil;
+    if (selectedByCuil) return selectedByCuil;
 
-      const dialogMedicName = normalizeMedicLabel(dialogData?.especialista);
-      if (!dialogMedicName) return null;
+    const dialogMedicName = normalizeMedicLabel(dialogData?.especialista);
+    if (!dialogMedicName) return null;
 
-      return (
-        personal?.find(
-          (medic) => normalizeMedicLabel(getMedicLabel(medic)) === dialogMedicName,
-        ) ?? null
-      );
-    },
-    [dialogData.cuil_medico, dialogData.especialista, personal],
-  );
+    return (
+      personal?.find(
+        (medic) =>
+          normalizeMedicLabel(getMedicLabel(medic)) === dialogMedicName,
+      ) ?? null
+    );
+  }, [dialogData.cuil_medico, dialogData.especialista, personal]);
   const selectedSpecialtyId = hasValue(dialogData?.id_especialidad)
     ? dialogData.id_especialidad
-    : selectedMedic?.id_especialidad ?? null;
+    : (selectedMedic?.id_especialidad ?? null);
   const hasSelectedSpecialty = hasValue(selectedSpecialtyId);
   const selectedSpecialty = useMemo(
     () =>
-      especialidadesActivas?.find(
-        (specialty) => Number(specialty.id) === Number(selectedSpecialtyId),
-      ) ?? null,
-    [especialidadesActivas, selectedSpecialtyId],
+      hasSelectedSpecialty
+        ? (especialidadesActivas?.find(
+            (specialty) => Number(specialty.id) === Number(selectedSpecialtyId),
+          ) ?? null)
+        : null,
+    [especialidadesActivas, hasSelectedSpecialty, selectedSpecialtyId],
   );
   const filteredPersonal = useMemo(
     () =>
@@ -207,6 +211,12 @@ export function TurnGrid() {
         : [],
     [hasSelectedSpecialty, personal, selectedMedic?.cuil, selectedSpecialtyId],
   );
+  const selectedMedicValue =
+    selectedMedic &&
+    (!hasSelectedSpecialty ||
+      Number(selectedMedic.id_especialidad) === Number(selectedSpecialtyId))
+      ? selectedMedic
+      : null;
 
   const handlePatientSearch = () => {
     const studentId = String(dialogData.legajo ?? "")
@@ -511,7 +521,7 @@ export function TurnGrid() {
                             disabled={true}
                           />
                         </Grid>
-                        <Grid size={{ xs: 12, md: 4 }} m={0}>
+                        <Grid size={{ xs: 12, md: 5 }} m={0}>
                           <SAETextField
                             label={C.turnsPacientName}
                             value={dialogData.paciente}
@@ -537,7 +547,10 @@ export function TurnGrid() {
                     )}
                     <Grid size={{ xs: 12 }}>
                       <Divider textAlign="center">
-                        <Chip label="Especialidad y especialista" size="small" />
+                        <Chip
+                          label="Especialidad y especialista"
+                          size="small"
+                        />
                       </Divider>
                     </Grid>
                     <Grid size={{ xs: 12, md: 6 }} m={0}>
@@ -603,14 +616,7 @@ export function TurnGrid() {
                         isOptionEqualToValue={(option, value) =>
                           String(option.cuil) === String(value.cuil)
                         }
-                        value={
-                          selectedMedic &&
-                          (!hasSelectedSpecialty ||
-                            Number(selectedMedic.id_especialidad) ===
-                              Number(selectedSpecialtyId))
-                            ? selectedMedic
-                            : null
-                        } // Pasa el objeto completo
+                        value={selectedMedicValue} // Pasa el objeto completo
                         renderInput={(params) => (
                           <SAETextField
                             {...params}
@@ -668,7 +674,7 @@ export function TurnGrid() {
                     <Grid size={{ xs: 12 }}>
                       <SAETextField
                         label={C.turnsSubject}
-                        value={dialogData.asunto}
+                        value={formatAvailabilityTimes(dialogData.asunto)}
                         onChange={(e) =>
                           handleDataChange("asunto", e.target.value)
                         }
@@ -891,9 +897,7 @@ function TurnList({
             <Stack direction="row" alignItems="center" spacing={1.5}>
               <AccessTimeIcon sx={{ fontSize: 32 }} />
               <Box>
-                <Typography variant="h5">
-                  {statusLabel}
-                </Typography>
+                <Typography variant="h5">{statusLabel}</Typography>
               </Box>
             </Stack>
             {
@@ -1172,7 +1176,8 @@ function TurnList({
                             WebkitLineClamp: 2,
                           }}
                         >
-                          {turno.asunto || C.turnsNoSubject}
+                          {formatAvailabilityTimes(turno.asunto) ||
+                            C.turnsNoSubject}
                         </Typography>
                       </Stack>
                       <Stack direction="row" alignItems="center" gap={1}>

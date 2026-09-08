@@ -52,7 +52,7 @@ import {
   EMPTY_PERSONAL,
   EMPTY_TURNO,
 } from "../../../utils/common/common.config.js";
-import { compareDatesDesc } from "../../../utils/date.utils";
+import { compareDatesDesc, toTimeInput } from "../../../utils/date.utils";
 import { HEALTH_STRING } from "../../../utils/strings/employed.strings.js";
 
 // #endregion
@@ -115,6 +115,13 @@ const hasCompleteTurnDataForMove = (turno) =>
 const canMoveTurnToState = (turno, nextStateId) =>
   nextStateId === CANCELLED_TURN_STATUS_ID || hasCompleteTurnDataForMove(turno);
 
+const getEmptyTurnForm = () => ({
+  ...EMPTY_TURNO,
+  cuil_medico: "",
+  id_especialidad: null,
+  especialista: "",
+});
+
 export const HealthUsersProvider = ({ children }) => {
   //#region Importaciones Notificacion
 
@@ -167,7 +174,7 @@ export const HealthUsersProvider = ({ children }) => {
 
   const openCreateTurnos = useCallback(() => {
     setUsuarioSelected(null);
-    openDialog("turnos", "create", EMPTY_TURNO);
+    openDialog("turnos", "create", getEmptyTurnForm());
   }, [openDialog]);
 
   const openEditTurnos = useCallback(
@@ -647,7 +654,7 @@ export const HealthUsersProvider = ({ children }) => {
 
       // Éxito: Limpieza de formulario y feedback visual
       setDialogOpen(false);
-      setDialogData(EMPTY_TURNO);
+      setDialogData(getEmptyTurnForm());
       showNotification(
         dialogMode === "create" ? "Turno Creado!" : "Turno Actualizado!",
       );
@@ -1134,7 +1141,11 @@ export const HealthUsersProvider = ({ children }) => {
   // ------------ COLUMNAS ----------- //
 
   const noActivosColumns = useMemo(() => {
-    return generateColumns(EMPTY_TURNO, []);
+    return generateColumns(EMPTY_TURNO, [], {
+      hora_atencion: {
+        renderCell: (params) => toTimeInput(params.value),
+      },
+    });
   }, []);
 
   //Especialidad//
