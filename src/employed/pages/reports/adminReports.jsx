@@ -1,10 +1,12 @@
 import { Box, Grid, Paper, Stack, Typography } from "@mui/material";
+import { useMemo, useState } from "react";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { BarChart } from "@mui/x-charts/BarChart";
 
 import HeaderPageEmployed from "../../../assets/components/headerPage/headerPageEmployed.jsx";
 import SAEPage from "../../../assets/components/page/SAEPage";
+import SAETextField from "../../../assets/components/inputs/SAETextField";
 import TitleBox from "../../../assets/components/titleBox";
 
 const reportSections = [
@@ -15,7 +17,50 @@ const reportSections = [
   { id: "viajes", title: "Viajes" },
 ];
 
+const formatMonthInput = (date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+
+const getMonthOffset = (monthValue, offset) => {
+  const [year, month] = monthValue.split("-").map(Number);
+  const date = new Date(year, month - 1 + offset, 1);
+
+  return formatMonthInput(date);
+};
+
 export default function AdminReport() {
+  const periodLimits = useMemo(() => {
+    const today = new Date();
+    const maxMonth = formatMonthInput(today);
+    const minFromMonth = formatMonthInput(
+      new Date(today.getFullYear() - 3, today.getMonth(), 1),
+    );
+
+    return { maxMonth, minFromMonth };
+  }, []);
+
+  const [period, setPeriod] = useState({
+    from: getMonthOffset(periodLimits.maxMonth, -5),
+    to: periodLimits.maxMonth,
+  });
+
+  const handlePeriodChange = (field, value) => {
+    setPeriod((current) => {
+      const next = { ...current, [field]: value };
+
+      if (!value) return next;
+
+      if (field === "from" && next.to && value > next.to) {
+        next.to = value;
+      }
+
+      if (field === "to" && next.from && value < next.from) {
+        next.from = value;
+      }
+
+      return next;
+    });
+  };
+
   return (
     <SAEPage>
       <HeaderPageEmployed
@@ -23,7 +68,12 @@ export default function AdminReport() {
         title="Reportes y Estadísticas"
         description="Brinda soporte a la toma de decisiones en base a las decisiones."
       />
-      <ReportsNav />
+      <ReportsControls
+        period={period}
+        minFromMonth={periodLimits.minFromMonth}
+        maxMonth={periodLimits.maxMonth}
+        onChange={handlePeriodChange}
+      />
 
       <ReportSection id="becas" title="Estadísticas de Becas">
         <SchoolarshipChart />
@@ -101,50 +151,100 @@ const travelOccupancyData = [
   { travel: "Córdoba Norte", inscriptos: 18, cupo: 25 },
 ];
 
-function ReportsNav() {
+function ReportsControls({ period, minFromMonth, maxMonth, onChange }) {
   return (
     <Paper
       elevation={1}
       sx={{
         p: 2,
         mt: 2,
-        mb: 1,
+        mb: 2,
         borderRadius: "12px",
         border: "1px solid rgba(21, 61, 113, 0.12)",
       }}
     >
-      <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-        {reportSections.map((section) => (
-          <Box
-            key={section.id}
-            component="a"
-            href={`#${section.id}`}
-            sx={{
-              px: 1.75,
-              py: 0.8,
-              borderRadius: "8px",
-              color: "var(--primary)",
-              border: "1px solid rgba(21, 61, 113, 0.22)",
-              fontWeight: 700,
-              fontSize: "0.9rem",
-              textDecoration: "none",
-              transition: "all 0.15s",
-              "&:hover": {
-                bgcolor: "var(--primary)",
-                color: "white",
-              },
-            }}
-          >
-            <Typography
-              variant="subtitle2"
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        spacing={2}
+        alignItems={{ md: "center" }}
+        justifyContent="space-between"
+      >
+        <Stack
+          spacing={1}
+          sx={{ flexShrink: 0, width: { xs: "100%", md: "auto" } }}
+        >
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+            <SAETextField
+              label="Desde"
+              type="month"
+              value={period.from}
+              onChange={(event) => onChange("from", event.target.value)}
+              fullWidth
+              sx={{ minWidth: { sm: 150 } }}
+              slotProps={{
+                inputLabel: { shrink: true },
+                htmlInput: {
+                  min: minFromMonth,
+                  max: period.to || maxMonth,
+                },
+              }}
+            />
+            <SAETextField
+              label="Hasta"
+              type="month"
+              value={period.to}
+              onChange={(event) => onChange("to", event.target.value)}
+              fullWidth
+              sx={{ minWidth: { sm: 150 } }}
+              slotProps={{
+                inputLabel: { shrink: true },
+                htmlInput: {
+                  min: period.from || minFromMonth,
+                  max: maxMonth,
+                },
+              }}
+            />
+          </Stack>
+        </Stack>
+        <Stack
+          direction="row"
+          spacing={1}
+          useFlexGap
+          flexWrap="wrap"
+          alignItems="center"
+        >
+          {reportSections.map((section) => (
+            <Box
+              key={section.id}
+              component="a"
+              href={`#${section.id}`}
               sx={{
-                color: "inherit",
+                px: 1.75,
+                py: 0.8,
+                borderRadius: "8px",
+                color: "var(--primary)",
+                border: "1px solid rgba(21, 61, 113, 0.22)",
+                fontWeight: 700,
+                fontSize: "0.9rem",
+                textDecoration: "none",
+                transition: "all 0.15s",
+                "&:hover": {
+                  bgcolor: "var(--primary)",
+                  color: "white",
+                },
               }}
             >
-              {section.title}
-            </Typography>
-          </Box>
-        ))}
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  color: "inherit",
+                }}
+              >
+                {section.title}
+              </Typography>
+            </Box>
+          ))}
+        </Stack>
       </Stack>
     </Paper>
   );
