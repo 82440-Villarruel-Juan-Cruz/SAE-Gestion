@@ -134,8 +134,8 @@ export async function apiRequest(
   );
   const headers = {
     // SÓLO agrega la cabecera si warning es true Y la URL de destino NO es localhost
-    ...(warning && !resolveApiUrl(endpoint).includes("localhost") 
-      ? { "ngrok-skip-browser-warning": "true" } 
+    ...(warning && !resolveApiUrl(endpoint).includes("localhost")
+      ? { "ngrok-skip-browser-warning": "true" }
       : {}),
     ...(!isFormData && body != null
       ? { "Content-Type": "application/json" }
@@ -282,14 +282,17 @@ export async function apiDownloadDocument(endpoint, { id, ...options } = {}) {
     response.data.type ||
     "application/octet-stream"
   ).toLowerCase();
+
   const extension = contentType.includes("application/pdf")
     ? "pdf"
     : contentType.split("/")[1]?.split(";")[0] || "bin";
 
+  const datosDocumento = URL.createObjectURL(response.data);
+  const nombreDocumento = getFileName(response.headers);
   return {
     id,
-    nombre_documento: getFileName(response.headers),
-    datos_documento: await blobToDataUrl(response.data),
+    nombre_documento: nombreDocumento,
+    datos_documento: datosDocumento,
     extension,
   };
 }
