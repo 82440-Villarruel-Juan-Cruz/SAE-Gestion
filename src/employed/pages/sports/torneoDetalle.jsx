@@ -56,10 +56,10 @@ import SAEPage from "../../../assets/components/page/SAEPage";
 const C = SPORTS_STRINGS;
 const baseUrl = import.meta.env.BASE_URL;
 
-export default function TorneoDetalle(){
-  return(
+export default function TorneoDetalle() {
+  return (
     <SportsProvider>
-      <TorneoContent/>
+      <TorneoContent />
     </SportsProvider>
   );
 }
@@ -68,9 +68,9 @@ function buildFormData(t) {
   return {
     id: t.id,
     nombre_torneo: t.nombre_torneo ?? "",
-    fecha_inicio: formatDate(t.fecha_inicio,"input"),
-    fecha_fin: formatDate(t.fecha_fin,"input"),
-    fecha_limite_inscripcion: formatDate(t.fecha_limite_inscripcion,"input"),
+    fecha_inicio: formatDate(t.fecha_inicio, "input"),
+    fecha_fin: formatDate(t.fecha_fin, "input"),
+    fecha_limite_inscripcion: formatDate(t.fecha_limite_inscripcion, "input"),
     activo: t.activo ?? true,
     id_deporte: t.id_deporte ?? 0,
     nombre_deporte: t.nombre_deporte ?? "",
@@ -80,7 +80,28 @@ function buildFormData(t) {
   };
 }
 
- function TorneoContent() {
+function sanitizeFilenamePart(value, fallback) {
+  const cleaned = String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .toLowerCase();
+
+  return cleaned || fallback;
+}
+
+function buildPdfFilename(torneo) {
+  const tournamentName = sanitizeFilenamePart(torneo?.nombre_torneo, "torneo");
+  const sportName = sanitizeFilenamePart(torneo?.nombre_deporte, "deporte");
+  const date = torneo?.fecha_inicio
+    ? formatDate(torneo.fecha_inicio, "input")
+    : new Date().toISOString().slice(0, 10);
+
+  return `inscriptos_${tournamentName}_${sportName}_${date}.pdf`;
+}
+
+function TorneoContent() {
   const {
     obtenerTorneoXId,
     obtenerDeportistasXTorneo,
@@ -89,7 +110,7 @@ function buildFormData(t) {
     eliminarInscripcionTorneo,
     obtenerDeportistas,
   } = useSports();
-  const {showNotification} = useNotification();
+  const { showNotification } = useNotification();
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -127,6 +148,7 @@ function buildFormData(t) {
   const [editOpen, setEditOpen] = useState(false);
   const [pdfOpen, setPdfOpen] = useState(false);
   const [pdfSrc, setPdfSrc] = useState("");
+  const [pdfFilename, setPdfFilename] = useState("");
 
   useEffect(() => {
     setLoadingTorneo(true);
@@ -136,19 +158,22 @@ function buildFormData(t) {
       })
       .catch(() => setTorneoError(C.errorTournamentLoad))
       .finally(() => setLoadingTorneo(false));
-  }, [id,obtenerTorneoXId]);
+  }, [id, obtenerTorneoXId]);
 
-  const fetchDeportistas = useCallback(async (torneoId) => {
-    setLoadingDeportistas(true);
-    try {
-      const data = await obtenerDeportistasXTorneo(torneoId);
-      setDeportistas(data);
-    } catch {
-      setDeportistas([]);
-    } finally {
-      setLoadingDeportistas(false);
-    }
-  }, [obtenerDeportistasXTorneo]);
+  const fetchDeportistas = useCallback(
+    async (torneoId) => {
+      setLoadingDeportistas(true);
+      try {
+        const data = await obtenerDeportistasXTorneo(torneoId);
+        setDeportistas(data);
+      } catch {
+        setDeportistas([]);
+      } finally {
+        setLoadingDeportistas(false);
+      }
+    },
+    [obtenerDeportistasXTorneo],
+  );
 
   useEffect(() => {
     if (id) fetchDeportistas(id);
@@ -278,6 +303,7 @@ function buildFormData(t) {
     const blob = doc.output("blob");
     const url = URL.createObjectURL(blob);
     setPdfSrc(url);
+    setPdfFilename(buildPdfFilename(torneo));
     setPdfOpen(true);
   }, [torneo, deportistas]);
 
@@ -370,11 +396,11 @@ function buildFormData(t) {
             ? `${first.nombre_deportista || first.legajo} (${first.legajo}) ${C.inscriptsCorrect}`
             : `${ok} ${C.multipleInscriptsCorrect}`;
 
-        showNotification(msg,"success");
+        showNotification(msg, "success");
       }
       setInscribirMasivo(false);
     },
-    [torneo, id, fetchDeportistas,crearInscripcionTorneo,showNotification],
+    [torneo, id, fetchDeportistas, crearInscripcionTorneo, showNotification],
   );
 
   const handleMoveSelected = async () => {
@@ -410,14 +436,17 @@ function buildFormData(t) {
       try {
         await eliminarInscripcionTorneo(dep.id);
         await fetchDeportistas(id);
-        showNotification(`${dep.nombre_deportista || dep.legajo} ${C.inscriptsDelete}`,"success")
+        showNotification(
+          `${dep.nombre_deportista || dep.legajo} ${C.inscriptsDelete}`,
+          "success",
+        );
       } catch (err) {
-        showNotification(err?.message || C.errorInscriptsDelete,"error")
+        showNotification(err?.message || C.errorInscriptsDelete, "error");
       } finally {
         setDeletingId(null);
       }
     },
-    [id, fetchDeportistas,eliminarInscripcionTorneo,showNotification],
+    [id, fetchDeportistas, eliminarInscripcionTorneo, showNotification],
   );
 
   const handleSelectAll = () =>
@@ -460,10 +489,17 @@ function buildFormData(t) {
         ok === 1
           ? `${first.nombre_deportista || first.legajo} ${C.inscriptsDelete}`
           : `${ok} ${C.multipleInscriptsDelete}`;
-      showNotification(msg,"success");
+      showNotification(msg, "success");
     }
     setDeletingMultiple(false);
-  }, [deportistas, selectedInscriptos, id, fetchDeportistas,eliminarInscripcionTorneo,showNotification]);
+  }, [
+    deportistas,
+    selectedInscriptos,
+    id,
+    fetchDeportistas,
+    eliminarInscripcionTorneo,
+    showNotification,
+  ]);
 
   let disponiblesContent;
   if (loadingAll) {
@@ -542,9 +578,7 @@ function buildFormData(t) {
     inscriptosContent = (
       <Box sx={{ p: 2 }}>
         <Typography variant="body2" color="text.secondary" textAlign="center">
-          {deportistas.length === 0
-            ? C.noSportsmanInscript
-            :  C.noResults}
+          {deportistas.length === 0 ? C.noSportsmanInscript : C.noResults}
         </Typography>
       </Box>
     );
@@ -644,568 +678,553 @@ function buildFormData(t) {
 
   return (
     <SAEPage>
-        <Box
-          sx={{
-            overflow: "hidden",
-            borderRadius: 6,
-            px: { xs: 3, md: 6 },
-            py: { xs: 4, md: 5 },
-            minHeight: 260,
-            backgroundImage: torneo.activo
-              ? `linear-gradient(125deg, var(--primary), var(--lightBlue)), url('${baseUrl}images/varias/campus.jpg')`
-              : `linear-gradient(125deg, rgba(60,60,60,0.97) 0%, rgba(100,100,100,0.93) 58%, rgba(150,150,150,0.88) 100%), url('${baseUrl}images/varias/campus.jpg')`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            color: "white",
-          }}
+      <Box
+        sx={{
+          overflow: "hidden",
+          borderRadius: 6,
+          px: { xs: 3, md: 6 },
+          py: { xs: 4, md: 5 },
+          minHeight: 260,
+          backgroundImage: torneo.activo
+            ? `linear-gradient(125deg, var(--primary), var(--lightBlue)), url('${baseUrl}images/varias/campus.jpg')`
+            : `linear-gradient(125deg, rgba(60,60,60,0.97) 0%, rgba(100,100,100,0.93) 58%, rgba(150,150,150,0.88) 100%), url('${baseUrl}images/varias/campus.jpg')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          color: "white",
+        }}
+      >
+        {/* Top row: back arrow + overline + edit pencil */}
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
         >
-          {/* Top row: back arrow + overline + edit pencil */}
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <IconButton
-                size="small"
-                onClick={() => navigate("/Gestion-Deportes")}
-                sx={{
-                  color: "white",
-                  bgcolor: "rgba(255,255,255,0.15)",
-                  "&:hover": { bgcolor: "rgba(255,255,255,0.28)" },
-                }}
-              >
-                <ArrowBackIcon fontSize="small" />
-              </IconButton>
-              <Typography
-                variant="overline"
-                sx={{ letterSpacing: 1.8, opacity: 0.85, fontWeight: 700 }}
-              >
-                {C.inscriptTournament}
-              </Typography>
-            </Stack>
+          <Stack direction="row" alignItems="center" spacing={1}>
             <IconButton
               size="small"
-              onClick={() => setEditOpen(true)}
-              title={C.tournamentEdit}
+              onClick={() => navigate("/Gestion-Deportes")}
               sx={{
                 color: "white",
                 bgcolor: "rgba(255,255,255,0.15)",
                 "&:hover": { bgcolor: "rgba(255,255,255,0.28)" },
               }}
             >
-              <EditIcon fontSize="small" />
+              <ArrowBackIcon fontSize="small" />
             </IconButton>
+            <Typography
+              variant="overline"
+              sx={{ letterSpacing: 1.8, opacity: 0.85, fontWeight: 700 }}
+            >
+              {C.inscriptTournament}
+            </Typography>
+          </Stack>
+          <IconButton
+            size="small"
+            onClick={() => setEditOpen(true)}
+            title={C.tournamentEdit}
+            sx={{
+              color: "white",
+              bgcolor: "rgba(255,255,255,0.15)",
+              "&:hover": { bgcolor: "rgba(255,255,255,0.28)" },
+            }}
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+        </Stack>
+
+        <Box sx={{ mt: 1.5 }}>
+          <Typography
+            variant="h3"
+            sx={{
+              fontWeight: 800,
+              lineHeight: 1.1,
+              fontSize: { xs: "2rem", md: "3rem" },
+            }}
+          >
+            {torneo.nombre_torneo}
+          </Typography>
+          <Typography
+            sx={{ mt: 1.5, fontSize: { xs: 15, md: 17 }, opacity: 0.92 }}
+          >
+            {torneo.nombre_deporte} · Responsable:{" "}
+            {torneo.docente_responsable || "—"}
+            {torneo.cuil_responsable ? ` — ${torneo.cuil_responsable}` : ""}
+          </Typography>
+          <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mt: 2.5 }}>
+            <Chip
+              label={torneo.activo ? C.active : C.inactive}
+              size="small"
+              sx={{
+                bgcolor: torneo.activo
+                  ? "rgba(76,175,80,0.28)"
+                  : "rgba(211,47,47,0.55)",
+                color: "white",
+                fontWeight: 700,
+                border: "1px solid rgba(255,255,255,0.4)",
+              }}
+            />
+            <Chip
+              label={`${deportistas.length} / ${torneo.cupo_jugadores} cupos`}
+              size="small"
+              sx={{
+                bgcolor:
+                  deportistas.length >= torneo.cupo_jugadores
+                    ? "rgba(244,67,54,0.35)"
+                    : "rgba(255,255,255,0.18)",
+                color: "white",
+                fontWeight: 700,
+                border: "1px solid rgba(255,255,255,0.4)",
+              }}
+            />
+            {torneo.fecha_inicio && (
+              <Chip
+                label={`Inicio: ${formatDate(torneo.fecha_inicio, "short")}`}
+                size="small"
+                sx={{
+                  bgcolor: "rgba(255,255,255,0.18)",
+                  color: "white",
+                  fontWeight: 700,
+                  border: "1px solid rgba(255,255,255,0.4)",
+                }}
+              />
+            )}
+            {torneo.fecha_fin && (
+              <Chip
+                label={`Fin: ${formatDate(torneo.fecha_fin, "short")}`}
+                size="small"
+                sx={{
+                  bgcolor: "rgba(255,255,255,0.18)",
+                  color: "white",
+                  fontWeight: 700,
+                  border: "1px solid rgba(255,255,255,0.4)",
+                }}
+              />
+            )}
+          </Stack>
+        </Box>
+      </Box>
+
+      <Stack spacing={3} sx={{ mt: 2 }}>
+        <Paper sx={{ p: 2, borderRadius: 6 }}>
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+            <PersonAddIcon color="success" fontSize="small" />
+            <Typography variant="subtitle1" fontWeight={700}>
+              {C.inscriptStudent}
+            </Typography>
           </Stack>
 
-          <Box sx={{ mt: 1.5 }}>
-            <Typography
-              variant="h3"
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={1.5}
+            alignItems="stretch"
+          >
+            {loadingAll ? (
+              <CircularProgress size={24} />
+            ) : (
+              <Autocomplete
+                sx={{ flex: 1 }}
+                size="small"
+                options={allDeportistas}
+                getOptionLabel={(opt) =>
+                  opt.nombre_deportista
+                    ? `${opt.legajo} — ${opt.nombre_deportista}`
+                    : String(opt.legajo ?? "")
+                }
+                value={selectedDeportista}
+                onChange={(_, val) => setSelectedDeportista(val)}
+                renderInput={(params) => (
+                  <SAETextField
+                    {...params}
+                    size="small"
+                    label={C.inscriptSearchMsg}
+                    fullWidth
+                  />
+                )}
+                isOptionEqualToValue={(opt, val) => opt.id === val.id}
+              />
+            )}
+            <SAEButton
+              variant="contained"
+              color="success"
+              size="small"
+              startIcon={
+                inscribirSaving ? (
+                  <CircularProgress size={14} color="inherit" />
+                ) : (
+                  <PersonAddIcon fontSize="small" />
+                )
+              }
+              onClick={handleInscribir}
+              disabled={!selectedDeportista || inscribirSaving}
+              sx={{ px: 2.5, whiteSpace: "nowrap", flexShrink: 0 }}
+            >
+              {C.inscriptStudent}
+            </SAEButton>
+          </Stack>
+
+          {inscribirError && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {inscribirError}
+            </Alert>
+          )}
+          {inscribirSuccess && (
+            <Alert severity="success" sx={{ mt: 2 }}>
+              {inscribirSuccess}
+            </Alert>
+          )}
+        </Paper>
+
+        <Divider />
+
+        <Paper sx={{ p: 2, borderRadius: 6 }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={1}
+            sx={{ mb: 2 }}
+            flexWrap="wrap"
+          >
+            <GroupsIcon color="primary" />
+            <Typography variant="h6" fontWeight={700}>
+              {C.inscriptManager}
+            </Typography>
+            <Chip
+              size="small"
+              label={`${deportistas.length} / ${torneo.cupo_jugadores} cupos`}
+              color={
+                deportistas.length >= torneo.cupo_jugadores
+                  ? "error"
+                  : "success"
+              }
+              sx={{ ml: 1 }}
+            />
+          </Stack>
+
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              gap: 2,
+              alignItems: { md: "stretch" },
+            }}
+          >
+            {/* Left: disponibles */}
+            <Box
               sx={{
-                fontWeight: 800,
-                lineHeight: 1.1,
-                fontSize: { xs: "2rem", md: "3rem" },
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                gap: 1,
               }}
             >
-              {torneo.nombre_torneo}
-            </Typography>
-            <Typography
-              sx={{ mt: 1.5, fontSize: { xs: 15, md: 17 }, opacity: 0.92 }}
-            >
-              {torneo.nombre_deporte} · Responsable:{" "}
-              {torneo.docente_responsable || "—"}
-              {torneo.cuil_responsable ? ` — ${torneo.cuil_responsable}` : ""}
-            </Typography>
-            <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mt: 2.5 }}>
-              <Chip
-                label={torneo.activo ? C.active : C.inactive}
-                size="small"
-                sx={{
-                  bgcolor: torneo.activo
-                    ? "rgba(76,175,80,0.28)"
-                    : "rgba(211,47,47,0.55)",
-                  color: "white",
-                  fontWeight: 700,
-                  border: "1px solid rgba(255,255,255,0.4)",
-                }}
-              />
-              <Chip
-                label={`${deportistas.length} / ${torneo.cupo_jugadores} cupos`}
-                size="small"
-                sx={{
-                  bgcolor:
-                    deportistas.length >= torneo.cupo_jugadores
-                      ? "rgba(244,67,54,0.35)"
-                      : "rgba(255,255,255,0.18)",
-                  color: "white",
-                  fontWeight: 700,
-                  border: "1px solid rgba(255,255,255,0.4)",
-                }}
-              />
-              {torneo.fecha_inicio && (
-                <Chip
-                  label={`Inicio: ${formatDate(torneo.fecha_inicio,"short")}`}
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="subtitle2" fontWeight={700}>
+                  {C.availables}
+                </Typography>
+                <Chip size="small" label={disponibles.length} />
+              </Stack>
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                <SAETextField
                   size="small"
-                  sx={{
-                    bgcolor: "rgba(255,255,255,0.18)",
-                    color: "white",
-                    fontWeight: 700,
-                    border: "1px solid rgba(255,255,255,0.4)",
-                  }}
-                />
-              )}
-              {torneo.fecha_fin && (
-                <Chip
-                  label={`Fin: ${formatDate(torneo.fecha_fin,"short")}`}
-                  size="small"
-                  sx={{
-                    bgcolor: "rgba(255,255,255,0.18)",
-                    color: "white",
-                    fontWeight: 700,
-                    border: "1px solid rgba(255,255,255,0.4)",
-                  }}
-                />
-              )}
-            </Stack>
-          </Box>
-        </Box>
-
-        <Stack spacing={4} sx={{ mt: 5 }}>
-          <Paper sx={{ p: 2, borderRadius: 2 }}>
-            <Stack
-              direction="row"
-              alignItems="center"
-              spacing={1}
-              sx={{ mb: 1 }}
-            >
-              <PersonAddIcon color="success" fontSize="small" />
-              <Typography variant="subtitle1" fontWeight={700}>
-                {C.inscriptStudent}
-              </Typography>
-            </Stack>
-
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={1.5}
-              alignItems="stretch"
-            >
-              {loadingAll ? (
-                <CircularProgress size={24} />
-              ) : (
-                <Autocomplete
+                  placeholder={C.searchPH}
+                  value={busquedaDisponibles}
+                  onChange={(e) => setBusquedaDisponibles(e.target.value)}
                   sx={{ flex: 1 }}
-                  size="small"
-                  options={allDeportistas}
-                  getOptionLabel={(opt) =>
-                    opt.nombre_deportista
-                      ? `${opt.legajo} — ${opt.nombre_deportista}`
-                      : String(opt.legajo ?? "")
-                  }
-                  value={selectedDeportista}
-                  onChange={(_, val) => setSelectedDeportista(val)}
-                  renderInput={(params) => (
-                    <SAETextField
-                      {...params}
-                      size="small"
-                      label={C.inscriptSearchMsg}
-                      fullWidth
-                    />
-                  )}
-                  isOptionEqualToValue={(opt, val) => opt.id === val.id}
                 />
-              )}
-              <SAEButton
-                variant="contained"
-                color="success"
-                size="small"
-                startIcon={
-                  inscribirSaving ? (
-                    <CircularProgress size={14} color="inherit" />
-                  ) : (
-                    <PersonAddIcon fontSize="small" />
-                  )
-                }
-                onClick={handleInscribir}
-                disabled={!selectedDeportista || inscribirSaving}
-                sx={{ px: 2.5, whiteSpace: "nowrap", flexShrink: 0 }}
+                <Tooltip title={C.selectAll}>
+                  <span>
+                    <IconButton
+                      size="small"
+                      onClick={handleSelectAll}
+                      disabled={filteredDisponibles.length === 0}
+                    >
+                      <SelectAllIcon fontSize="small" />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+                <Tooltip title={C.cleanSelection}>
+                  <span>
+                    <IconButton
+                      size="small"
+                      onClick={handleDeselectAll}
+                      disabled={selectedAvailable.size === 0}
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              </Stack>
+              <Box
+                sx={{
+                  height: 360,
+                  overflow: "auto",
+                  border: "1px solid #e0e0e0",
+                  borderRadius: 1,
+                  bgcolor: "#fafafa",
+                }}
               >
-               {C.inscriptStudent}
-              </SAEButton>
-            </Stack>
+                {disponiblesContent}
+              </Box>
+            </Box>
 
-            {inscribirError && (
-              <Alert severity="error" sx={{ mt: 2 }}>
-                {inscribirError}
-              </Alert>
-            )}
-            {inscribirSuccess && (
-              <Alert severity="success" sx={{ mt: 2 }}>
-                {inscribirSuccess}
-              </Alert>
-            )}
-          </Paper>
-
-          <Divider />
-
-          <Paper sx={{ p: 3, borderRadius: 2 }}>
-            <Stack
-              direction="row"
-              alignItems="center"
-              spacing={1}
-              sx={{ mb: 2 }}
-              flexWrap="wrap"
-            >
-              <GroupsIcon color="primary" />
-              <Typography variant="h6" fontWeight={700}>
-                {C.inscriptManager}
-              </Typography>
-              <Chip
-                size="small"
-                label={`${deportistas.length} / ${torneo.cupo_jugadores} cupos`}
-                color={
-                  deportistas.length >= torneo.cupo_jugadores
-                    ? "error"
-                    : "success"
-                }
-                sx={{ ml: 1 }}
-              />
-            </Stack>
-
+            {/* Center: action */}
             <Box
               sx={{
                 display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                gap: 2,
-                alignItems: { md: "stretch" },
+                flexDirection: { xs: "row", md: "column" },
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 1,
+                py: { md: 2 },
               }}
             >
-              {/* Left: disponibles */}
-              <Box
-                sx={{
-                  flex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 1,
-                }}
+              <Badge
+                badgeContent={selectedAvailable.size || undefined}
+                color="primary"
               >
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Typography variant="subtitle2" fontWeight={700}>
-                    {C.availables}
-                  </Typography>
-                  <Chip size="small" label={disponibles.length} />
-                </Stack>
-                <Stack direction="row" spacing={0.5} alignItems="center">
-                  <SAETextField
-                    size="small"
-                    placeholder={C.searchPH}
-                    value={busquedaDisponibles}
-                    onChange={(e) => setBusquedaDisponibles(e.target.value)}
-                    sx={{ flex: 1 }}
-                  />
-                  <Tooltip title={C.selectAll}>
-                    <span>
-                      <IconButton
-                        size="small"
-                        onClick={handleSelectAll}
-                        disabled={filteredDisponibles.length === 0}
-                      >
-                        <SelectAllIcon fontSize="small" />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                  <Tooltip title={C.cleanSelection}>
-                    <span>
-                      <IconButton
-                        size="small"
-                        onClick={handleDeselectAll}
-                        disabled={selectedAvailable.size === 0}
-                      >
-                        <ClearIcon fontSize="small" />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                </Stack>
-                <Box
+                <IconButton
+                  color="primary"
+                  onClick={handleMoveSelected}
+                  disabled={selectedAvailable.size === 0 || inscribirMasivo}
                   sx={{
-                    height: 360,
-                    overflow: "auto",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: 1,
-                    bgcolor: "#fafafa",
+                    bgcolor: "#5B96CC",
+                    color: "white",
+                    "&:hover": { bgcolor: "#477EAF" },
+                    "&.Mui-disabled": {
+                      bgcolor: "#e0e0e0",
+                      color: "#9e9e9e",
+                    },
                   }}
                 >
-                  {disponiblesContent}
-                </Box>
-              </Box>
+                  {inscribirMasivo ? (
+                    <CircularProgress size={20} sx={{ color: "white" }} />
+                  ) : (
+                    <ArrowForwardIcon />
+                  )}
+                </IconButton>
+              </Badge>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                textAlign="center"
+              >
+                {C.dragMsg}
+              </Typography>
+            </Box>
 
-              {/* Center: action */}
+            <Box
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragOver(true);
+              }}
+              onDragLeave={() => setIsDragOver(false)}
+              onDrop={handleDrop}
+              sx={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                gap: 1,
+              }}
+            >
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="subtitle2" fontWeight={700}>
+                  {C.inscriptsTitle}
+                </Typography>
+                <Chip size="small" label={deportistas.length} color="primary" />
+              </Stack>
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                <SAETextField
+                  size="small"
+                  placeholder={C.searchPH}
+                  value={busquedaInscriptos}
+                  onChange={(e) => setBusquedaInscriptos(e.target.value)}
+                  sx={{ flex: 1 }}
+                />
+                <Tooltip title={C.selectAll}>
+                  <span>
+                    <IconButton
+                      size="small"
+                      onClick={handleSelectAllInscriptos}
+                      disabled={filteredInscriptos.length === 0}
+                    >
+                      <SelectAllIcon fontSize="small" />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+                <Tooltip title={C.cleanSelection}>
+                  <span>
+                    <IconButton
+                      size="small"
+                      onClick={handleDeselectAllInscriptos}
+                      disabled={selectedInscriptos.size === 0}
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+                <Tooltip title={C.deleteSelection}>
+                  <span>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={handleEliminarSeleccionados}
+                      disabled={
+                        selectedInscriptos.size === 0 || deletingMultiple
+                      }
+                    >
+                      {deletingMultiple ? (
+                        <CircularProgress size={16} color="error" />
+                      ) : (
+                        <DeleteSweepIcon fontSize="small" />
+                      )}
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              </Stack>
               <Box
                 sx={{
+                  height: 360,
+                  overflow: "auto",
+                  border: isDragOver
+                    ? "2px dashed #2d6da3"
+                    : "1px solid #e0e0e0",
+                  borderRadius: 1,
+                  bgcolor: isDragOver ? "#e8f4fd" : "#fafafa",
+                  transition: "border 0.15s, background 0.15s",
                   display: "flex",
-                  flexDirection: { xs: "row", md: "column" },
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: 1,
-                  py: { md: 2 },
+                  flexDirection: "column",
                 }}
               >
-                <Badge
-                  badgeContent={selectedAvailable.size || undefined}
-                  color="primary"
-                >
-                  <IconButton
-                    color="primary"
-                    onClick={handleMoveSelected}
-                    disabled={selectedAvailable.size === 0 || inscribirMasivo}
+                {isDragOver && (
+                  <Box
                     sx={{
-                      bgcolor: "#5B96CC",
-                      color: "white",
-                      "&:hover": { bgcolor: "#477EAF" },
-                      "&.Mui-disabled": {
-                        bgcolor: "#e0e0e0",
-                        color: "#9e9e9e",
-                      },
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      py: 2,
+                      color: "#2d6da3",
+                      borderBottom: "1px dashed #90caf9",
                     }}
                   >
-                    {inscribirMasivo ? (
-                      <CircularProgress size={20} sx={{ color: "white" }} />
-                    ) : (
-                      <ArrowForwardIcon />
-                    )}
-                  </IconButton>
-                </Badge>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  textAlign="center"
-                >
-                  {C.dragMsg}
-                </Typography>
-              </Box>
-
-              <Box
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setIsDragOver(true);
-                }}
-                onDragLeave={() => setIsDragOver(false)}
-                onDrop={handleDrop}
-                sx={{
-                  flex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 1,
-                }}
-              >
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Typography variant="subtitle2" fontWeight={700}>
-                    {C.inscriptsTitle}
-                  </Typography>
-                  <Chip
-                    size="small"
-                    label={deportistas.length}
-                    color="primary"
-                  />
-                </Stack>
-                <Stack direction="row" spacing={0.5} alignItems="center">
-                  <SAETextField
-                    size="small"
-                    placeholder={C.searchPH}
-                    value={busquedaInscriptos}
-                    onChange={(e) => setBusquedaInscriptos(e.target.value)}
-                    sx={{ flex: 1 }}
-                  />
-                  <Tooltip title={C.selectAll}>
-                    <span>
-                      <IconButton
-                        size="small"
-                        onClick={handleSelectAllInscriptos}
-                        disabled={filteredInscriptos.length === 0}
-                      >
-                        <SelectAllIcon fontSize="small" />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                  <Tooltip title={C.cleanSelection}>
-                    <span>
-                      <IconButton
-                        size="small"
-                        onClick={handleDeselectAllInscriptos}
-                        disabled={selectedInscriptos.size === 0}
-                      >
-                        <ClearIcon fontSize="small" />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                  <Tooltip title={C.deleteSelection}>
-                    <span>
-                      <IconButton
-                        size="small"
-                        color="error"
-                        onClick={handleEliminarSeleccionados}
-                        disabled={
-                          selectedInscriptos.size === 0 || deletingMultiple
-                        }
-                      >
-                        {deletingMultiple ? (
-                          <CircularProgress size={16} color="error" />
-                        ) : (
-                          <DeleteSweepIcon fontSize="small" />
-                        )}
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                </Stack>
-                <Box
-                  sx={{
-                    height: 360,
-                    overflow: "auto",
-                    border: isDragOver
-                      ? "2px dashed #2d6da3"
-                      : "1px solid #e0e0e0",
-                    borderRadius: 1,
-                    bgcolor: isDragOver ? "#e8f4fd" : "#fafafa",
-                    transition: "border 0.15s, background 0.15s",
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  {isDragOver && (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        py: 2,
-                        color: "#2d6da3",
-                        borderBottom: "1px dashed #90caf9",
-                      }}
-                    >
-                      <Typography variant="body2" fontWeight={600}>
-                        {C.dropMsg}
-                      </Typography>
-                    </Box>
-                  )}
-                  {inscriptosContent}
-                </Box>
+                    <Typography variant="body2" fontWeight={600}>
+                      {C.dropMsg}
+                    </Typography>
+                  </Box>
+                )}
+                {inscriptosContent}
               </Box>
             </Box>
-          </Paper>
+          </Box>
+        </Paper>
 
-          <Divider />
+        <Divider />
 
-          {/* ── Athletes detail table ── */}
-          <Paper sx={{ p: 3, borderRadius: 2 }}>
-            <Stack
-              direction="row"
-              alignItems="center"
-              spacing={1}
-              sx={{ mb: 2 }}
-            >
-              <GroupsIcon color="primary" />
-              <Typography variant="h6" fontWeight={700}>
-                {C.inscriptsAlready}
-              </Typography>
-              {!loadingDeportistas && (
-                <Chip size="small" label={deportistas.length} color="primary" />
-              )}
-              <Box sx={{ flex: 1 }} />
-              <Tooltip title={C.generatePDF}>
-                <span>
-                  <IconButton
-                    size="small"
-                    disabled={deportistas.length === 0}
-                    onClick={handleGenerarPdf}
-                    sx={{ color: "text.secondary" }}
-                  >
-                    <PictureAsPdfIcon fontSize="small" />
-                  </IconButton>
-                </span>
-              </Tooltip>
-              <Tooltip title={C.inscriptsNotify}>
-                <span>
-                  <IconButton
-                    size="small"
-                    disabled={deportistas.length === 0}
-                    onClick={() => {}}
-                    sx={{ color: "text.secondary" }}
-                  >
-                    <NotificationsActiveIcon fontSize="small" />
-                  </IconButton>
-                </span>
-              </Tooltip>
-              <Tooltip title={C.download}>
-                <span>
-                  <IconButton
-                    size="small"
-                    disabled={deportistas.length === 0}
-                    onClick={() => {}}
-                    sx={{ color: "text.secondary" }}
-                  >
-                    <FolderZipIcon fontSize="small" />
-                  </IconButton>
-                </span>
-              </Tooltip>
-            </Stack>
-
-            {loadingDeportistas && (
-              <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-                <CircularProgress />
-              </Box>
+        {/* ── Athletes detail table ── */}
+        <Paper sx={{ p: 3, borderRadius: 2 }}>
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+            <GroupsIcon color="primary" />
+            <Typography variant="h6" fontWeight={700}>
+              {C.inscriptsAlready}
+            </Typography>
+            {!loadingDeportistas && (
+              <Chip size="small" label={deportistas.length} color="primary" />
             )}
+            <Box sx={{ flex: 1 }} />
+            <Tooltip title={C.generatePDF}>
+              <span>
+                <IconButton
+                  size="small"
+                  disabled={deportistas.length === 0}
+                  onClick={handleGenerarPdf}
+                  sx={{ color: "text.secondary" }}
+                >
+                  <PictureAsPdfIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip>
+            {/* <Tooltip title={C.inscriptsNotify}>
+              <span>
+                <IconButton
+                  size="small"
+                  disabled={deportistas.length === 0}
+                  onClick={() => {}}
+                  sx={{ color: "text.secondary" }}
+                >
+                  <NotificationsActiveIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip> */}
+            {/* <Tooltip title={C.download}>
+              <span>
+                <IconButton
+                  size="small"
+                  disabled={deportistas.length === 0}
+                  onClick={() => {}}
+                  sx={{ color: "text.secondary" }}
+                >
+                  <FolderZipIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip> */}
+          </Stack>
 
-            {!loadingDeportistas && deportistas.length === 0 && (
-              <Alert severity="info">
-                {C.tournamentNoInscripts}
-              </Alert>
-            )}
+          {loadingDeportistas && (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+              <CircularProgress />
+            </Box>
+          )}
 
-            {!loadingDeportistas && deportistas.length > 0 && (
-              <TableContainer component={Paper} variant="outlined">
-                <Table size="small">
-                  <TableHead sx={{ bgcolor: "#f0f4f8" }}>
-                    <TableRow>
-                      <TableCell>
-                        <b>{C.studentID}</b>
-                      </TableCell>
-                      <TableCell>
-                        <b>{C.name}</b>
-                      </TableCell>
+          {!loadingDeportistas && deportistas.length === 0 && (
+            <Alert severity="info">{C.tournamentNoInscripts}</Alert>
+          )}
+
+          {!loadingDeportistas && deportistas.length > 0 && (
+            <TableContainer component={Paper} variant="outlined">
+              <Table size="small">
+                <TableHead sx={{ bgcolor: "#f0f4f8" }}>
+                  <TableRow>
+                    <TableCell>
+                      <b>{C.studentID}</b>
+                    </TableCell>
+                    <TableCell>
+                      <b>{C.name}</b>
+                    </TableCell>
+                    <TableCell align="center">
+                      <b>{C.studentAuthorized}</b>
+                    </TableCell>
+                    <TableCell>
+                      <b>{C.studentExpireLicenceShort}</b>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {deportistas.map((d) => (
+                    <TableRow key={d.id} hover>
+                      <TableCell>{d.legajo}</TableCell>
+                      <TableCell>{d.nombre_deportista}</TableCell>
                       <TableCell align="center">
-                        <b>{C.studentAuthorized}</b>
+                        <Chip
+                          size="small"
+                          label={d.habilitado_deporte ? "Sí" : "No"}
+                          color={d.habilitado_deporte ? "success" : "error"}
+                        />
                       </TableCell>
-                      <TableCell>
-                        <b>{C.studentExpireLicenceShort}</b>
-                      </TableCell>
+                      <TableCell>{formatDate(d.vencimiento_ficha)}</TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {deportistas.map((d) => (
-                      <TableRow key={d.id} hover>
-                        <TableCell>{d.legajo}</TableCell>
-                        <TableCell>{d.nombre_deportista}</TableCell>
-                        <TableCell align="center">
-                          <Chip
-                            size="small"
-                            label={d.habilitado_deporte ? "Sí" : "No"}
-                            color={d.habilitado_deporte ? "success" : "error"}
-                          />
-                        </TableCell>
-                        <TableCell>{formatDate(d.vencimiento_ficha)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
-          </Paper>
-        </Stack>
-        <DocumentPreviewDialog
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Paper>
+      </Stack>
+      <DocumentPreviewDialog
         open={pdfOpen}
         onClose={() => {
           setPdfOpen(false);
           URL.revokeObjectURL(pdfSrc);
           setPdfSrc("");
+          setPdfFilename("");
         }}
         title={`Inscriptos — ${torneo?.nombre_torneo ?? ""}`}
         imageSrc={pdfSrc}
@@ -1213,7 +1232,7 @@ function buildFormData(t) {
         onDownload={() => {
           const a = document.createElement("a");
           a.href = pdfSrc;
-          a.download = `inscriptos_${torneo?.nombre_torneo ?? "torneo"}.pdf`;
+          a.download = pdfFilename || buildPdfFilename(torneo);
           a.click();
         }}
       />
@@ -1226,11 +1245,11 @@ function buildFormData(t) {
           const refreshed = await obtenerTorneoXId(id);
           setTorneo(refreshed);
           setEditOpen(false);
-          showNotification(C.tournamentUpdated,"success");
+          showNotification(C.tournamentUpdated, "success");
         }}
         initialData={torneo ? buildFormData(torneo) : null}
         mode="edit"
       />
-  </SAEPage>
+    </SAEPage>
   );
 }
