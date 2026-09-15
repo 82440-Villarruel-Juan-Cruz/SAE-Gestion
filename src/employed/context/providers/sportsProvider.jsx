@@ -36,24 +36,26 @@ const generateSportsColumns = (
 
   if (!sample) return actions ? [actions] : [];
 
-  const columns = Object.keys(sample).map((key) => {
-    const normalizedKey = key.toLowerCase();
-    const isId =
-      normalizedKey === "id" ||
-      normalizedKey.startsWith("id_") ||
-      normalizedKey.endsWith("_id");
-    const isShort = ["estado", "cupo", "duracion"].includes(normalizedKey);
-    return {
-      field: key,
-      headerName: formatHeader(key),
-      flex: isId ? 0.4 : 1,
-      minWidth: isId || isShort ? 50 : 120,
-      maxWidth: isId ? 70 : isShort ? 100 : undefined,
-      align: isId || isShort ? "center" : "left",
-      headerAlign: isId || isShort ? "center" : "left",
-      ...overrides[key],
-    };
-  });
+  const columns = Object.keys(sample)
+    .filter((key) => !overrides[key]?.hidden)
+    .map((key) => {
+      const normalizedKey = key.toLowerCase();
+      const isId =
+        normalizedKey === "id" ||
+        normalizedKey.startsWith("id_") ||
+        normalizedKey.endsWith("_id");
+      const isShort = ["estado", "cupo", "duracion"].includes(normalizedKey);
+      return {
+        field: key,
+        headerName: formatHeader(key),
+        flex: isId ? 0.4 : 1,
+        minWidth: isId || isShort ? 50 : 120,
+        maxWidth: isId ? 70 : isShort ? 100 : undefined,
+        align: isId || isShort ? "center" : "left",
+        headerAlign: isId || isShort ? "center" : "left",
+        ...overrides[key],
+      };
+    });
 
   if (actions) columns.push(actions);
 
@@ -492,6 +494,7 @@ export function SportsProvider({ children, autoLoad = true }) {
     () =>
       generateSportsColumns(profesoresRows, {
         overrides: {
+          id: { hidden: true },
           cuil: { headerName: "CUIL", width: 150, flex: 0 },
           activo: booleanColumn(),
           fecha_nacimiento: {
