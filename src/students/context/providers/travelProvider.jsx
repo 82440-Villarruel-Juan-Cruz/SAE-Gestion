@@ -146,7 +146,7 @@ const mergeDocuments = (requiredDocs, profileDocs) => {
       if (!allowedExtensions.includes(fileExt)) {
         // 2. Mostrar mensaje legible (usando .join)
         showNotification(
-          `${C.errorExtensionMsg} Extensiones permitidas: ${allowedExtensions.join(", ")}`, 
+          `${C.errorExtensionMsg}${allowedExtensions.join(", ")}`, 
           "warning"
         );
         event.target.value = "";

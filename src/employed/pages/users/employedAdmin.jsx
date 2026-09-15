@@ -230,7 +230,6 @@ function EmpleadosDialog() {
     dialogSaving,
     setDialogError,
     handleDataChange,
-    setDialogData,
     closeDialog,
   } = useNotification();
   const employWarningEnd = useMemo(
@@ -385,7 +384,7 @@ function EmpleadosDialog() {
             }
             fullWidth
             error={Boolean(fieldErrors.legajo)}
-            helperText={fieldErrors.legajo ?? ""}
+            helperText={fieldErrors.legajo ?? C.employLegajoHelper ?? ""}
           />
 
           <Autocomplete

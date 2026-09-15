@@ -90,7 +90,6 @@ export const EMPTY_COMPLETE_SCHEDULE = {
   deportista: {
     id: 0,
     legajo: "",
-    habilitado_deportado: true,
     vencimiento_ficha: "",
     habilitado_deporte: true,
   },

@@ -69,6 +69,11 @@ const isPositiveNumber = (value) =>
 const isValidNumber = (value) =>
   !isEmpty(value) && Number.isFinite(Number(value));
 
+const buildEmployeeLegajo = (legajo) => {
+  const legajoBase = String(legajo ?? "").trim();
+  return legajoBase.includes("@") ? legajoBase : `${legajoBase}@${C.dominio}`;
+};
+
 export const AdminUsersProvider = ({ children }) => {
   // Estados globales de Diálogo compartidos por ambas secciones
   const {
@@ -121,32 +126,35 @@ export const AdminUsersProvider = ({ children }) => {
       case field === "id_empleado":
         return isPositiveNumber(value) ? "" : C.validationEmploy;
       default:
-        return data ? C.validationActive : "";
+        return "";
     }
   };
   const validate = (data = dialogData) => {
-    const fields =
-      dialogType === "empleados"
-        ? [
-            "id",
-            "legajo",
-            "nombre_empleado",
-            "nombre_usuario",
-            "nombres",
-            "apellidos",
-            "activo",
-            "id_perfil",
-          ]
-        : [
-            "id",
-            "legajo",
-            "nombres",
-            "apellidos",
-            "activo",
-            "id_perfil",
-            "nombre_carrera",
-            "id_especialidad",
-          ]; //Depende el objeto es el tipo de estructura
+    const fields = (() => {
+      if (dialogType === "empleados") {
+        return dialogMode === "create"
+          ? [
+              "legajo",
+              "nombre_usuario",
+              "nombres",
+              "apellidos",
+              "activo",
+              "id_perfil",
+            ]
+          : ["id", "legajo", "nombre_empleado", "activo", "id_perfil"];
+      }
+
+      return [
+        "id",
+        "legajo",
+        "nombres",
+        "apellidos",
+        "activo",
+        "id_perfil",
+        "nombre_carrera",
+        "id_especialidad",
+      ];
+    })(); //Depende el objeto es el tipo de estructura
 
     const errors = fields.reduce((result, field) => {
       const message = validateField(field, data[field], data);
@@ -253,6 +261,7 @@ export const AdminUsersProvider = ({ children }) => {
       id: "",
       legajo: "",
       nombre_empleado: "",
+      nombre_usuario: "",
       nombres: "",
       apellidos: "",
       activo: true,
@@ -287,7 +296,7 @@ export const AdminUsersProvider = ({ children }) => {
       let id_nuevo = id === "" ? 0 : id;
       const body = {
         id: id_nuevo,
-        legajo: dialogData.legajo,
+        legajo: buildEmployeeLegajo(dialogData.legajo),
         nombre_usuario: dialogData.nombre_usuario || dialogData.nombre_empleado,
         id_perfil: dialogData.id_perfil,
         activo: dialogMode === "create" ? true : dialogData.activo,

@@ -240,6 +240,7 @@ export const USER_STRINGS = {
   employUserName: "Nombre de Usuario",
 
   studentID: "Legajo",
+  employLegajoHelper: "Podés escribirlo sin @frc.utn.edu.ar; se agrega automáticamente.",
   employProfile: "Perfíl",
   employActive: "Usuario Activo",
   employNoActive: "Usuario NO Activo",
@@ -423,7 +424,7 @@ export const TRAVEL_STRINGS = {
   inscriptsDocsDeleted: "Documento Eliminado",
   errorInscDocDelete: "Error al eliminar el documento",
 
-  onlyExtensions: "Solo se permiten archivos:",
+  onlyExtensions: "Formato no válido. Formatos permitidos:",
 
   inscriptsDocsUpload: "subido con éxito",
   errorInscUpload: "Error subiendo el archivo",
@@ -636,7 +637,8 @@ export const COMPRAS_STRINGS = {
   documentValidation: {
     incompletePurchaseData:
       "Completá los datos de la compra antes de adjuntar documentación.",
-    invalidType: (extensions) => `Solo se permiten archivos: ${extensions}`,
+    invalidType: (extensions) =>
+      `Formato no válido. Formatos permitidos: ${extensions}`,
     maxSize: (maxSizeMb) => `El archivo no puede superar los ${maxSizeMb} MB.`,
     deleteInvoiceError: "No se pudo eliminar la factura",
   },
@@ -805,7 +807,7 @@ export const BECAS_STRINGS = {
     fieldRent: "Alquila",
     fieldActive: "Activo",
     fieldAcceptedStart: "Aceptado Inicio",
-    fieldCanPay: "Puede Pagarle",
+    fieldCanPay: "Pudo Cobrar",
     fieldScholarshipYear: "Año Beca",
     fieldRequestDate: "Fecha Solicitud",
     fieldProjectName: "Nombre del proyecto",

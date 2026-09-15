@@ -41,7 +41,7 @@ export const SCHOLARSHIP_STRINGS = {
   validationAttachDocuments: (documents) => `Adjuntá: ${documents}`,
   validationDescribeEconomicSituation: "Describí tu situación económica",
   uploadAllowedExtensions: (extension) =>
-    `Solo se permiten archivos: ${extension}`,
+    `Formato no válido. Formatos permitidos: ${extension}`,
   uploadMaxSize: (maxSize) => `El archivo no puede superar los ${maxSize} MB.`,
   documentTypeNotFound: (documentName) =>
     `No se encontró el tipo de documento: ${documentName}`,
@@ -345,7 +345,7 @@ export const TRIPS_STRINGS = {
 
   //Provider
   errorLoadingDocuments: "No se pudo cargar el documento",
-  errorExtensionMsg: "Solo se permiten archivos: ",
+  errorExtensionMsg: "Formato no válido. Formatos permitidos: ",
   errorMaxMBMsg: "El archivo no puede superar los ",
 
   savedFile: "Archivo subido con éxito",

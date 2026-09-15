@@ -40,6 +40,7 @@ import {
 import { SCHOLARSHIP_TYPES } from "../../../utils/common/constants";
 import { buildDocumentsFromConfig } from "../../../utils/documents.utils";
 import { generateColumns } from "../../../utils/datagrid.utils.jsx";
+import { getTodayInputDate } from "../../../utils/date.utils.js";
 
 const BS = BECAS_STRINGS;
 
@@ -372,7 +373,10 @@ export function ScholarshipProvider({ children }) {
   );
 
   const openCreateBecario = useCallback(() => {
-    openDialog("becario", "create", EMPTY_BECARIO);
+    openDialog("becario", "create", {
+      ...EMPTY_BECARIO,
+      fecha_solicitud: getTodayInputDate(),
+    });
   }, [openDialog]);
 
   const handleSaveBecario = async () => {

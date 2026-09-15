@@ -27,11 +27,21 @@ import { isEmpty } from "../../../utils/text.utils.js";
 import { TRAVEL_STRINGS } from "../../../utils/strings/employed.strings.js";
 import { EMPTY_DOCUMENTACION_ESTUDIANTE,EMPTY_DOCUMENTACION_VIAJE,EMPTY_VIAJES_FORM,EMPTY_VIAJES,EMPTY_BUSSINESS } from "../../../utils/common/common.config.js";
 import { formatDate, toApiDateTime } from "../../../utils/date.utils.js";
+import { buildDownloadFileName } from "../../../utils/documents.utils.js";
 import { isValidCbu, isValidCuit, isValidEmail, isValidPhone } from "../../../utils/validation.utils.js";
  
 const C = TRAVEL_STRINGS;
 const checkAndCleanDialogData = (data) => cleanObjectFields(data);
 const formatTravelCost = (value) => formatCurrency(value).replace(/\s/g, "");
+const getDownloadedDocumentName = (downloadedName, listName) => {
+    const normalizedDownloadedName = String(downloadedName ?? "").trim();
+    const normalizedListName = String(listName ?? "").trim();
+
+    return normalizedDownloadedName &&
+        normalizedDownloadedName.toLowerCase() !== "documento"
+        ? normalizedDownloadedName
+        : normalizedListName;
+};
 const isPositiveNumber = (value) => {
     const numericValue = Number(value);
     return Number.isFinite(numericValue) && numericValue > 0;
@@ -611,8 +621,16 @@ export function TravelProvider({ children }){
             const blob = new Blob([byteArray]);
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
+            const documentName = getDownloadedDocumentName(
+                doc.nombre_documento,
+                nombreDocumento,
+            );
             a.href = url;
-            a.download = `${doc.nombre_documento || nombreDocumento}.${doc.extension || extension}`;
+            a.download = buildDownloadFileName(
+                documentName,
+                nombreDocumento,
+                doc.extension || extension,
+            );
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);

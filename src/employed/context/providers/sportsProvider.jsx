@@ -25,6 +25,7 @@ import {
   normalizeDateInput,
   toApiDateTime,
 } from "../../../utils/date.utils.js";
+import { buildDownloadFileName } from "../../../utils/documents.utils.js";
 
 //Luis me gano, lo voy a dejar asi hasta que nos de ganas de hacerlo de 0
 const generateSportsColumns = (
@@ -60,6 +61,35 @@ const generateSportsColumns = (
 };
 
 const C = SPORTS_STRINGS;
+
+const mapDeportistaRow = (deportista) => {
+  const {
+    activo: _ACTIVO,
+    habilitado_deportado: _HABILITADO_DEPORTADO,
+    ...row
+  } = deportista;
+  return row;
+};
+
+const buildDeportistaBody = (deportista) => {
+  const {
+    activo: _ACTIVO,
+    habilitado_deportado: _HABILITADO_DEPORTADO,
+    ...body
+  } = deportista;
+  return body;
+};
+
+const getDownloadedDocumentName = (downloadedName, listName) => {
+  const normalizedDownloadedName = String(downloadedName ?? "").trim();
+  const normalizedListName = String(listName ?? "").trim();
+
+  return normalizedDownloadedName &&
+    normalizedDownloadedName.toLowerCase() !== "documento"
+    ? normalizedDownloadedName
+    : normalizedListName;
+};
+
 export function SportsProvider({ children, autoLoad = true }) {
   const navigate = useNavigate();
   const {
@@ -137,7 +167,12 @@ export function SportsProvider({ children, autoLoad = true }) {
   );
   const fetchDeportistas = useCallback(
     () =>
-      load(setDeportistasRows, setLoadingDeportistas, api.obtenerDeportistas),
+      load(
+        setDeportistasRows,
+        setLoadingDeportistas,
+        api.obtenerDeportistas,
+        mapDeportistaRow,
+      ),
     [load],
   );
   const fetchDeportes = useCallback(
@@ -212,7 +247,6 @@ export function SportsProvider({ children, autoLoad = true }) {
       open("deportista", "edit", {
         id: x.id,
         legajo: x.legajo,
-        habilitado_deportado: x.habilitado_deportado,
         vencimiento_ficha: normalizeDateInput(x.vencimiento_ficha),
         habilitado_deporte: x.habilitado_deporte,
       }),
@@ -252,7 +286,7 @@ export function SportsProvider({ children, autoLoad = true }) {
       const data = Array.isArray(response) ? response[0] : response;
       const ext = (data.extension || doc.extension || "").toLowerCase();
       let src = data.datos_documento;
-      if (!src.startsWith("data:")) {
+      if (!src.startsWith("data:") && !src.startsWith("blob:")) {
         const mime =
           {
             pdf: "application/pdf",
@@ -279,13 +313,38 @@ export function SportsProvider({ children, autoLoad = true }) {
       const response = await api.descargarDocumentacionXId(id);
       const data = Array.isArray(response) ? response[0] : response;
       let base64 = data.datos_documento;
+      if (base64.startsWith("blob:")) {
+        const anchor = document.createElement("a");
+        const documentName = getDownloadedDocumentName(
+          data.nombre_documento,
+          name,
+        );
+        anchor.href = base64;
+        anchor.download = buildDownloadFileName(
+          documentName,
+          name,
+          data.extension || extension,
+        );
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        return;
+      }
       if (base64.startsWith("data:")) base64 = base64.split(",")[1];
       const chars = atob(base64);
       const bytes = Uint8Array.from(chars, (char) => char.charCodeAt(0));
       const url = URL.createObjectURL(new Blob([bytes]));
       const anchor = document.createElement("a");
+      const documentName = getDownloadedDocumentName(
+        data.nombre_documento,
+        name,
+      );
       anchor.href = url;
-      anchor.download = `${data.nombre_documento || name}.${data.extension || extension}`;
+      anchor.download = buildDownloadFileName(
+        documentName,
+        name,
+        data.extension || extension,
+      );
       document.body.appendChild(anchor);
       anchor.click();
       anchor.remove();
@@ -339,7 +398,7 @@ export function SportsProvider({ children, autoLoad = true }) {
         );
       } else if (dialogType === "deportista") {
         const body = {
-          ...dialogData,
+          ...buildDeportistaBody(dialogData),
           vencimiento_ficha: toApiDateTime(dialogData.vencimiento_ficha)
         };
         await (dialogMode === "create"
@@ -474,7 +533,6 @@ export function SportsProvider({ children, autoLoad = true }) {
     () =>
       generateSportsColumns(deportistasRows, {
         overrides: {
-          habilitado_deportado: booleanColumn("Sí", "No"),
           habilitado_deporte: booleanColumn("Sí", "No"),
           vencimiento_ficha: {
             headerName: "Venc. ficha",
