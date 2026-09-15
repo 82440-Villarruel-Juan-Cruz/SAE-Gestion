@@ -171,7 +171,7 @@ export const validateDocumentFile = (
   if (allowedExtensions.length > 0 && !allowedExtensions.includes(extension)) {
     return typeof messages.invalidType === "function"
       ? messages.invalidType(acceptedExtensions)
-      : `Solo se permiten archivos: ${acceptedExtensions}`;
+      : `Formato no válido. Formatos permitidos: ${acceptedExtensions}`;
   }
 
   if (file?.size > maxSizeBytes) {
@@ -278,7 +278,23 @@ export const buildDocumentName = (format = "", data = {}, extension = "") => {
       result.replace(new RegExp(`\\{${key}\\}`, "gi"), value ?? ""),
     format,
   );
-  return `${name}.${extension}`;
+  const normalizedExtension = normalizeExtension(extension);
+  return normalizedExtension ? `${name}.${normalizedExtension}` : name;
+};
+
+export const buildDownloadFileName = (
+  fileName = "",
+  fallback = "documento",
+  extension = "",
+) => {
+  const name = String(fileName || fallback).trim().replace(/\.+$/, "");
+  const normalizedExtension = normalizeExtension(extension);
+
+  if (!normalizedExtension || getDocumentExtension({ nombre_documento: name })) {
+    return name;
+  }
+
+  return `${name}.${normalizedExtension}`;
 };
 
 /* ==========================================================

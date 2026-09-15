@@ -93,7 +93,10 @@ export function SportsProvider({ children }) {
       .map((value) => value.trim().toLowerCase());
 
     if (!allowedExtensions.includes(extension)) {
-      showNotification(`Solo se permiten archivos: ${item.extension}`, "warning");
+      showNotification(
+        `Formato no válido. Formatos permitidos: ${item.extension}`,
+        "warning",
+      );
       event.target.value = "";
       return;
     }
@@ -294,11 +297,19 @@ export function SportsProvider({ children }) {
               : { ...documento };
           });
 
+          console.log("[DeportesDocumentos] Tipos filtrados:", typedDocuments);
+          console.table(
+            typedDocuments.map((documento) => ({
+              nombre: documento.nombre,
+              id_tipo_documento: documento.id_tipo_documento,
+              extension: documento.extension,
+            })),
+          );
+
           const uploadedDocuments = await listarDocumentacionXLegajo(
             user.email,
           );
-          setDocumentos(
-            typedDocuments.map((documento) => {
+          const documentsWithUploads = typedDocuments.map((documento) => {
               const uploaded = uploadedDocuments?.find(
                 (item) =>
                   Number(item.id_tipo_documento) ===
@@ -314,8 +325,22 @@ export function SportsProvider({ children }) {
                     extension: uploaded.extension ?? documento.extension,
                   }
                 : documento;
-            }),
+            });
+
+          console.log(
+            "[DeportesDocumentos] Lista final con extensiones:",
+            documentsWithUploads,
           );
+          console.table(
+            documentsWithUploads.map((documento) => ({
+              nombre: documento.nombre,
+              id_tipo_documento: documento.id_tipo_documento,
+              extension: documento.extension,
+              subido: Boolean(documento.subido),
+            })),
+          );
+          setDocumentos(documentsWithUploads);
+          
         } catch (error) {
           console.error("Error al cargar documentos deportivos:", error);
           showNotification(C.errotLoadDocumentsType, "error");

@@ -218,21 +218,6 @@ export default function SportsEntityDialog() {
                 <FormControlLabel
                   control={
                     <Switch
-                      checked={Boolean(dialogData.habilitado_deportado)}
-                      onChange={(e) =>
-                        handleDialogChange(
-                          "habilitado_deportado",
-                          e.target.checked,
-                        )
-                      }
-                      color="primary"
-                    />
-                  }
-                  label={C.studentAuthorized}
-                />
-                <FormControlLabel
-                  control={
-                    <Switch
                       checked={Boolean(dialogData.habilitado_deporte)}
                       onChange={(e) =>
                         handleDialogChange(

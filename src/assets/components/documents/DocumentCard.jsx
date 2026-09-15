@@ -54,6 +54,9 @@ export default function DocumentCard({
     (documento.extension
       ? `Formatos permitidos: ${documento.extension}`
       : withoutFileLabel);
+  const extensionText = documento.extension
+    ? `Extensiones: ${documento.extension}`
+    : "";
 
   return (
     <Card
@@ -110,6 +113,11 @@ export default function DocumentCard({
           <Typography variant="body2" color="text.secondary">
             {description}
           </Typography>
+          {extensionText && (
+            <Typography variant="caption" color="text.secondary">
+              {extensionText}
+            </Typography>
+          )}
 
           {documento.externalUrl && (
             <SAEButton

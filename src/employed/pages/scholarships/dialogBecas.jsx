@@ -366,6 +366,8 @@ export default function DialogBecas() {
 
     if (dialogMode === "create" && !dialogData.nombre_becario) {
       errors.student = BS.validationStudentRequired;
+      setFieldErrors(errors);
+      return false;
     }
 
     if (!dialogData.anio_beca) {
@@ -519,98 +521,105 @@ export default function DialogBecas() {
                   )}
                 </>
               )}
-              <Grid size={{ xs: 12, md: 3 }} m={0}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={Boolean(dialogData.alquila)}
-                      onChange={(event) =>
-                        handleDataChange("alquila", event.target.checked)
+              {showStudentData && (
+                <>
+                  <Grid size={{ xs: 12, md: 3 }} m={0}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={Boolean(dialogData.alquila)}
+                          onChange={(event) =>
+                            handleDataChange("alquila", event.target.checked)
+                          }
+                          color="primary"
+                        />
                       }
-                      color="primary"
+                      label={BS.fieldRent}
                     />
-                  }
-                  label={BS.fieldRent}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, md: 3 }} m={0}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={Boolean(dialogData.activo)}
-                      onChange={(event) =>
-                        handleDataChange("activo", event.target.checked)
+                  </Grid>
+                  <Grid size={{ xs: 12, md: 3 }} m={0}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={Boolean(dialogData.activo)}
+                          onChange={(event) =>
+                            handleDataChange("activo", event.target.checked)
+                          }
+                          color="primary"
+                        />
                       }
-                      color="primary"
+                      label={BS.fieldActive}
                     />
-                  }
-                  label={BS.fieldActive}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, md: 3 }} m={0}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={Boolean(dialogData.aceptado_inicio)}
-                      onChange={(event) =>
-                        handleDataChange(
-                          "aceptado_inicio",
-                          event.target.checked,
-                        )
+                  </Grid>
+                  <Grid size={{ xs: 12, md: 3 }} m={0}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={Boolean(dialogData.aceptado_inicio)}
+                          onChange={(event) =>
+                            handleDataChange(
+                              "aceptado_inicio",
+                              event.target.checked,
+                            )
+                          }
+                          color="primary"
+                        />
                       }
-                      color="primary"
+                      label={BS.fieldAcceptedStart}
                     />
-                  }
-                  label={BS.fieldAcceptedStart}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, md: 3 }} m={0}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={Boolean(dialogData.puede_pagarle)}
-                      onChange={(event) =>
-                        handleDataChange("puede_pagarle", event.target.checked)
+                  </Grid>
+                  <Grid size={{ xs: 12, md: 3 }} m={0}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={Boolean(dialogData.puede_pagarle)}
+                          onChange={(event) =>
+                            handleDataChange(
+                              "puede_pagarle",
+                              event.target.checked,
+                            )
+                          }
+                          color="primary"
+                        />
                       }
-                      color="primary"
+                      label={BS.fieldCanPay}
                     />
-                  }
-                  label={BS.fieldCanPay}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, md: 6 }} m={0}>
-                <SAETextField
-                  label={BS.fieldScholarshipYear}
-                  value={dialogData.anio_beca ?? ""}
-                  onChange={(event) => handleYearChange(event.target.value)}
-                  error={Boolean(fieldErrors.anio_beca)}
-                  helperText={fieldErrors.anio_beca ?? ""}
-                  fullWidth
-                  slotProps={{
-                    htmlInput: {
-                      inputMode: "numeric",
-                      maxLength: 4,
-                    },
-                  }}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, md: 6 }} m={0}>
-                <SAETextField
-                  label={BS.fieldRequestDate}
-                  type="date"
-                  value={dialogData.fecha_solicitud ?? ""}
-                  onChange={(event) => handleDateChange(event.target.value)}
-                  error={Boolean(fieldErrors.fecha_solicitud)}
-                  helperText={fieldErrors.fecha_solicitud ?? ""}
-                  fullWidth
-                  slotProps={{
-                    inputLabel: { shrink: true },
-                    htmlInput: {
-                      max: todayInputDate,
-                    },
-                  }}
-                />
-              </Grid>
+                  </Grid>
+                  <Grid size={{ xs: 12, md: 6 }} m={0}>
+                    <SAETextField
+                      label={BS.fieldScholarshipYear}
+                      value={dialogData.anio_beca ?? ""}
+                      onChange={(event) => handleYearChange(event.target.value)}
+                      error={Boolean(fieldErrors.anio_beca)}
+                      helperText={fieldErrors.anio_beca ?? ""}
+                      fullWidth
+                      slotProps={{
+                        htmlInput: {
+                          inputMode: "numeric",
+                          maxLength: 4,
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, md: 6 }} m={0}>
+                    <SAETextField
+                      label={BS.fieldRequestDate}
+                      type="date"
+                      value={dialogData.fecha_solicitud ?? ""}
+                      onChange={(event) => handleDateChange(event.target.value)}
+                      error={Boolean(fieldErrors.fecha_solicitud)}
+                      helperText={fieldErrors.fecha_solicitud ?? ""}
+                      fullWidth
+                      slotProps={{
+                        inputLabel: { shrink: true },
+                        htmlInput: {
+                          max: todayInputDate,
+                        },
+                      }}
+                    />
+                  </Grid>
+                </>
+              )}
               {showStudentData && (
                 <Grid size={{ xs: 12 }} m={0}>
                   <Divider textAlign="center">

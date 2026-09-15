@@ -4,7 +4,7 @@ export const mapEmpleadoSAE = (empleado) => ({
   nombre_empleado: empleado.nombre_empleado.replace(",","") ,
   id_perfil: empleado.id_perfil,
   nombre_perfil: empleado.nombre_perfil,
-  activo:true
+  activo: empleado.activo ?? true
 });
 
 export const mapHorarioSAE = (horario) => ({
