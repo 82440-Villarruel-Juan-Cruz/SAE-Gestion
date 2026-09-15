@@ -1,12 +1,18 @@
 import {
   Alert,
+  Chip,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   FormControlLabel,
+  Grid,
   IconButton,
+  List,
+  ListItem,
+  ListItemText,
   Stack,
   Switch,
   Typography,
@@ -15,9 +21,12 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import SAEButton from "../../../assets/components/buttons/SAEButton";
 import SAETextField from "../../../assets/components/inputs/SAETextField";
+import SAESpinner from  "../../../assets/components/spinner/SAESpinner";
+
 import SearchStudent from "../../../assets/components/searchStudent/SearchStudent";
 import { useSports } from "../../context/employedContext";
 import { SPORTS_STRINGS } from "../../../utils/strings/employed.strings";
+import { useEffect } from "react";
 
 const C = SPORTS_STRINGS;
 const getDialogTitle = (type, mode) => {
@@ -49,6 +58,9 @@ export default function SportsEntityDialog() {
     handleDialogChange,
     handleDialogSave,
     buscarAlumnoPorLegajo,
+    loadingInscriptos,
+    deportistasInscriptos,
+    fetchDeportistasXDeporte
   } = useSports();
 
   const handleStudentSelect = (student) => {
@@ -58,7 +70,12 @@ export default function SportsEntityDialog() {
   const handleStudentClear = () => {
     handleDialogChange("legajo", "");
   };
+  const deporteId = dialogData?.id ?? dialogData?.id_deporte ?? null;
 
+  useEffect(() => {
+    if (dialogType !== "deporte"|| !deporteId) return;
+    fetchDeportistasXDeporte(deporteId);
+  }, [dialogType,fetchDeportistasXDeporte, deporteId]);
   return (
     <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="md" fullWidth>
       <DialogTitle
@@ -193,44 +210,48 @@ export default function SportsEntityDialog() {
                   legajoError={dialogFieldErrors.legajo}
                 />
               ) : (
-                <SAETextField
-                  label={C.studentID}
-                  value={dialogData.legajo ?? ""}
-                  disabled
-                  fullWidth
-                  error={Boolean(dialogFieldErrors.legajo)}
-                  helperText={dialogFieldErrors.legajo}
-                />
-              )}
-              <SAETextField
-                label={C.studentExpireLicence}
-                type="date"
-                value={dialogData.vencimiento_ficha ?? ""}
-                onChange={(e) =>
-                  handleDialogChange("vencimiento_ficha", e.target.value)
-                }
-                fullWidth
-                slotProps={{ inputLabel: { shrink: true } }}
-                error={Boolean(dialogFieldErrors.vencimiento_ficha)}
-                helperText={dialogFieldErrors.vencimiento_ficha}
-              />
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={Boolean(dialogData.habilitado_deporte)}
-                      onChange={(e) =>
-                        handleDialogChange(
-                          "habilitado_deporte",
-                          e.target.checked,
-                        )
+                <>
+                  <SAETextField
+                    label={C.studentID}
+                    value={dialogData.legajo ?? ""}
+                    disabled
+                    fullWidth
+                    error={Boolean(dialogFieldErrors.legajo)}
+                    helperText={dialogFieldErrors.legajo}
+                  />
+                   <SAETextField
+                    label={C.studentExpireLicence}
+                    type="date"
+                    value={dialogData.vencimiento_ficha ?? ""}
+                    onChange={(e) =>
+                      handleDialogChange("vencimiento_ficha", e.target.value)
+                    }
+                    fullWidth
+                    slotProps={{ inputLabel: { shrink: true } }}
+                    error={Boolean(dialogFieldErrors.vencimiento_ficha)}
+                    helperText={dialogFieldErrors.vencimiento_ficha}
+                  />
+                  <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={Boolean(dialogData.habilitado_deporte)}
+                          onChange={(e) =>
+                            handleDialogChange(
+                              "habilitado_deporte",
+                              e.target.checked,
+                            )
+                          }
+                          color="primary"
+                        />
                       }
-                      color="primary"
+                      label={C.studentSportAuth}
                     />
-                  }
-                  label={C.studentSportAuth}
-                />
-              </Stack>
+                  </Stack>
+                </>
+
+              )}
+             
             </>
           ) : (
             <>
@@ -242,6 +263,53 @@ export default function SportsEntityDialog() {
                 error={Boolean(dialogFieldErrors.nombre)}
                 helperText={dialogFieldErrors.nombre}
               />
+              <Grid size={{ xs: 12 }} m={1}>
+                <Divider textAlign="center">
+                  <Chip label={C.inscriptsList}></Chip>
+                </Divider>
+              </Grid>
+              { loadingInscriptos && (
+                <Stack alignItems="center" width={"100%"} gap={1}>
+                  <SAESpinner size="S" />
+                </Stack>
+              )}
+              {!loadingInscriptos && deportistasInscriptos?.length === 0 && (
+                <Typography variant="body2" noWrap>
+                  {C.noInscripts}
+                </Typography>
+              )}
+              {!loadingInscriptos && deportistasInscriptos?.length > 0 && (
+                  <List dense disablePadding>
+                  {deportistasInscriptos.map((d) => (
+                    <ListItem
+                      key={d.id}
+                      sx={{ py: 0.5 }}
+                    >
+                      <ListItemText
+                        primary={
+                          <Typography variant="body2" noWrap>
+                            {d.nombre_deportista || d.legajo}
+                          </Typography>
+                        }
+                        secondary={
+                          d.nombre_deportista ? (
+                            <Typography variant="caption" color="text.secondary">
+                              {d.legajo}
+                            </Typography>
+                          ) : undefined
+                        }
+                      />
+                      <Chip
+                        size="small"
+                        label={d.habilitado_deporte ? "Hab." : "No hab."}
+                        color={d.habilitado_deporte ? "success" : "error"}
+                        sx={{ ml: 1, mr: 4, flexShrink: 0 }}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+                
+              )}
               <FormControlLabel
                 control={
                   <Switch

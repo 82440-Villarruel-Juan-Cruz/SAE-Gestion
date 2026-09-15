@@ -22,7 +22,9 @@ export async function modificarDocenteDeportivo(cuil, body) {
 export async function obtenerDeportistas() {
   return RequestAPI('/Deporte/ObtenerDeportistasCompleto', 'GET');
 }
-
+export async function ObtenerDeportistasXDeporte(id) {
+  return RequestAPI('/Deporte/ObtenerDeportistasXDeporte/'+encodeURIComponent(id), 'GET');
+}
 export async function crearDeportista(body) {
   return RequestAPI('/Deporte/CrearDeportista', 'POST', body);
 }
@@ -47,10 +49,6 @@ export async function obtenerDeportistasXTorneo(idTorneo) {
     '/Deporte/ObtenerDeportistasXTorneo/' + encodeURIComponent(idTorneo),
     'GET',
   );
-}
-
-export async function obtenerDeportistasXTorneo2(idTorneo) {
-  return obtenerDeportistasXTorneo(idTorneo);
 }
 
 // ESPACIOS DEPORTIVOS

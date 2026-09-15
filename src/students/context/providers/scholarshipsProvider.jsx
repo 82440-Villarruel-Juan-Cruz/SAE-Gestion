@@ -1037,7 +1037,7 @@ export function ScholarshipsProvider({ children }) {
   // se crea antes de avanzar.
   const crearBecarioSiNoExiste = async () => {
     if (becarioActual?.id) return becarioActual;
-    console.log(user);
+
     const payloadBecario = {
       id: 0,
       legajo: user.datosPerfil.legajo,
@@ -1051,7 +1051,7 @@ export function ScholarshipsProvider({ children }) {
       anio_beca: new Date().getFullYear(),
       id_becario_previo: null,
     };
-    console.log(payloadBecario);
+
     const nuevoBecario = await CrearBecarioSAE(payloadBecario);
     setBecarioActual(nuevoBecario);
     return nuevoBecario;

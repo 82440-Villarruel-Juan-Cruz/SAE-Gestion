@@ -30,7 +30,7 @@ function parseFiles(filesString) {
   const limpia = filesString.endsWith("-")
     ? filesString.slice(0, -1)
     : filesString;
-  console.log("Limpiado la cadena queda: ",limpia)
+
   return limpia
     .split("-")
     .filter((item) => item.includes(","))

@@ -219,7 +219,7 @@ export function SportsProvider({ children }) {
       .every((documento) => documento.subido);
 
   const getOrCreateSportsman = async () => {
-    console.log(deportista);
+    //console.log(deportista);
     if (deportista?.id) return deportista;
 
     const body = {
@@ -297,7 +297,7 @@ export function SportsProvider({ children }) {
               : { ...documento };
           });
 
-          console.log("[DeportesDocumentos] Tipos filtrados:", typedDocuments);
+          //console.log("[DeportesDocumentos] Tipos filtrados:", typedDocuments);
           console.table(
             typedDocuments.map((documento) => ({
               nombre: documento.nombre,
@@ -326,7 +326,7 @@ export function SportsProvider({ children }) {
                   }
                 : documento;
             });
-
+          /*
           console.log(
             "[DeportesDocumentos] Lista final con extensiones:",
             documentsWithUploads,
@@ -338,7 +338,7 @@ export function SportsProvider({ children }) {
               extension: documento.extension,
               subido: Boolean(documento.subido),
             })),
-          );
+          );*/
           setDocumentos(documentsWithUploads);
           
         } catch (error) {

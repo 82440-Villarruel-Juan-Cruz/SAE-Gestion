@@ -5,7 +5,7 @@ const logDocumentTypesExtensions = (documentTypes) => {
     console.log("[TiposDocumento] Respuesta no es un array:", documentTypes);
     return;
   }
-
+  /*
   console.log("[TiposDocumento] Respuesta completa:", documentTypes);
   console.table(
     documentTypes.map((documentType) => ({
@@ -13,7 +13,7 @@ const logDocumentTypesExtensions = (documentTypes) => {
       nombre: documentType.nombre,
       extension: documentType.extension,
     })),
-  );
+  );*/
 }
 
 export async function obtenerTiposDocumento() {

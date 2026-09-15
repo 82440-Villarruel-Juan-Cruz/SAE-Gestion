@@ -541,7 +541,8 @@ export default function DialogBecas() {
                     <FormControlLabel
                       control={
                         <Switch
-                          checked={Boolean(dialogData.activo)}
+                          checked={dialogMode === "create" ? true:Boolean(dialogData.activo)}
+                          disabled={dialogMode === "create" }
                           onChange={(event) =>
                             handleDataChange("activo", event.target.checked)
                           }

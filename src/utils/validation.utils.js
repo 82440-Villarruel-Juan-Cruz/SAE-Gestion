@@ -167,21 +167,24 @@ export function validateDeportista(data, mode) {
   if (mode === "create") {
     if (!data.legajo.toString().trim()) {
       errors.legajo = "El legajo es obligatorio";
-    } else if (!/^[a-zA-Z0-9]+$/.test(data.legajo.toString().trim())) {
+    } 
+    /*else if (!/^[a-zA-Z0-9]+$/.test(data.legajo.toString().trim())) {
       errors.legajo = "El legajo solo puede contener letras y números";
+    }*/
+  }
+  else{
+    if (data.vencimiento_ficha) {
+      const fecha = new Date(data.vencimiento_ficha);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (fecha < today) {
+        errors.vencimiento_ficha = "La ficha ya está vencida";
+      }
+    } else {
+      errors.vencimiento_ficha = "El vencimiento de ficha es obligatorio";
     }
   }
 
-  if (data.vencimiento_ficha) {
-    const fecha = new Date(data.vencimiento_ficha);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (fecha < today) {
-      errors.vencimiento_ficha = "La ficha ya está vencida";
-    }
-  } else {
-    errors.vencimiento_ficha = "El vencimiento de ficha es obligatorio";
-  }
 
   return errors;
 }

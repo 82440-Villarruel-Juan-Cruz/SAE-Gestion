@@ -222,7 +222,7 @@ export const HealthUsersProvider = ({ children }) => {
     try {
       let data = await ObtenerTurnosActivos();
       data = data.map(mapTurnos);
-      console.log("Fetched turnos:", data); // Debugging line
+      //console.log("Fetched turnos:", data); // Debugging line
 
       setAllTurnos(sortTurnosByFechaAtencionDesc(data));
 
@@ -559,7 +559,7 @@ export const HealthUsersProvider = ({ children }) => {
       };
 
       if (dialogMode === "create") {
-        console.log("Creando turno con body:", body); // Debugging line
+        //console.log("Creando turno con body:", body); // Debugging line
         // 1. Guardamos en la base de datos primero (para obtener el ID real que autogenera el backend)
         const respuestaBackend = await CrearTurnos(body);
 

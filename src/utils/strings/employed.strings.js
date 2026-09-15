@@ -583,6 +583,10 @@ export const SPORTS_STRINGS = {
   tournamentNoInscripts:
     "No hay deportistas inscriptos en este torneo todavía.",
   tournamentUpdated: "Torneo guardado correctamente",
+
+  //INSCRIPTOS
+  inscriptsList: "Inscriptos Deporte",
+  noInscripts:"No hay Inscriptos en este deporte",
   //providers
 
   teacherCreated: "Docente creado correctamente",
