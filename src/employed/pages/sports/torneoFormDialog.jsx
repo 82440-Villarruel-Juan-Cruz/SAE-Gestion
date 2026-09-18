@@ -37,7 +37,11 @@ export default function TorneoFormDialog({
   initialData = null,
   mode = "create",
 }) {
-  const { obtenerDeportesCompleto, obtenerDocentesDeportivos } = useSports();
+  const {
+    obtenerDeportesActivos,
+    obtenerDeportesCompleto,
+    obtenerDocentesDeportivos,
+  } = useSports();
   const isEdit = mode === "edit";
   const todayInputDate = getTodayInputDate();
 
@@ -59,7 +63,9 @@ export default function TorneoFormDialog({
 
     let cancelled = false;
     setLoadingCatalogos(true);
-    Promise.all([obtenerDeportesCompleto(), obtenerDocentesDeportivos()])
+    const fetchSports = isEdit ? obtenerDeportesCompleto : obtenerDeportesActivos;
+
+    Promise.all([fetchSports(), obtenerDocentesDeportivos()])
       .then(([deps, docs]) => {
         if (cancelled) return;
         setDeportesList(deps);
@@ -72,7 +78,14 @@ export default function TorneoFormDialog({
     return () => {
       cancelled = true;
     };
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [
+    initialData,
+    isEdit,
+    obtenerDeportesActivos,
+    obtenerDeportesCompleto,
+    obtenerDocentesDeportivos,
+    open,
+  ]);
 
   const validateField = (field, value, data = formData) => {
     switch (field) {

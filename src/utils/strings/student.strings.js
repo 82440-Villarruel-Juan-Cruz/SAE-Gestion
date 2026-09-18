@@ -123,7 +123,7 @@ export const SPORTS_STRINGS = {
   sportsSubTitle: "Listado de deportes a los que te podés inscribir",
 
   tournamnetsTitle: "Torneos",
-  tournamnetsSubTitle: "Listado de torneos disponibles",
+  tournamnetsSubTitle: "Torneos en los que estás inscripto",
 
   horariosTitle: "Horarios",
   horariosSubTitle: "Horarios de todos los deportes",

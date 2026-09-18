@@ -4,7 +4,7 @@ import {
   obtenerIdDeportista,
   listarDocumentacionXLegajo,
   obtenerHorariosDeportista,
-  obtenerTorneosXDeporte,
+  obtenerTorneosXDeportista,
   crearInscripcionDeporte,
   eliminarInscripcionDeporte,
   descargarDocumentacionXId,
@@ -15,17 +15,24 @@ import {
 import { obtenerTiposDocumento } from "../../../api/HerramientasService";
 import { SPORTS_STRINGS } from "../../../utils/strings/student.strings.js"; 
 import { buildDocumentName, createPreviewState, isPdfDocument } from "../../../utils/documents.utils.js";
+import { formatDate } from "../../../utils/date.utils.js";
 
 import { generateColumns } from "../../../utils/datagrid.utils.jsx";
 
 import { filterTournaments, obtenerLegajoDesdeEmail } from "../../../utils/util.jsx"; 
 
 import {SCHOLARSHIPS_STATES , SCHOLARSHIP_TYPE,MAX_FILE_SIZE_BYTES,MAX_FILE_SIZE_MB} from "../../../utils/common/constants.js";
-import { EMPTY_TOURNAMENT, SPORTS_REQUIRED_DOCUMENTS } from "../../../utils/common/common.config.js";
+import { SPORTS_REQUIRED_DOCUMENTS } from "../../../utils/common/common.config.js";
 
 import { SportsContext } from "../studentContext";
 
 const C = SPORTS_STRINGS;
+const TOURNAMENT_INSCRIPTION_SAMPLE = {
+  id: 0,
+  nombre_torneo: "",
+  fecha_inscripcion: "",
+  nombre_deporte: "",
+};
 
 export function SportsProvider({ children }) {
   const { user } = useAuth();
@@ -187,22 +194,17 @@ export function SportsProvider({ children }) {
     return data;
   };
 
-  const loadTournamentsForSchedules = useCallback(
-    async (schedules) => {
+  const loadTournamentsForSportsman = useCallback(
+    async (sportsman) => {
       setLoadingTournaments(true);
       try {
-        const sportIds = [
-          ...new Set(
-            schedules
-              .filter((schedule) => schedule.esta_inscripto)
-              .map((schedule) => schedule.id_deporte),
-          ),
-        ];
-        const tournaments =
-          sportIds.length > 0
-            ? (await Promise.all(sportIds.map(obtenerTorneosXDeporte))).flat()
-            : [];
-        setTorneoDeportista(tournaments);
+        if (!sportsman?.id) {
+          setTorneoDeportista([]);
+          return;
+        }
+
+        const tournaments = await obtenerTorneosXDeportista(sportsman.id);
+        setTorneoDeportista(Array.isArray(tournaments) ? tournaments : []);
       } catch (error) {
         console.error("Error al cargar torneos:", error);
         showNotification(C.erroLoadTournaments, "error");
@@ -260,9 +262,9 @@ export function SportsProvider({ children }) {
           : successMessage,
         missingRequiredDocuments ? "warning" : "success",
       );
-      const schedules = await loadSportsmanSchedules(currentSportsman);
+      await loadSportsmanSchedules(currentSportsman);
       setLoadingSports(false);
-      await loadTournamentsForSchedules(schedules);
+      await loadTournamentsForSportsman(currentSportsman);
     } catch (error) {
       console.error("Error al manejar la inscripción:", error);
       showNotification(C.errorHandleSucscription, "error");
@@ -350,26 +352,24 @@ export function SportsProvider({ children }) {
       };
 
       const loadSportsAndTournaments = async () => {
-        let schedules = [];
         try {
           const sportsman = await obtenerIdDeportista(user.email);
           setDeportista(sportsman);
-          schedules = sportsman ? await loadSportsmanSchedules(sportsman) : [];
+          if (sportsman) await loadSportsmanSchedules(sportsman);
+          await loadTournamentsForSportsman(sportsman);
         } catch (error) {
           console.error("Error al cargar deportes del estudiante:", error);
           showNotification(C.errorLoadSports, "error");
         } finally {
           setLoadingSports(false);
         }
-
-        await loadTournamentsForSchedules(schedules);
       };
 
       await Promise.all([loadDocuments(), loadSportsAndTournaments()]);
     };
 
     initialize();
-  }, [user?.email, loadTournamentsForSchedules, showNotification]);
+  }, [user?.email, loadTournamentsForSportsman, showNotification]);
 
   const rowsTorneosFiltradas = useMemo(
     () => filterTournaments(torneoDeportista, busquedaTorneos),
@@ -384,7 +384,12 @@ export function SportsProvider({ children }) {
     [horariosDeportista],
   );
   const tournamentsColumns = useMemo(() => {
-    return generateColumns(EMPTY_TOURNAMENT, []);
+    return generateColumns(TOURNAMENT_INSCRIPTION_SAMPLE, [], {
+      fecha_inscripcion: {
+        headerName: "Fecha Inscripción",
+        valueFormatter: formatDate,
+      },
+    });
   }, []);
 
   return (

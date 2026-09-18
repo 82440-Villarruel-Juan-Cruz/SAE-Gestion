@@ -108,7 +108,7 @@ function TorneoContent() {
     modificarTorneo,
     crearInscripcionTorneo,
     eliminarInscripcionTorneo,
-    obtenerDeportistas,
+    obtenerDeportistasXDeporte,
   } = useSports();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
@@ -180,12 +180,19 @@ function TorneoContent() {
   }, [id, fetchDeportistas]);
 
   useEffect(() => {
+    if (!torneo?.id_deporte) {
+      setAllDeportistas([]);
+      return;
+    }
+
     setLoadingAll(true);
-    obtenerDeportistas()
-      .then(setAllDeportistas)
+    setSelectedAvailable(new Set());
+    setSelectedDeportista(null);
+    obtenerDeportistasXDeporte(torneo.id_deporte)
+      .then((data) => setAllDeportistas(Array.isArray(data) ? data : []))
       .catch(() => setAllDeportistas([]))
       .finally(() => setLoadingAll(false));
-  }, [obtenerDeportistas]);
+  }, [obtenerDeportistasXDeporte, torneo?.id_deporte]);
 
   const handleGenerarPdf = useCallback(async () => {
     const { jsPDF } = await import("jspdf");
@@ -824,7 +831,7 @@ function TorneoContent() {
               <Autocomplete
                 sx={{ flex: 1 }}
                 size="small"
-                options={allDeportistas}
+                options={disponibles}
                 getOptionLabel={(opt) =>
                   opt.nombre_deportista
                     ? `${opt.legajo} — ${opt.nombre_deportista}`

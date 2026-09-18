@@ -705,6 +705,7 @@ export function SportsProvider({ children, autoLoad = true }) {
     obtenerTorneoXId: api.obtenerTorneoXId,
     modificarTorneo: api.modificarTorneo,
     obtenerDeportistasXTorneo: api.obtenerDeportistasXTorneo,
+    obtenerDeportistasXDeporte: api.ObtenerDeportistasXDeporte,
     crearInscripcionTorneo: api.crearInscripcionTorneo,
     eliminarInscripcionTorneo: api.eliminarInscripcionTorneo,
     obtenerDeportistas: api.obtenerDeportistas,

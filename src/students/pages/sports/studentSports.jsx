@@ -56,7 +56,7 @@ function StudentSportsContent() {
     () => ({
       torneos: {
         key: "torneos",
-        title: "Torneos",
+        title: C.tournamnetsTitle,
         dialog: null,
         icon: EmojiEventsIcon,
         rows: torneoDeportista,
@@ -129,10 +129,16 @@ function StudentSportsContent() {
         title={C.tournamnetsTitle}
         description={C.tournamnetsSubTitle}
       />
-      <SAEDataGrid
-        sectionConfig={sectionConfig}
-        currentSection={sectionConfig.torneos}
-      />
+      {loadingTournaments ? (
+        <Stack alignItems="center" sx={{ py: 5 }}>
+          <SAESpinner size="S" />
+        </Stack>
+      ) : (
+        <SAEDataGrid
+          sectionConfig={sectionConfig}
+          currentSection={sectionConfig.torneos}
+        />
+      )}
       {/* DESPUES HAY QUE HABILITARLO */}
       {!loadingSports && horariosDeportista.length > 0 && (
         <>
