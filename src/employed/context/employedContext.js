@@ -9,6 +9,7 @@ export const TravelContext = createContext(null);
 export const PurchaseContext = createContext(null);
 export const ConsultationContext = createContext(null);
 export const SportsContext = createContext(null);
+export const ReportsContext = createContext(null);
 
 export const useHealth = () => {
   const context = useContext(HealthContext);
@@ -81,6 +82,14 @@ export const useSports = () => {
   const context = useContext(SportsContext);
   if (!context) {
     throw new Error("useSports debe usarse dentro de un SportsProvider");
+  }
+  return context;
+};
+
+export const useReports = () => {
+  const context = useContext(ReportsContext);
+  if (!context) {
+    throw new Error("useReports debe usarse dentro de un ReportsProvider");
   }
   return context;
 };

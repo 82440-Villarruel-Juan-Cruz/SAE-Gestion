@@ -12,6 +12,64 @@ export const MAIN_STRINGS = {
   eventsDescription: "Permite visualizar tus horarios y los eventos próximos",
 };
 
+export const REPORT_STRINGS = {
+  header: "Módulo de Reportes",
+  title: "Reportes y Estadísticas",
+  description:
+    "Brinda soporte a la toma de decisiones en base a las estadísticas.",
+
+  filters: {
+    from: "Desde",
+    to: "Hasta",
+  },
+
+  sections: [
+    { id: "becas", title: "Becas" },
+    { id: "deportes", title: "Deportes" },
+    { id: "links-frecuentes", title: "Links Frecuentes" },
+    { id: "salud", title: "Salud" },
+    { id: "viajes", title: "Viajes" },
+  ],
+
+  sectionTitles: {
+    scholarships: "Estadísticas de Becas",
+    sports: "Estadísticas de Deportes",
+    frequentLinks: "Estadísticas de Links Frecuentes",
+    health: "Estadísticas de Salud",
+    travels: "Estadísticas de Viajes",
+  },
+
+  charts: {
+    scholarshipsByTypeYear: "Becas por Tipo y Año",
+    scholarshipsByStateYear: "Becas por Estado y Año",
+    scholarshipsRenovationsYear: "Renovaciones por Año",
+    sportsPlayersBySportYear: "Deportistas por Deporte y Año",
+    sportsInscriptionsBySportYear: "Inscripciones por Deporte y Año",
+    sportsTournamentsBySportYear: "Torneos por Deporte y Año",
+    frequentLinksViews: "Vistas por Link",
+    healthTurnsBySpecialist: "Turnos por Especialista",
+    healthTurnsByMonth: "Turnos por Mes",
+    travelsByMonth: "Viajes por Mes",
+    travelStudentsByMonth: "Estudiantes por Mes",
+  },
+
+  series: {
+    type: "Tipo",
+    state: "Estado",
+    renovation: "Renovación",
+    inscriptions: "Inscripciones",
+    tournaments: "Torneos",
+    clicks: "Clicks",
+    turns: "Turnos",
+    travels: "Viajes",
+    students: "Estudiantes",
+  },
+
+  period: (value) => `Período: ${value}`,
+  noName: "Sin nombre",
+  noTitle: "Sin título",
+};
+
 export const CONSULTATIONS_STRINGS = {
   headerTitle: "Módulo de Consultas",
   headerSubtitle: "Gestión de Consultas",

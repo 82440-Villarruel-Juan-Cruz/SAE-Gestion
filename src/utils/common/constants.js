@@ -14,6 +14,21 @@ export const completeWeekDays = [
   "Sábado",
   "Domingo",
 ];
+export const MONTH_NAMES_SHORT = [
+  "Ene",
+  "Feb",
+  "Mar",
+  "Abr",
+  "May",
+  "Jun",
+  "Jul",
+  "Ago",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dic",
+];
+
 export const SCHOLARSHIPS_STATES = {
   SOLICITADO: "solicitado",
   RECHAZADO: "rechazado",

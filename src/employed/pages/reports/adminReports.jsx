@@ -1,6 +1,5 @@
-import { Box, Grid, Paper, Stack, Typography } from "@mui/material";
-import { useMemo, useState } from "react";
-import { PieChart } from "@mui/x-charts/PieChart";
+import { Alert, Box, Grid, Paper, Stack, Typography } from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { BarChart } from "@mui/x-charts/BarChart";
 
@@ -8,26 +7,34 @@ import HeaderPageEmployed from "../../../assets/components/headerPage/headerPage
 import SAEPage from "../../../assets/components/page/SAEPage";
 import SAETextField from "../../../assets/components/inputs/SAETextField";
 import TitleBox from "../../../assets/components/titleBox";
+import SAESpinner from "../../../assets/components/spinner/SAESpinner";
+import { ReportsProvider } from "../../context/providers/reportsProvider.jsx";
+import { useReports } from "../../context/employedContext.js";
+import { REPORT_STRINGS } from "../../../utils/strings/employed.strings.js";
+import {
+  buildMonthSeries,
+  buildYearSeries,
+  formatMonthInput,
+  formatPeriodLabel,
+  getMonthOffset,
+  getMonthsBetween,
+  getYearsBetween,
+  mapFrequentLinksToChartData,
+  sumByName,
+} from "../../../utils/reports.utils.js";
 
-const reportSections = [
-  { id: "becas", title: "Becas" },
-  { id: "deportes", title: "Deportes" },
-  { id: "links-frecuentes", title: "Links Frecuentes" },
-  { id: "salud", title: "Salud" },
-  { id: "viajes", title: "Viajes" },
-];
-
-const formatMonthInput = (date) =>
-  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-
-const getMonthOffset = (monthValue, offset) => {
-  const [year, month] = monthValue.split("-").map(Number);
-  const date = new Date(year, month - 1 + offset, 1);
-
-  return formatMonthInput(date);
-};
+const C = REPORT_STRINGS;
 
 export default function AdminReport() {
+  return (
+    <ReportsProvider>
+      <AdminReportContent />
+    </ReportsProvider>
+  );
+}
+
+function AdminReportContent() {
+  const { reports, loadingReports, reportsError, fetchReports } = useReports();
   const periodLimits = useMemo(() => {
     const today = new Date();
     const maxMonth = formatMonthInput(today);
@@ -42,6 +49,19 @@ export default function AdminReport() {
     from: getMonthOffset(periodLimits.maxMonth, -5),
     to: periodLimits.maxMonth,
   });
+
+  const years = useMemo(
+    () => getYearsBetween(period.from, period.to),
+    [period.from, period.to],
+  );
+  const months = useMemo(
+    () => getMonthsBetween(period.from, period.to),
+    [period.from, period.to],
+  );
+
+  useEffect(() => {
+    fetchReports(period);
+  }, [fetchReports, period]);
 
   const handlePeriodChange = (field, value) => {
     setPeriod((current) => {
@@ -64,9 +84,9 @@ export default function AdminReport() {
   return (
     <SAEPage>
       <HeaderPageEmployed
-        header=" Módulo de Reportes"
-        title="Reportes y Estadísticas"
-        description="Brinda soporte a la toma de decisiones en base a las decisiones."
+        header={C.header}
+        title={C.title}
+        description={C.description}
       />
       <ReportsControls
         period={period}
@@ -74,82 +94,42 @@ export default function AdminReport() {
         maxMonth={periodLimits.maxMonth}
         onChange={handlePeriodChange}
       />
+      {loadingReports ? (
+        <Stack alignItems="center" sx={{ my: 3 }}>
+          <SAESpinner size="S" />
+        </Stack>
+      ) : null}
+      {reportsError ? (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {reportsError}
+        </Alert>
+      ) : null}
 
-      <ReportSection id="becas" title="Estadísticas de Becas">
-        <SchoolarshipChart />
-      </ReportSection>
-      <ReportSection id="deportes" title="Estadísticas de Deportes">
-        <SportsChart />
-      </ReportSection>
-      <ReportSection
-        id="links-frecuentes"
-        title="Estadísticas de Links Frecuentes"
-      >
-        <FrequentLinksChart />
-      </ReportSection>
-      <ReportSection id="salud" title="Estadísticas de Salud">
-        <HealthChart />
-      </ReportSection>
-      <ReportSection id="viajes" title="Estadísticas de Viajes">
-        <TravelsChart />
-      </ReportSection>
+      {!loadingReports ? (
+        <>
+          <ReportSection id="becas" title={C.sectionTitles.scholarships}>
+            <SchoolarshipChart data={reports.becas} years={years} />
+          </ReportSection>
+          <ReportSection id="deportes" title={C.sectionTitles.sports}>
+            <SportsChart data={reports.deportes} years={years} />
+          </ReportSection>
+          <ReportSection
+            id="links-frecuentes"
+            title={C.sectionTitles.frequentLinks}
+          >
+            <FrequentLinksChart data={reports.linksFrecuentes} />
+          </ReportSection>
+          <ReportSection id="salud" title={C.sectionTitles.health}>
+            <HealthChart data={reports.salud} months={months} period={period} />
+          </ReportSection>
+          <ReportSection id="viajes" title={C.sectionTitles.travels}>
+            <TravelsChart data={reports.viajes} months={months} />
+          </ReportSection>
+        </>
+      ) : null}
     </SAEPage>
   );
 }
-const mockData = [
-  { id: 0, value: 35, label: "Económica" },
-  { id: 1, value: 40, label: "Investigación" },
-  { id: 2, value: 15, label: "Servicio" },
-];
-const lineDataX = ["2021", "2022", "2023", "2024", "2025", "2026"];
-const pieData = [
-  { id: 0, value: 50, label: "M. Belgrano" },
-  { id: 1, value: 15, label: "Progresar" },
-  { id: 2, value: 60, label: "Rectorado" },
-];
-
-const sportsByDisciplineData = [
-  { id: 0, value: 42, label: "Fútbol" },
-  { id: 1, value: 36, label: "Básquet" },
-  { id: 2, value: 28, label: "Voley" },
-  { id: 3, value: 18, label: "Handball" },
-  { id: 4, value: 14, label: "Atletismo" },
-];
-
-const sportsMonths = ["Feb", "Mar", "Abr", "May", "Jun", "Jul"];
-const sportsByCareerData = [
-  { career: "Sistemas", deportistas: 34 },
-  { career: "Industrial", deportistas: 27 },
-  { career: "Mecánica", deportistas: 22 },
-  { career: "Civil", deportistas: 19 },
-  { career: "Química", deportistas: 14 },
-  { career: "Electrónica", deportistas: 12 },
-];
-
-const frequentLinksData = [
-  { link: "Calendario Académico", views: 1280 },
-  { link: "Autogestion", views: 1140 },
-  { link: "Becas", views: 820 },
-  { link: "Comedor", views: 760 },
-  { link: "Deportes", views: 610 },
-];
-
-const healthCompletedTurnsData = [
-  { turn: "Clínica", completados: 86 },
-  { turn: "Psicología", completados: 64 },
-  { turn: "Nutrición", completados: 42 },
-  { turn: "Odontología", completados: 39 },
-  { turn: "Enfermería", completados: 31 },
-];
-
-const travelMonths = ["Feb", "Mar", "Abr", "May", "Jun", "Jul"];
-const travelsByMonthData = [2, 4, 3, 6, 5, 7];
-const travelOccupancyData = [
-  { travel: "Carlos Paz", inscriptos: 38, cupo: 45 },
-  { travel: "Mendoza", inscriptos: 52, cupo: 60 },
-  { travel: "Rosario", inscriptos: 28, cupo: 35 },
-  { travel: "Córdoba Norte", inscriptos: 18, cupo: 25 },
-];
 
 function ReportsControls({ period, minFromMonth, maxMonth, onChange }) {
   return (
@@ -175,7 +155,7 @@ function ReportsControls({ period, minFromMonth, maxMonth, onChange }) {
         >
           <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
             <SAETextField
-              label="Desde"
+              label={C.filters.from}
               type="month"
               value={period.from}
               onChange={(event) => onChange("from", event.target.value)}
@@ -190,7 +170,7 @@ function ReportsControls({ period, minFromMonth, maxMonth, onChange }) {
               }}
             />
             <SAETextField
-              label="Hasta"
+              label={C.filters.to}
               type="month"
               value={period.to}
               onChange={(event) => onChange("to", event.target.value)}
@@ -213,7 +193,7 @@ function ReportsControls({ period, minFromMonth, maxMonth, onChange }) {
           flexWrap="wrap"
           alignItems="center"
         >
-          {reportSections.map((section) => (
+          {C.sections.map((section) => (
             <Box
               key={section.id}
               component="a"
@@ -259,7 +239,21 @@ function ReportSection({ id, title, children }) {
   );
 }
 
-function SchoolarshipChart() {
+function SchoolarshipChart({ data, years }) {
+  const typeSeries = useMemo(
+    () => buildYearSeries(data.yearXType, years, C.series.type),
+    [data.yearXType, years],
+  );
+  const stateSeries = useMemo(
+    () => buildYearSeries(data.yearXState, years, C.series.state),
+    [data.yearXState, years],
+  );
+  const renovationSeries = useMemo(
+    () => buildYearSeries(data.yearXRenovation, years, C.series.renovation),
+    [data.yearXRenovation, years],
+  );
+  const yearLabels = years.map(String);
+
   return (
     <Grid
       container
@@ -267,138 +261,161 @@ function SchoolarshipChart() {
       sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
     >
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <Paper
-          elevation={2}
-          sx={{
-            p: 2,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            borderRadius: "25px",
-          }}
-        >
-          <Typography variant="h6" color="var(--primary)" gutterBottom>
-            Becarios SAE
-          </Typography>
-          <PieChart
-            series={[
-              {
-                data: mockData,
-                innerRadius: 30,
-                outerRadius: 100,
-                paddingAngle: 2,
-                cornerRadius: 4,
-                highlightScope: {
-                  fade: "global",
-                  highlight: "item",
-                },
-                highlighted: {
-                  additionalRadius: 12,
-                },
-              },
-            ]}
-            height={300}
-            slotProps={{
-              legend: {
-                direction: "column",
-                position: { vertical: "middle", horizontal: "right" },
-                padding: -10,
-                labelStyle: { fontSize: 13 },
-              },
-            }}
-          />
-        </Paper>
-      </Grid>
-      <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <Paper
-          elevation={2}
-          sx={{
-            p: 2,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            borderRadius: "25px",
-          }}
-        >
-          <Typography variant="h6" color="var(--primary)" gutterBottom>
-            Becarios SAE vs Nacionales
-          </Typography>
-          <LineChart
-            xAxis={[{ data: lineDataX, scaleType: "point" }]}
-            series={[
-              {
-                data: [50, 32, 25, 38, 65, 53],
-                label: "Nacional",
-                color: "#0288d1",
-              },
-              {
-                data: [25, 27, 35, 21, 18, 26],
-                label: "SAE",
-                color: "#2e7d32",
-              },
-            ]}
+        <ReportChartCard title={C.charts.scholarshipsByTypeYear}>
+          <BarChart
+            xAxis={[{ data: yearLabels, scaleType: "band" }]}
+            series={typeSeries}
             width={400}
             height={300}
-            slotProps={{
-              legend: {
-                direction: "row",
-                position: { vertical: "bottom", horizontal: "center" },
-                padding: 0,
-                labelStyle: { fontSize: 12 },
-              },
-            }}
+            slotProps={bottomLegendProps}
           />
-        </Paper>
+        </ReportChartCard>
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <Paper
-          elevation={2}
-          sx={{
-            p: 2,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            borderRadius: "25px",
-          }}
-        >
-          <Typography variant="h6" color="var(--primary)" gutterBottom>
-            Becarios Nacional
-          </Typography>
-          <PieChart
-            series={[
-              {
-                data: pieData,
-                innerRadius: 30,
-                outerRadius: 100,
-                paddingAngle: 2,
-                cornerRadius: 4,
-                highlightScope: {
-                  fade: "global",
-                  highlight: "item",
-                },
-                highlighted: {
-                  additionalRadius: 12,
-                },
-              },
-            ]}
-            width={320}
+        <ReportChartCard title={C.charts.scholarshipsByStateYear}>
+          <BarChart
+            xAxis={[{ data: yearLabels, scaleType: "band" }]}
+            series={stateSeries}
+            width={400}
             height={300}
-            slotProps={{
-              legend: {
-                direction: "column",
-                position: { vertical: "middle", horizontal: "right" },
-                padding: -10, // Mismo truco para recortar la distancia lateral de la leyenda
-                labelStyle: { fontSize: 13 },
-              },
-            }}
+            slotProps={bottomLegendProps}
           />
-        </Paper>
+        </ReportChartCard>
+      </Grid>
+      <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+        <ReportChartCard title={C.charts.scholarshipsRenovationsYear}>
+          <BarChart
+            xAxis={[{ data: yearLabels, scaleType: "band" }]}
+            series={renovationSeries}
+            width={400}
+            height={300}
+            slotProps={bottomLegendProps}
+          />
+        </ReportChartCard>
       </Grid>
     </Grid>
   );
 }
 
-function SportsChart() {
+function SportsChart({ data, years }) {
+  const inscriptionsSeries = useMemo(
+    () =>
+      buildYearSeries(
+        data.inscripcionesDeportistas,
+        years,
+        C.series.inscriptions,
+      ),
+    [data.inscripcionesDeportistas, years],
+  );
+  const tournamentsSeries = useMemo(
+    () => buildYearSeries(data.torneosXDeporte, years, C.series.tournaments),
+    [data.torneosXDeporte, years],
+  );
+  const yearLabels = years.map(String);
+
+  return (
+    <Grid
+      container
+      spacing={3}
+      sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+    >
+      <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+        <ReportChartCard title={C.charts.sportsPlayersBySportYear}>
+          <BarChart
+            xAxis={[{ data: yearLabels, scaleType: "band" }]}
+            series={inscriptionsSeries}
+            width={400}
+            height={300}
+            slotProps={bottomLegendProps}
+          />
+        </ReportChartCard>
+      </Grid>
+
+      <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+        <ReportChartCard title={C.charts.sportsInscriptionsBySportYear}>
+          <BarChart
+            xAxis={[{ data: yearLabels, scaleType: "band" }]}
+            series={inscriptionsSeries}
+            width={400}
+            height={300}
+            slotProps={bottomLegendProps}
+          />
+        </ReportChartCard>
+      </Grid>
+
+      <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+        <ReportChartCard title={C.charts.sportsTournamentsBySportYear}>
+          <BarChart
+            xAxis={[{ data: yearLabels, scaleType: "band" }]}
+            series={tournamentsSeries}
+            width={400}
+            height={300}
+            slotProps={bottomLegendProps}
+          />
+        </ReportChartCard>
+      </Grid>
+    </Grid>
+  );
+}
+
+function FrequentLinksChart({ data }) {
+  const linksData = useMemo(
+    () => mapFrequentLinksToChartData(data, C.noTitle),
+    [data],
+  );
+
+  return (
+    <Grid
+      container
+      spacing={3}
+      sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+    >
+      <Grid size={{ xs: 12, md: 8, lg: 5 }}>
+        <ReportChartCard title={C.charts.frequentLinksViews}>
+          <BarChart
+            xAxis={[
+              {
+                data: linksData.map((item) => item.link),
+                scaleType: "band",
+              },
+            ]}
+            series={[
+              {
+                data: linksData.map((item) => item.views),
+                label: C.series.clicks,
+                color: "#1565C0",
+              },
+            ]}
+            width={480}
+            height={300}
+            slotProps={bottomLegendProps}
+          />
+        </ReportChartCard>
+      </Grid>
+    </Grid>
+  );
+}
+
+function HealthChart({ data, months, period }) {
+  const turnsBySpecialist = useMemo(
+    () => sumByName(data.turnosXEspecialista, C.noName),
+    [data.turnosXEspecialista],
+  );
+  const turnsByMonth = useMemo(
+    () =>
+      buildMonthSeries(
+        data.turnosXEspecialista,
+        months,
+        "cantidad",
+        C.series.turns,
+      ),
+    [data.turnosXEspecialista, months],
+  );
+  const periodLabel = useMemo(
+    () => formatPeriodLabel(period.from, period.to),
+    [period.from, period.to],
+  );
+
   return (
     <Grid
       container
@@ -407,96 +424,37 @@ function SportsChart() {
     >
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
         <ReportChartCard
-          title="Deportistas por Deporte"
-          sx={{ height: 390 }}
-          contentSx={{ overflow: "auto" }}
+          title={C.charts.healthTurnsBySpecialist}
+          subtitle={periodLabel ? C.period(periodLabel) : ""}
         >
-          <PieChart
-            series={[
+          <BarChart
+            xAxis={[
               {
-                data: sportsByDisciplineData,
-                innerRadius: 30,
-                outerRadius: 100,
-                paddingAngle: 2,
-                cornerRadius: 4,
-                highlightScope: {
-                  fade: "global",
-                  highlight: "item",
-                },
-                highlighted: {
-                  additionalRadius: 12,
-                },
+                data: turnsBySpecialist.map((item) => item.label),
+                scaleType: "band",
               },
             ]}
-            height={300}
-            slotProps={{
-              legend: {
-                direction: "column",
-                position: { vertical: "middle", horizontal: "right" },
-                padding: -10,
-                labelStyle: { fontSize: 13 },
+            series={[
+              {
+                data: turnsBySpecialist.map((item) => item.value),
+                label: C.series.turns,
+                color: "#2E7D32",
               },
-            }}
+            ]}
+            width={400}
+            height={300}
+            slotProps={bottomLegendProps}
           />
         </ReportChartCard>
       </Grid>
-
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <ReportChartCard title="Inscripciones por Mes">
+        <ReportChartCard title={C.charts.healthTurnsByMonth}>
           <LineChart
-            xAxis={[{ data: sportsMonths, scaleType: "point" }]}
-            series={[
-              {
-                data: [18, 31, 44, 52, 63, 71],
-                label: "Altas",
-                color: "#1565C0",
-              },
-              {
-                data: [8, 12, 15, 19, 24, 28],
-                label: "Bajas",
-                color: "#D32F2F",
-              },
-            ]}
+            xAxis={[{ data: months.map((month) => month.label), scaleType: "point" }]}
+            series={[turnsByMonth]}
             width={400}
             height={300}
-            slotProps={{
-              legend: {
-                direction: "row",
-                position: { vertical: "bottom", horizontal: "center" },
-                padding: 0,
-                labelStyle: { fontSize: 12 },
-              },
-            }}
-          />
-        </ReportChartCard>
-      </Grid>
-
-      <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <ReportChartCard title="Deportistas por Carrera">
-          <BarChart
-            xAxis={[
-              {
-                data: sportsByCareerData.map((item) => item.career),
-                scaleType: "band",
-              },
-            ]}
-            series={[
-              {
-                data: sportsByCareerData.map((item) => item.deportistas),
-                label: "Deportistas",
-                color: "#2E7D32",
-              },
-            ]}
-            width={400}
-            height={300}
-            slotProps={{
-              legend: {
-                direction: "row",
-                position: { vertical: "bottom", horizontal: "center" },
-                padding: 0,
-                labelStyle: { fontSize: 12 },
-              },
-            }}
+            slotProps={bottomLegendProps}
           />
         </ReportChartCard>
       </Grid>
@@ -504,87 +462,28 @@ function SportsChart() {
   );
 }
 
-function FrequentLinksChart() {
-  return (
-    <Grid
-      container
-      spacing={3}
-      sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-    >
-      <Grid size={{ xs: 12, md: 8, lg: 5 }}>
-        <ReportChartCard title="Vistas por Link">
-          <BarChart
-            xAxis={[
-              {
-                data: frequentLinksData.map((item) => item.link),
-                scaleType: "band",
-              },
-            ]}
-            series={[
-              {
-                data: frequentLinksData.map((item) => item.views),
-                label: "Vistas",
-                color: "#1565C0",
-              },
-            ]}
-            width={480}
-            height={300}
-            slotProps={{
-              legend: {
-                direction: "row",
-                position: { vertical: "bottom", horizontal: "center" },
-                padding: 0,
-                labelStyle: { fontSize: 12 },
-              },
-            }}
-          />
-        </ReportChartCard>
-      </Grid>
-    </Grid>
+function TravelsChart({ data, months }) {
+  const travelsByMonth = useMemo(
+    () =>
+      buildMonthSeries(
+        data.viajesXMesAnio,
+        months,
+        "cantidad",
+        C.series.travels,
+      ),
+    [data.viajesXMesAnio, months],
   );
-}
-
-function HealthChart() {
-  return (
-    <Grid
-      container
-      spacing={3}
-      sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-    >
-      <Grid size={{ xs: 12, md: 8, lg: 5 }}>
-        <ReportChartCard title="Turnos Completados más Usados">
-          <BarChart
-            xAxis={[
-              {
-                data: healthCompletedTurnsData.map((item) => item.turn),
-                scaleType: "band",
-              },
-            ]}
-            series={[
-              {
-                data: healthCompletedTurnsData.map((item) => item.completados),
-                label: "Turnos completados",
-                color: "#2E7D32",
-              },
-            ]}
-            width={480}
-            height={300}
-            slotProps={{
-              legend: {
-                direction: "row",
-                position: { vertical: "bottom", horizontal: "center" },
-                padding: 0,
-                labelStyle: { fontSize: 12 },
-              },
-            }}
-          />
-        </ReportChartCard>
-      </Grid>
-    </Grid>
+  const studentsByMonth = useMemo(
+    () =>
+      buildMonthSeries(
+        data.viajesXMesAnio,
+        months,
+        "cantidad_estudiantes",
+        C.series.students,
+      ),
+    [data.viajesXMesAnio, months],
   );
-}
 
-function TravelsChart() {
   return (
     <Grid
       container
@@ -592,61 +491,25 @@ function TravelsChart() {
       sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
     >
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <ReportChartCard title="Viajes por Mes">
+        <ReportChartCard title={C.charts.travelsByMonth}>
           <LineChart
-            xAxis={[{ data: travelMonths, scaleType: "point" }]}
-            series={[
-              {
-                data: travelsByMonthData,
-                label: "Viajes",
-                color: "#1565C0",
-              },
-            ]}
+            xAxis={[{ data: months.map((month) => month.label), scaleType: "point" }]}
+            series={[travelsByMonth]}
             width={400}
             height={300}
-            slotProps={{
-              legend: {
-                direction: "row",
-                position: { vertical: "bottom", horizontal: "center" },
-                padding: 0,
-                labelStyle: { fontSize: 12 },
-              },
-            }}
+            slotProps={bottomLegendProps}
           />
         </ReportChartCard>
       </Grid>
 
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <ReportChartCard title="Inscriptos según Cupo">
+        <ReportChartCard title={C.charts.travelStudentsByMonth}>
           <BarChart
-            xAxis={[
-              {
-                data: travelOccupancyData.map((item) => item.travel),
-                scaleType: "band",
-              },
-            ]}
-            series={[
-              {
-                data: travelOccupancyData.map((item) => item.inscriptos),
-                label: "Inscriptos",
-                color: "#2E7D32",
-              },
-              {
-                data: travelOccupancyData.map((item) => item.cupo),
-                label: "Cupo",
-                color: "#90CAF9",
-              },
-            ]}
+            xAxis={[{ data: months.map((month) => month.label), scaleType: "band" }]}
+            series={[studentsByMonth]}
             width={400}
             height={300}
-            slotProps={{
-              legend: {
-                direction: "row",
-                position: { vertical: "bottom", horizontal: "center" },
-                padding: 0,
-                labelStyle: { fontSize: 12 },
-              },
-            }}
+            slotProps={bottomLegendProps}
           />
         </ReportChartCard>
       </Grid>
@@ -654,7 +517,16 @@ function TravelsChart() {
   );
 }
 
-function ReportChartCard({ title, children }) {
+const bottomLegendProps = {
+  legend: {
+    direction: "row",
+    position: { vertical: "bottom", horizontal: "center" },
+    padding: 0,
+    labelStyle: { fontSize: 12 },
+  },
+};
+
+function ReportChartCard({ title, subtitle, children }) {
   return (
     <Paper
       elevation={2}
@@ -669,6 +541,15 @@ function ReportChartCard({ title, children }) {
       <Typography variant="h6" color="var(--primary)" gutterBottom>
         {title}
       </Typography>
+      {subtitle ? (
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mt: -0.5, mb: 1 }}
+        >
+          {subtitle}
+        </Typography>
+      ) : null}
       {children}
     </Paper>
   );
