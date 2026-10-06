@@ -247,51 +247,53 @@ export default function TorneoFormDialog({
 
           {/* Deporte autocomplete */}
           <Autocomplete
-            options={deportesList}
-            loading={loadingCatalogos}
-            getOptionLabel={(opt) =>
-              typeof opt === "string" ? opt : (opt.nombre ?? "")
-            }
-            value={
-              deportesList.find(
-                (d) => String(d.id) === String(formData.id_deporte),
-              ) ??
-              deportesList.find(
-                (d) =>
-                  d.nombre?.toLowerCase() ===
-                  formData.nombre_deporte?.toLowerCase(),
-              ) ??
-              (formData.id_deporte
-                ? { id: formData.id_deporte, nombre: formData.nombre_deporte }
-                : null)
-            }
-            onChange={(_, val) => {
-              if (val) {
-                handleChanges({
-                  id_deporte: val.id,
-                  nombre_deporte: val.nombre,
-                });
-              } else {
-                handleChanges({
-                  id_deporte: 0,
-                  nombre_deporte: "",
-                });
+              options={deportesList}
+              loading={loadingCatalogos}
+              getOptionLabel={(opt) =>
+                typeof opt === "string" ? opt : (opt.nombre ?? "")
               }
-            }}
-            isOptionEqualToValue={(opt, val) =>
-              String(opt.id) === String(val?.id)
-            }
-            renderInput={(params) => (
-              <SAETextField
-                {...params}
-                label={C.Deporte}
-                fullWidth
-                required
-                error={Boolean(fieldErrors.id_deporte)}
-                helperText={fieldErrors.id_deporte ?? ""}
-              />
-            )}
-          />
+              value={
+                loadingCatalogos
+                  ? null
+                  : deportesList.find(
+                      (d) => String(d.id) === String(formData.id_deporte),
+                    ) ??
+                    deportesList.find(
+                      (d) =>
+                        d.nombre?.toLowerCase() ===
+                        formData.nombre_deporte?.toLowerCase(),
+                    ) ??
+                    (formData.id_deporte
+                      ? { id: formData.id_deporte, nombre: formData.nombre_deporte }
+                      : null)
+              }
+              onChange={(_, val) => {
+                if (val) {
+                  handleChanges({
+                    id_deporte: val.id,
+                    nombre_deporte: val.nombre,
+                  });
+                } else {
+                  handleChanges({
+                    id_deporte: 0,
+                    nombre_deporte: "",
+                  });
+                }
+              }}
+              isOptionEqualToValue={(opt, val) =>
+                String(opt.id) === String(val?.id)
+              }
+              renderInput={(params) => (
+                <SAETextField
+                  {...params}
+                  label={C.sport}
+                  fullWidth
+                  required
+                  error={Boolean(fieldErrors.id_deporte)}
+                  helperText={fieldErrors.id_deporte ?? ""}
+                />
+              )}
+            />
 
           {/* Docente autocomplete */}
           <Autocomplete

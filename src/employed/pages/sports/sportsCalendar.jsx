@@ -22,7 +22,7 @@ import { useSports } from "../../context/employedContext";
 
 const C = SPORTS_STRINGS;
 
-const START_HOUR = 11;
+const START_HOUR = 8;
 const END_HOUR = 23;
 const HOUR_HEIGHT = 40;
 const TOTAL_HOURS = END_HOUR - START_HOUR;
