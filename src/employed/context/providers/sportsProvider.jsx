@@ -386,7 +386,7 @@ export function SportsProvider({ children, autoLoad = true }) {
           vencimiento_ficha: dialogMode === "create"? new Date():toApiDateTime(dialogData.vencimiento_ficha),
           habilitado_deporte: dialogMode === "create"? false:dialogData.habilitado_deporte,
         };
-        console.log("deportista",body);
+        //console.log("deportista",body);
         await (dialogMode === "create"
           ? api.crearDeportista(body)
           : api.modificarDeportista(dialogData.id, body));

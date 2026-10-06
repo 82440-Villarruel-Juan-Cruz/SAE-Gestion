@@ -52,8 +52,10 @@ import {
   EMPTY_PERSONAL,
   EMPTY_TURNO,
 } from "../../../utils/common/common.config.js";
-import { compareDatesDesc, toTimeInput } from "../../../utils/date.utils";
+import { compareDatesDesc, toApiDateTime, toTimeInput } from "../../../utils/date.utils";
 import { HEALTH_STRING } from "../../../utils/strings/employed.strings.js";
+import { isEmpty } from "../../../utils/text.utils.js";
+import { isEndDateBeforeStartDate, isPositiveNumber, validateCuil } from "../../../utils/validation.utils.js";
 
 // #endregion
 
@@ -130,6 +132,7 @@ export const HealthUsersProvider = ({ children }) => {
     openDialog,
     dialogData,
     dialogMode,
+    dialogType,
     setDialogOpen,
     setDialogData,
     setDialogError,
@@ -374,16 +377,12 @@ export const HealthUsersProvider = ({ children }) => {
           especialista: foundTurn.especialista,
           legajo: foundTurn.legajo,
           paciente: foundTurn.paciente,
-          fecha_solicitud: foundTurn.fecha_solicitud
-            ? `${foundTurn.fecha_solicitud}T00:00:00`
-            : new Date(),
-          fecha_atencion: foundTurn.fecha_atencion
-            ? `${foundTurn.fecha_atencion}T00:00:00`
-            : new Date(),
+          fecha_solicitud: toApiDateTime(foundTurn.fecha_solicitud),
+          fecha_atencion: toApiDateTime(foundTurn.fecha_atencion),
           hora_atencion:
             foundTurn.hora_atencion?.trim() === ""
               ? null
-              : foundTurn.hora_atencion?.trim(),
+              : toApiDateTime(foundTurn.hora_atencion?.trim()),
           asunto: foundTurn.asunto,
           estadosTurno: {
             id: id_estado_nuevo,
@@ -720,6 +719,10 @@ export const HealthUsersProvider = ({ children }) => {
   );
 
   const handleEspecialidadesSave = async () => {
+    if(!validate()){
+      setDialogError("Campos no Validos");
+      return;
+    }
     setDialogSaving(true);
     setDialogError("");
     try {
@@ -824,6 +827,11 @@ export const HealthUsersProvider = ({ children }) => {
   );
 
   const handlePersonalSave = async () => {
+    if(!validate()){
+      setDialogError("Campos no Validos");
+      return;
+    }
+
     setDialogSaving(true);
     setDialogError("");
     try {
@@ -908,6 +916,10 @@ export const HealthUsersProvider = ({ children }) => {
   );
 
   const handleCursoSave = async () => {
+    if(!validate()){
+      setDialogError("Campos no Validos");
+      return;
+    }
     setDialogSaving(true);
     setDialogError("");
     try {
@@ -917,12 +929,8 @@ export const HealthUsersProvider = ({ children }) => {
         id: id_nuevo,
         nombre_curso: dialogData.nombre_curso,
         nombre_docente: dialogData.nombre_docente,
-        fecha_inicio: dialogData.fecha_inicio
-          ? `${dialogData.fecha_inicio}T00:00:00`
-          : new Date(),
-        fecha_fin: dialogData.fecha_fin
-          ? `${dialogData.fecha_fin}T00:00:00`
-          : new Date(),
+        fecha_inicio: toApiDateTime(dialogData.fecha_inicio),
+        fecha_fin: toApiDateTime(dialogData.fecha_fin),
         cupo_maximo: Number(dialogData.cupo_maximo),
         activo: dialogMode === "create" ? true : dialogData.activo,
       };
@@ -1252,6 +1260,60 @@ export const HealthUsersProvider = ({ children }) => {
     return generateColumns(EMPTY_CURSO, cursosActions);
   }, [cursosActions]);
 
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [touchedFields, setTouchedFields] = useState({});
+
+  const resetValidation = useCallback(() => {
+      setFieldErrors({});
+      setTouchedFields({});
+  }, []);
+
+  const validateField = (field, value, data = dialogData) => {
+      console.log(field,value);
+      switch (true) {
+          case field === "id":
+            return dialogMode === "edit" && isEmpty(value) ? C.validationID:"";
+          case field === "id_especialidad":
+            return isPositiveNumber(field) ? C.validationEmploySpeciality:"";
+          case field.includes("nombre") || field.includes("apellido") || field.includes("descripcion"):
+            return isEmpty(value) ? C.validationEmpty : "";                  
+          case field === "activo":
+            return isEmpty(value)? C.validationActive:"";
+          case  field === "cuil" || field === "cuit":
+            return !validateCuil(value) ? C.validationCuil : "";
+          case field === "fecha_inicio" || field === "fecha_nacimiento":
+            return  isEmpty(value) ? C.validationDate:"";
+          case field === "fecha_fin":
+              if (isEmpty(value)) return C.validationDate;
+              return isEndDateBeforeStartDate(data.fecha_inicio, value)
+                  ? C.validationCourseEndAfterStart
+                  : "";
+          case field === "cupo_maximo":
+              return  isEmpty(value) || !isPositiveNumber(value) ? C.validationQuant:""; 
+
+          default:
+              return data?C.validationActive:"";
+      }
+
+    };
+    const validate = () => {
+
+        //Un "switch" medio raro
+        const fields = dialogType === "personal"? ["cuil","nombre","apellido","id_especialidad","activo"]:
+                        dialogType === "especialidades"? ["id","nombre","descripcion","activo"]:
+                        ["id","nombre_curso","nombre_docente","fecha_inicio","fecha_fin","cupo_maximo","activo"];
+
+        const errors = fields.reduce((result, field) => {
+            const message = validateField(field, dialogData[field]);
+            return message ? { ...result, [field]: message } : result;
+        }, {});
+        setFieldErrors(errors);
+        setTouchedFields(
+            fields.reduce((result, field) => ({ ...result, [field]: true }), {}),
+        );
+        return Object.keys(errors).length === 0;
+    };
+
   return (
     <HealthContext.Provider
       value={{
@@ -1343,6 +1405,13 @@ export const HealthUsersProvider = ({ children }) => {
         handleDeleteHorario,
         handleCancelHorario, //Acciones en el dialog
         //Valores de error, mostrar mensajes, etc.
+        fieldErrors,
+        setFieldErrors,
+        setTouchedFields,
+        touchedFields,
+        resetValidation,
+        validate,
+        validateField
       }}
     >
       {children}

@@ -297,7 +297,7 @@ export function ScholarshipsProvider({ children }) {
 
       try {
         if (showLoading) setLoadingScholarships(true);
-        const becario = await ObtenerBecariosXLegajo(user.email);
+        const becario = await ObtenerBecariosXLegajo(user.legajo);
 
         if (!isValidObjectResponse(becario)) {
           setBecarioActual(null);
@@ -308,9 +308,9 @@ export function ScholarshipsProvider({ children }) {
         setBecarioActual(becario);
 
         const [economica, servicio, investigacion] = await Promise.all([
-          ObtenerBecariosEconomicaXLegajo(user.email),
-          ObtenerBecariosServiciosXLegajo(user.email),
-          ObtenerBecariosInvestigacionXLegajo(user.email),
+          ObtenerBecariosEconomicaXLegajo(user.legajo),
+          ObtenerBecariosServiciosXLegajo(user.legajo),
+          ObtenerBecariosInvestigacionXLegajo(user.legajo),
         ]);
 
         setMisBecas(normalizarBecas(economica, servicio, investigacion));

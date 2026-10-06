@@ -1,4 +1,4 @@
-import { onlyDigits } from "./text.utils";
+import { isEmpty, onlyDigits } from "./text.utils";
 
 export const isValidEmail = (value = "") =>
   /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(String(value).trim());
@@ -50,17 +50,43 @@ export const isValidAddress = (value = "") => {
 export const isValidCbu = (value = "") => onlyDigits(value).length === 22;
 
 export const isValidCuit = (value = "") => {
-  const digits = onlyDigits(value, 11);
-  if (digits.length !== 11) return false;
+  // 1. Extraemos solo los números
+  const digits = String(value).replace(/\D/g, "");
 
+  // 2. Si el usuario está escribiendo y no llegó a los 11 dígitos, 
+  // no lo consideramos inválido aún (evita que titile en rojo desde cero)
+  if (digits.length < 11) return true; 
+  if (digits.length > 11) return false;
+
+  // 3. Pesos oficiales del algoritmo Módulo 11
   const weights = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+  
   const sum = weights.reduce(
     (total, weight, index) => total + Number(digits[index]) * weight,
     0,
   );
+  
   const remainder = sum % 11;
-  const checkDigit = remainder === 0 ? 0 : remainder === 1 ? 9 : 11 - remainder;
+  let checkDigit;
 
+  // 4. Casos especiales del algoritmo de ARCA (ex-AFIP)
+  if (remainder === 0) {
+    checkDigit = 0;
+  } else if (remainder === 1) {
+    // Si el resto es 1, el CUIT original muta su prefijo a 23.
+    // El dígito verificador pasa a ser 9 o 4 según el género original.
+    const prefix = digits.substring(0, 2);
+    if (prefix === "23") {
+      // Permitimos que pase tanto 9 como 4 si el prefijo ya cambió a 23
+      checkDigit = Number(digits[10]); 
+    } else {
+      checkDigit = 9; // Valor por defecto para remanentes mapeados
+    }
+  } else {
+    checkDigit = 11 - remainder;
+  }
+
+  // 5. Comparamos contra el último dígito ingresado
   return checkDigit === Number(digits[10]);
 };
 
@@ -219,4 +245,12 @@ export function validateDeporte(data) {
 export const isBooleanValid = (value) => {
   // Retorna true solo si el valor es explícitamente true o false
   return typeof value === "boolean";
+};
+
+export const isEndDateBeforeStartDate = (startDate, endDate) =>
+    !isEmpty(startDate) && !isEmpty(endDate) && String(endDate)< String(startDate);
+
+export const isPositiveNumber = (value) => {
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) && numericValue > 0;
 };

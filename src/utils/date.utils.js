@@ -181,12 +181,18 @@ export function toApiTime(time) {
 
 /**
  * Convierte una hora proveniente de la API
- * al formato utilizado por los inputs HTML.
+ * al formato utilizado por los inputs HTML (HH:mm).
  *
  * 08:00:00 -> 08:00
+ * 8:00hs   -> 08:00
+ * 8:00     -> 08:00
  */
 export function toTimeInput(time) {
   if (!time) return "";
 
-  return String(time).replace(/hs/gi, "").trim().substring(0, 5);
+  // 1. Limpiamos el texto sacando "hs", espacios y nos quedamos con los primeros 5 caracteres
+  const cleanTime = String(time).replace(/hs/gi, "").trim().substring(0, 5);
+
+  // 2. Si el formato quedó como "8:00", padStart le agrega el "0" al principio para que sea "08:00"
+  return cleanTime.padStart(5, "0");
 }

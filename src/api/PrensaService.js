@@ -72,6 +72,13 @@ export function descargarDocumentoPorId(idDocumento) {
   );
 }
 
+export function sumarVisualizacion(idPublicacion){
+    return RequestAPI(
+    `/Prensa/ContarPublicacion/${encodeURIComponent(idPublicacion)}`,
+    "POST"
+  );
+}
+// JUUAAANNN
 const PUBLIC_NEWS_ERRORS = {
   400: "Se enviaron parámetros a una vista",
   401: "El endpoint requiere autenticación",

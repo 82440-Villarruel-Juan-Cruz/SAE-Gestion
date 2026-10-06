@@ -2,7 +2,7 @@ import { RequestAPI } from './apiClient';
 
 const logDocumentTypesExtensions = (documentTypes) => {
   if (!Array.isArray(documentTypes)) {
-    console.log("[TiposDocumento] Respuesta no es un array:", documentTypes);
+    
     return;
   }
   /*

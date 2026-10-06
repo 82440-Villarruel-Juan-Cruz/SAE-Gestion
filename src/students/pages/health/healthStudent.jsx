@@ -81,7 +81,7 @@ const getTurnStatusTextColor = (statusId) =>
   [3, 4, 5].includes(Number(statusId)) ? "#153b6f" : "white";
 
 const COURSE_PALETTE = ["#C8C1DF", "#BFEBA2", "#AB95EE", "#F6F399", "#F1C6A3"];
-
+/*
 const settings = {
   dots: true,
   infinite: false,
@@ -108,7 +108,7 @@ const settings = {
       },
     },
   ],
-};
+};*/
 
 const MEDICINE_ICONS = [
   LocalHospitalIcon, // Cruz de hospital / medicina general
@@ -289,11 +289,12 @@ export function EmployedStudentContent() {
     cursos.length || 1,
     isDesktopCourses ? 3 : isTabletCourses ? 2 : 1,
   );
+  /*
   const coursesSliderSettings = {
     ...settings,
     slidesToShow: coursesSlidesToShow,
     responsive: [],
-  };
+  };*/
   const turnsHistorySectionConfig = useMemo(
     () => ({
       turnsHistory: {
@@ -680,8 +681,7 @@ export function EmployedStudentContent() {
             fontWeight="bold"
             sx={{
               color: "white",
-              pt: { xs: 2, md: 4 },
-              fontSize: { xs: "1.5em", md: "2.5em" },
+              pt: { xs: 2, md: 2 },
               textAlign: { xs: "center" },
             }}
           >
@@ -1057,8 +1057,7 @@ export function EmployedStudentContent() {
             fontWeight="bold"
             sx={{
               color: "white",
-              pt: { xs: 2, md: 4 },
-              fontSize: { xs: "1.5em", md: "2.5em" },
+              pt: { xs: 2 },
               textAlign: { xs: "center" },
             }}
           >

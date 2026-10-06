@@ -14,7 +14,7 @@ export default function DegreesInfoPage({banner,title,subtitle}){
     );
 }
 function HeroDegree({image,title,subtitle}){
-    console.log(`url(${baseUrl}${image})`);
+    //console.log(`url(${baseUrl}${image})`);
     return(
         
         <Box

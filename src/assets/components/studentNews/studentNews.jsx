@@ -85,7 +85,7 @@ function ItemNovedad({ item, invertida }) {
 
     cargarImagen();
   }, [portada]); // <--- IMPORTANTE: Depender solo del ID para asegurar que cambie
-
+  
   return (
     <>
       <Card
@@ -214,10 +214,15 @@ export function NovedadesContent() {
     loadingSelectedDocuments,
     handleClose,
     handleOpenPreview,
+    contarVisualizacion
   } = usePress();
   const [paginaActual, setPaginaActual] = useState(1);
   const itemsPorPagina = 3;
 
+  useEffect(() => {
+    contarVisualizacion(selectedPub?.id);
+  }, [contarVisualizacion,selectedPub]);
+  
   const totalPaginas = Math.ceil(novedades.length / itemsPorPagina);
 
   const novedadesPaginadas = useMemo(() => {

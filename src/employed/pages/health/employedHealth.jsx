@@ -1,5 +1,5 @@
 //FUNCIONES
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Autocomplete,
@@ -28,8 +28,6 @@ import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import SchoolIcon from "@mui/icons-material/School";
 import ScheduleIcon from "@mui/icons-material/Schedule";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import CloseIcon from "@mui/icons-material/Close";
@@ -50,8 +48,7 @@ import GestionarHorariosDialog from "./horariosDialog.jsx";
 import { EmployedCalendar } from "./healthCalendar.jsx";
 import { DataGrid } from "@mui/x-data-grid";
 import { HEALTH_STRING } from "../../../utils/strings/employed.strings";
-import { isEmpty } from "../../../utils/text.utils";
-import { validateCuil } from "../../../utils/validation.utils";
+import { formatCuit } from "../../../utils/formatters.utils.js";
 
 const C = HEALTH_STRING;
 function EmployedAdminContent() {
@@ -275,105 +272,24 @@ function DialogHealth() {
     loadingFaltas,
     handlePersonalSave,
     handleCursoSave,
+      fieldErrors,
+    setTouchedFields,
+    resetValidation,
+    setFieldErrors,
+    validateField
   } = useHealth();
-  const [fieldErrors, setFieldErrors] = useState({});
-  const hasFieldErrors = Object.values(fieldErrors).some(Boolean);
 
   useEffect(() => {
     if (dialogOpen) {
-      setFieldErrors({});
+      //setFieldErrors({});
       setDialogError("");
     }
   }, [dialogMode, dialogOpen, dialogType, setDialogError]);
 
-  const handleFieldChange = (field, value) => {
-    setFieldErrors((previous) => ({ ...previous, [field]: "" }));
+  const handleClose = () => {
+    resetValidation();
     setDialogError("");
-    handleDataChange(field, value);
-  };
-
-  const isPositiveInteger = (value) => {
-    const numberValue = Number(value);
-    return Number.isInteger(numberValue) && numberValue > 0;
-  };
-
-  const isValidDateInput = (value) => {
-    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-      return false;
-    }
-
-    return !Number.isNaN(new Date(`${value}T00:00:00`).getTime());
-  };
-
-  const validateDialog = () => {
-    const errors = {};
-
-    if (dialogType === "especialidades") {
-      if (isEmpty(dialogData.nombre)) errors.nombre = C.validationSpecialityName;
-      if (isEmpty(dialogData.descripcion)) {
-        errors.descripcion = C.validationSpecialityDescription;
-      }
-    }
-
-    if (dialogType === "personal" && dialogMode === "faltas") {
-      if (isEmpty(dialogData.observacion)) {
-        errors.observacion = C.validationFaultObservation;
-      }
-      if (!isValidDateInput(dialogData.fecha_alta)) {
-        errors.fecha_alta = C.validationFaultDate;
-      }
-    }
-
-    if (dialogType === "personal" && dialogMode !== "faltas") {
-      if (isEmpty(dialogData.cuil)) {
-        errors.cuil = C.validationCuilRequired;
-      } else if (!validateCuil(String(dialogData.cuil))) {
-        errors.cuil = C.validationCuilFormat;
-      }
-      if (isEmpty(dialogData.nombre)) errors.nombre = C.validationEmployName;
-      if (isEmpty(dialogData.apellido)) errors.apellido = C.validationEmployLastName;
-      if (isEmpty(dialogData.id_especialidad)) {
-        errors.id_especialidad = C.validationEmploySpeciality;
-      }
-    }
-
-    if (dialogType === "cursos") {
-      if (
-        isEmpty(dialogData.cupo_maximo) ||
-        !isPositiveInteger(dialogData.cupo_maximo)
-      ) {
-        errors.cupo_maximo = C.validationCourseCapacity;
-      }
-      if (isEmpty(dialogData.nombre_curso)) errors.nombre_curso = C.validationCourseName;
-      if (isEmpty(dialogData.nombre_docente)) {
-        errors.nombre_docente = C.validationCourseTeacher;
-      }
-      if (!isValidDateInput(dialogData.fecha_inicio)) {
-        errors.fecha_inicio = C.validationCourseStart;
-      }
-      if (!isValidDateInput(dialogData.fecha_fin)) {
-        errors.fecha_fin = C.validationCourseEnd;
-      } else if (
-        isValidDateInput(dialogData.fecha_inicio) &&
-        new Date(dialogData.fecha_fin) < new Date(dialogData.fecha_inicio)
-      ) {
-        errors.fecha_fin = C.validationCourseEndAfterStart;
-      }
-    }
-
-    setFieldErrors(errors);
-    if (Object.keys(errors).length > 0) {
-      setDialogError("");
-      return false;
-    }
-
-    setDialogError("");
-    return true;
-  };
-
-  const handleSaveWithValidation = (saveHandler) => {
-    if (!validateDialog()) return;
-    saveHandler();
+    closeDialog();
   };
 
   const deleteDialogConfig = {
@@ -405,7 +321,7 @@ function DialogHealth() {
   return (
     <>
       {dialogOpen && dialogType === "especialidades" && (
-        <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
+        <Dialog open={dialogOpen} onClose={handleClose} maxWidth="sm" fullWidth>
 
           <DialogTitle
             sx={{
@@ -427,7 +343,7 @@ function DialogHealth() {
           </DialogTitle>
           <DialogContent dividers>
             <Stack spacing={2} sx={{ pt: 1 }}>
-              {dialogError && !hasFieldErrors && (
+              {dialogError && !fieldErrors && (
                 <Alert severity="error" onClose={() => setDialogError("")}>
                   {dialogError}
                 </Alert>
@@ -441,17 +357,25 @@ function DialogHealth() {
                         type="number"
                         fullWidth
                         value={dialogData.id}
-                        onChange={(e) => handleFieldChange("id", e.target.value)}
+                        onChange={(e) => handleDataChange("id", e.target.value)}
                         disabled={true}
+                        error={Boolean(fieldErrors.id)}
+                        helperText={fieldErrors.id}
                       />
                     </Grid>
-                  )}
+                )}
                   <Grid size={{ xs: 12, md: dialogMode === "edit" ? 9 : 12 }} m={0}>
                     <SAETextField
                       label={C.formCompleteName}
                       value={dialogData.nombre}
+                      
                       onChange={(e) =>
-                        handleFieldChange("nombre", e.target.value)
+                        handleDataChange("nombre", e.target.value,
+                        {
+                          setTouched: setTouchedFields,
+                          setErrors: setFieldErrors,
+                          validateFn: validateField
+                        })
                       }
                       fullWidth
                       required
@@ -464,7 +388,12 @@ function DialogHealth() {
                       label={C.formDescription}
                       value={dialogData.descripcion}
                       onChange={(e) =>
-                        handleFieldChange("descripcion", e.target.value)
+                        handleDataChange("descripcion", e.target.value,
+                        {
+                          setTouched: setTouchedFields,
+                          setErrors: setFieldErrors,
+                          validateFn: validateField
+                        })
                       }
                       required
                       error={Boolean(fieldErrors.descripcion)}
@@ -481,8 +410,12 @@ function DialogHealth() {
                         <Switch
                           checked={dialogData.activo}
                           onChange={(e) =>
-                            handleFieldChange("activo", e.target.checked)
-                          }
+                          handleDataChange("activo", e.target.checked,
+                          {
+                            setTouched: setTouchedFields,
+                            setErrors: setFieldErrors,
+                            validateFn: validateField
+                          })}
                           color="primary"
                         />
                       }
@@ -500,7 +433,7 @@ function DialogHealth() {
           <DialogActions sx={{ px: 3, pb: 2 }}>
             <SAEButton
               variant="outlined"
-              onClick={closeDialog}
+              onClick={handleClose}
               disabled={dialogSaving}
               startIcon={<CloseIcon />}
             >
@@ -508,7 +441,7 @@ function DialogHealth() {
             </SAEButton>
             <SAEButton
               variant="contained"
-              onClick={() => handleSaveWithValidation(handleEspecialidadesSave)}
+              onClick={handleEspecialidadesSave}
               disabled={dialogSaving}
               startIcon={
                 dialogSaving ? (
@@ -532,7 +465,7 @@ function DialogHealth() {
 
       {/*DIALOG DE PERSONAL*/}
       {dialogOpen && dialogType === "personal" && (
-        <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
+        <Dialog open={dialogOpen} onClose={handleClose} maxWidth="sm" fullWidth>
           <DialogTitle
             sx={{
               display: "flex",
@@ -551,13 +484,13 @@ function DialogHealth() {
                   ? C.employEdit //Segunda condicion
                   : C.employFault}
             </Typography>
-            <IconButton onClick={closeDialog} size="small">
+            <IconButton onClick={handleClose} size="small">
               <CloseIcon />
             </IconButton>
           </DialogTitle>
           <DialogContent dividers>
             <Stack spacing={2} sx={{ pt: 1 }}>
-              {dialogError && !hasFieldErrors && (
+              {dialogError && fieldErrors && (
                 <Alert severity="error" onClose={() => setDialogError("")}>
                   {dialogError}
                 </Alert>
@@ -604,8 +537,13 @@ function DialogHealth() {
                           label={C.faultObservation}
                           value={dialogData.observacion}
                           onChange={(e) =>
-                            handleFieldChange("observacion", e.target.value)
-                          }
+                          handleDataChange("observacion", e.target.value,
+                          {
+                            setTouched: setTouchedFields,
+                            setErrors: setFieldErrors,
+                            validateFn: validateField
+                          })}
+                          
                           required
                           error={Boolean(fieldErrors.observacion)}
                           helperText={fieldErrors.observacion}
@@ -620,7 +558,12 @@ function DialogHealth() {
                           type="date"
                           value={dialogData.fecha_alta}
                           onChange={(e) =>
-                            handleFieldChange("fecha_alta", e.target.value)
+                            handleDataChange("fecha_alta", e.target.value,
+                            {
+                              setTouched: setTouchedFields,
+                              setErrors: setFieldErrors,
+                              validateFn: validateField
+                            })
                           }
                           fullWidth
                           required
@@ -657,26 +600,34 @@ function DialogHealth() {
                     )}
                     <Grid container spacing={1}>
                       <Grid size={{ xs: 12 }} m={0}>
-                        <SAETextField
-                          label={C.employCUIL}
-                          type="number"
-                          fullWidth
-                          value={dialogData.cuil}
-                          onChange={(e) =>
-                            handleFieldChange("cuil", e.target.value)
-                          }
-                          disabled={dialogMode === "edit"}
-                          required
-                          error={Boolean(fieldErrors.cuil)}
-                          helperText={fieldErrors.cuil}
-                        />
+                      <SAETextField
+                        label={C.employCUIL}
+                        value={dialogData.cuil}
+                        onChange={(e) =>
+                          handleDataChange("cuil", formatCuit(e.target.value),
+                            {
+                              setTouched: setTouchedFields,
+                              setErrors: setFieldErrors,
+                              validateFn: validateField
+                            })
+                        }
+                        error={Boolean(fieldErrors.cuil)}
+                        helperText={fieldErrors.cuil}
+                        required
+                        fullWidth
+                      />
                       </Grid>
                       <Grid size={{ xs: 12 }} m={0}>
                         <SAETextField
                           label={C.employName}
                           value={dialogData.nombre}
                           onChange={(e) =>
-                            handleFieldChange("nombre", e.target.value)
+                            handleDataChange("nombre", e.target.value,
+                            {
+                              setTouched: setTouchedFields,
+                              setErrors: setFieldErrors,
+                              validateFn: validateField
+                            })
                           }
                           fullWidth
                           required
@@ -689,7 +640,12 @@ function DialogHealth() {
                           label={C.employLastName}
                           value={dialogData.apellido}
                           onChange={(e) =>
-                            handleFieldChange("apellido", e.target.value)
+                            handleDataChange("apellido", e.target.value,
+                            {
+                              setTouched: setTouchedFields,
+                              setErrors: setFieldErrors,
+                              validateFn: validateField
+                            })
                           }
                           fullWidth
                           required
@@ -706,10 +662,15 @@ function DialogHealth() {
                           onChange={(event, newValue) => {
                             // 'newValue' es el objeto completo del perfil seleccionado (o null)
                             if (newValue) {
-                              handleFieldChange("id_especialidad", newValue.id);
+                              handleDataChange("id_especialidad", newValue.id,
+                            {
+                              setTouched: setTouchedFields,
+                              setErrors: setFieldErrors,
+                              validateFn: validateField
+                            });
                             } else {
                               // Maneja el caso de que se borre la selección
-                              handleFieldChange("id_especialidad", null);
+                              handleDataChange("id_especialidad", null);
                             }
                           }}
                           // Asegura que la comparación se haga por id
@@ -762,7 +723,12 @@ function DialogHealth() {
                               <Switch
                                 checked={dialogData.activo}
                                 onChange={(e) =>
-                                  handleFieldChange("activo", e.target.checked)
+                                  handleDataChange("activo", e.target.checked,
+                                  {
+                                    setTouched: setTouchedFields,
+                                    setErrors: setFieldErrors,
+                                    validateFn: validateField
+                                  })
                                 }
                                 color="primary"
                               />
@@ -784,7 +750,7 @@ function DialogHealth() {
           <DialogActions sx={{ px: 3, pb: 2 }}>
             <SAEButton
               variant="outlined"
-              onClick={closeDialog}
+              onClick={handleClose}
               disabled={dialogSaving}
               startIcon={<CloseIcon />}
             >
@@ -792,7 +758,7 @@ function DialogHealth() {
             </SAEButton>
             <SAEButton
               variant="contained"
-              onClick={() => handleSaveWithValidation(handlePersonalSave)}
+              onClick={handlePersonalSave}
               disabled={dialogSaving}
               startIcon={
                 dialogSaving ? (
@@ -815,7 +781,7 @@ function DialogHealth() {
       )}
       {/* DIALOG DE CURSOS */}
       {dialogOpen && dialogType === "cursos" && (
-        <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
+        <Dialog open={dialogOpen} onClose={handleClose} maxWidth="sm" fullWidth>
           <DialogTitle
             sx={{
               display: "flex",
@@ -830,13 +796,13 @@ function DialogHealth() {
             >
               {dialogMode === "create" ? C.courseCreate : C.courseEdit}
             </Typography>
-            <IconButton onClick={closeDialog} size="small">
+            <IconButton onClick={handleClose} size="small">
               <CloseIcon />
             </IconButton>
           </DialogTitle>
           <DialogContent dividers>
             <Stack spacing={2} sx={{ pt: 1 }}>
-              {dialogError && !hasFieldErrors && (
+              {dialogError && !fieldErrors && (
                 <Alert severity="error" onClose={() => setDialogError("")}>
                   {dialogError}
                 </Alert>
@@ -849,7 +815,12 @@ function DialogHealth() {
                           type="number"
                           fullWidth
                           value={dialogData.id}
-                          onChange={(e) => handleFieldChange("id", e.target.value)}
+                          onChange={(e) => handleDataChange("id", e.target.value,
+                            {
+                              setTouched: setTouchedFields,
+                              setErrors: setFieldErrors,
+                              validateFn: validateField
+                            })}
                           disabled={true}
                         />
                       </Grid>
@@ -861,7 +832,12 @@ function DialogHealth() {
                         fullWidth
                         value={dialogData.cupo_maximo}
                         onChange={(e) =>
-                          handleFieldChange("cupo_maximo", e.target.value)
+                          handleDataChange("cupo_maximo", e.target.value,
+                            {
+                              setTouched: setTouchedFields,
+                              setErrors: setFieldErrors,
+                              validateFn: validateField
+                            })
                         }
                         required
                         error={Boolean(fieldErrors.cupo_maximo)}
@@ -873,7 +849,12 @@ function DialogHealth() {
                         label={C.courseName}
                         value={dialogData.nombre_curso}
                         onChange={(e) =>
-                          handleFieldChange("nombre_curso", e.target.value)
+                          handleDataChange("nombre_curso", e.target.value,
+                            {
+                              setTouched: setTouchedFields,
+                              setErrors: setFieldErrors,
+                              validateFn: validateField
+                            })
                         }
                         fullWidth
                         required
@@ -886,7 +867,12 @@ function DialogHealth() {
                         label={C.courseTeacher}
                         value={dialogData.nombre_docente}
                         onChange={(e) =>
-                          handleFieldChange("nombre_docente", e.target.value)
+                          handleDataChange("nombre_docente", e.target.value,
+                            {
+                              setTouched: setTouchedFields,
+                              setErrors: setFieldErrors,
+                              validateFn: validateField
+                            })
                         }
                         fullWidth
                         required
@@ -900,7 +886,7 @@ function DialogHealth() {
                         type="date"
                         value={dialogData.fecha_inicio}
                         onChange={(e) =>
-                          handleFieldChange("fecha_inicio", e.target.value)
+                          handleDataChange("fecha_inicio", e.target.value)
                         }
                         fullWidth
                         required
@@ -915,7 +901,12 @@ function DialogHealth() {
                         type="date"
                         value={dialogData.fecha_fin}
                         onChange={(e) =>
-                          handleFieldChange("fecha_fin", e.target.value)
+                          handleDataChange("fecha_fin", e.target.value,
+                            {
+                              setTouched: setTouchedFields,
+                              setErrors: setFieldErrors,
+                              validateFn: validateField
+                            })
                         }
                         fullWidth
                         required
@@ -930,7 +921,12 @@ function DialogHealth() {
                           <Switch
                             checked={dialogData.activo}
                             onChange={(e) =>
-                              handleFieldChange("activo", e.target.checked)
+                              handleDataChange("activo", e.target.checked,
+                            {
+                              setTouched: setTouchedFields,
+                              setErrors: setFieldErrors,
+                              validateFn: validateField
+                            })
                             }
                             color="primary"
                           />
@@ -946,7 +942,7 @@ function DialogHealth() {
           <DialogActions sx={{ px: 3, pb: 2 }}>
             <SAEButton
               variant="outlined"
-              onClick={closeDialog}
+              onClick={handleClose}
               disabled={dialogSaving}
               startIcon={<CloseIcon />}
             >
@@ -954,7 +950,7 @@ function DialogHealth() {
             </SAEButton>
             <SAEButton
               variant="contained"
-              onClick={() => handleSaveWithValidation(handleCursoSave)}
+              onClick={handleCursoSave}
               disabled={dialogSaving}
               startIcon={
                 dialogSaving ? (

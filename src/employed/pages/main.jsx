@@ -66,7 +66,7 @@ function EmployedContent() {
       />
 
       <AdminUsersProvider>
-        <EmployedCalendar legajoEmpleado={user.email} />
+        <EmployedCalendar legajoEmpleado={user.legajo} />
       </AdminUsersProvider>
         {loadingEventosSAE && (
           <Stack alignItems="center" width={"100%"} gap={1}>

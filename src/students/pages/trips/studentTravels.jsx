@@ -324,7 +324,7 @@ function CarrouselVertical() {
                   onClick={() => {
                     if (esActiva) {
                       window.open(
-                        "https://www.argentina.gob.ar/migraciones/museo-de-la-inmigracion/galeria-de-fotos",
+                        "https://aveit.frc.utn.edu.ar/viaje",
                         "_blank",
                       );
                     } else {

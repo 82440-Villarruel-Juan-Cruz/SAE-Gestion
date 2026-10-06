@@ -26,7 +26,8 @@ export default function NewsPreviewDialog({
   documents = [],
   documentsLoading = false,
   onPreviewDocument,
-}) {
+}) 
+{
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle sx={{ display: "flex", justifyContent: "space-between" }}>

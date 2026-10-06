@@ -168,6 +168,7 @@ export const HEALTH_STRING = {
   courseEnd: "Fecha de Finalización",
   courseActive: "Curso Activo",
   courseNoActive: "Curso No Activo",
+  validationEmpty: "Ingrese un valor válido",
   validationSpecialityName: "Ingresá el nombre de la especialidad.",
   validationSpecialityDescription: "Ingresá la descripción de la especialidad.",
   validationFaultObservation: "Ingresá la observación de la falta.",
@@ -225,10 +226,10 @@ export const HEALTH_STRING = {
 };
 
 export const JPA_STRINGS = {
-  headerMainTitle: "Módulo de Salud",
-  headerMainSubtitle: "Gestión de las capacidades médicas de nuestra área",
+  headerMainTitle: "Módulo de JPA",
+  headerMainSubtitle: "Gestión de eventos generales y Jornada de puertas abiertas",
   headerMainDescription:
-    "Permite cargar especialidades, personal, cursos, horarios para el personal y gestionar los turnos de los estudiantes",
+    "Permite cargar eventos generales, propios de las SAE, los puestos de cada carrera y los interesados en conocer nuestra regional",
 
   eventDeleteConfirm: "Está seguro que quiere eliminar el evento:",
   eventID: "ID",

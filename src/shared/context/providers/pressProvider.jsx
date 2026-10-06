@@ -4,6 +4,7 @@ import {
   ObtenerNoticiasPublicas,
   descargarDocumentoPorId,
   listarDocumentosPorPublicacion,
+  sumarVisualizacion,
 } from "../../../api/PrensaService";
 
 const PREVIEW_EXTENSIONS = new Set([
@@ -212,7 +213,7 @@ export function PressProvider({ children }) {
     link.remove();
   };
 
-  const handleDownload = async (documento) => {
+    const handleDownload = async (documento) => {
     const documentId = documento?.id ?? documento?.id_documento;
     const documentName = getDocumentName(documento, "documento");
     const documentExtension = getDocumentExtension(documento);
@@ -240,6 +241,16 @@ export function PressProvider({ children }) {
       setPreviewLoading(false);
     }
   };
+  const contarVisualizacion = useCallback(async (pubId) => {
+    if(!pubId) return;
+    try {
+      await sumarVisualizacion(pubId);
+
+    } catch {
+      console.log("ERROR: Contar la visualizacion tuvo un error")
+    } 
+  }, []);
+
   return (
     <PressContext.Provider
       value={{
@@ -262,6 +273,7 @@ export function PressProvider({ children }) {
         getDocumentName,
         getImageSource,
         getDocumentExtension,
+        contarVisualizacion,
       }}
     >
       {children}

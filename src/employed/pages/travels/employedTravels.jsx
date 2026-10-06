@@ -574,22 +574,29 @@ function TravelsDialog() {
     });
   };
 
-  const sanitizeAddressPart = (value = "") =>
-    value.replace(/\s*-\s*/g, " ").replace(/\s{2,}/g, " ");
+const sanitizeAddressPart = (value = "") =>
+  // Eliminamos guiones sueltos que rompan la estructura, 
+  // pero permitimos que el usuario tenga un espacio al final mientras escribe.
+  value.replace(/-/g, " ").replace(/\s{2,}/g, " ");
 
-  const parseAddress = (value = "") => {
-    const parts = String(value)
-      .split("-")
-      .map((part) => part.trim());
-    return [parts[0] || "", parts[1] || "", parts[2] || ""];
-  };
+const parseAddress = (value = "") => {
+  // 1. Separamos estrictamente por " - " (con espacios alrededor) 
+  // para no alterar los espacios internos de cada input individual
+  const parts = String(value).split(" - ");
+  
+  // NO usamos .trim() aquí dentro para no romper el tipeo en vivo
+  return [parts[0] || "", parts[1] || "", parts[2] || ""];
+};
 
-  const handleAddressChange = (index, value, dataName) => {
-    const parts = parseAddress(dialogData[dataName]);
-    parts[index] = sanitizeAddressPart(value);
-    const hasAddressData = parts.some((part) => part.trim() !== "");
-    handleDialogChange(dataName, hasAddressData ? parts.join(" - ") : "");
-  };
+const handleAddressChange = (index, value, dataName) => {
+  const parts = parseAddress(dialogData[dataName]);
+  parts[index] = sanitizeAddressPart(value);
+  
+  const hasAddressData = parts.some((part) => part.trim() !== "");
+  
+  // Al unir, sólo usamos .trim() si todo el string está vacío
+  handleDialogChange(dataName, hasAddressData ? parts.join(" - ") : "");
+};
 
   const addressPartsOrigin = parseAddress(dialogData.origen);
   const addressPartsDestiny = parseAddress(dialogData.destino);

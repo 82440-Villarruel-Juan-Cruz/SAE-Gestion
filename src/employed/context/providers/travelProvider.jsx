@@ -28,7 +28,7 @@ import { TRAVEL_STRINGS } from "../../../utils/strings/employed.strings.js";
 import { EMPTY_DOCUMENTACION_ESTUDIANTE,EMPTY_DOCUMENTACION_VIAJE,EMPTY_VIAJES_FORM,EMPTY_VIAJES,EMPTY_BUSSINESS } from "../../../utils/common/common.config.js";
 import { formatDate, toApiDateTime } from "../../../utils/date.utils.js";
 import { buildDownloadFileName } from "../../../utils/documents.utils.js";
-import { isValidCbu, isValidCuit, isValidEmail, isValidPhone, isValidText } from "../../../utils/validation.utils.js";
+import { isEndDateBeforeStartDate, isPositiveNumber, isValidCbu, isValidCuit, isValidEmail, isValidPhone, isValidText } from "../../../utils/validation.utils.js";
  
 const C = TRAVEL_STRINGS;
 const checkAndCleanDialogData = (data) => cleanObjectFields(data);
@@ -42,16 +42,11 @@ const getDownloadedDocumentName = (downloadedName, listName) => {
         ? normalizedDownloadedName
         : normalizedListName;
 };
-const isPositiveNumber = (value) => {
-    const numericValue = Number(value);
-    return Number.isFinite(numericValue) && numericValue > 0;
-};
+
 const isValidTravelPlace = (value = "") => {
     const parts = String(value).split(/\s+-\s+/);
     return parts.length === 3 && parts.every((part) => !isEmpty(part));
 };
-const isEndDateBeforeStartDate = (startDate, endDate) =>
-    !isEmpty(startDate) && !isEmpty(endDate) && String(endDate) < String(startDate);
 
 export function TravelProvider({ children }){
     const navigate = useNavigate();

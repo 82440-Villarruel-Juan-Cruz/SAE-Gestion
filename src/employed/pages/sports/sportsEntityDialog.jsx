@@ -29,6 +29,7 @@ import SearchStudent from "../../../assets/components/searchStudent/SearchStuden
 import { useSports } from "../../context/employedContext";
 import { SPORTS_STRINGS } from "../../../utils/strings/employed.strings";
 import { useEffect } from "react";
+import { formatCuil } from "../../../utils/formatters.utils";
 
 const C = SPORTS_STRINGS;
 const getStudentName = (student = {}) =>
@@ -114,7 +115,7 @@ export default function SportsEntityDialog() {
             <>
               <SAETextField
                 label={C.cuil}
-                value={dialogData.cuil ?? ""}
+                value={formatCuil(dialogData.cuil) ?? ""}
                 onChange={(e) => handleDialogChange("cuil", e.target.value)}
                 disabled={dialogMode === "edit"}
                 required={dialogMode === "create"}

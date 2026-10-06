@@ -274,7 +274,7 @@ export function SportsProvider({ children }) {
   };
 
   useEffect(() => {
-    if (!user?.email) return;
+    if (!user?.legajo) return;
 
     const initialize = async () => {
       setLoadingDocuments(true);
@@ -309,7 +309,7 @@ export function SportsProvider({ children }) {
           );
 
           const uploadedDocuments = await listarDocumentacionXLegajo(
-            user.email,
+            user.legajo,
           );
           const documentsWithUploads = typedDocuments.map((documento) => {
               const uploaded = uploadedDocuments?.find(
@@ -353,12 +353,12 @@ export function SportsProvider({ children }) {
 
       const loadSportsAndTournaments = async () => {
         try {
-          const sportsman = await obtenerIdDeportista(user.email);
+          const sportsman = await obtenerIdDeportista(user.legajo);
           setDeportista(sportsman);
           if (sportsman) await loadSportsmanSchedules(sportsman);
           await loadTournamentsForSportsman(sportsman);
         } catch (error) {
-          console.error("Error al cargar deportes del estudiante:", error);
+          console.error("Error al cargar torneos del estudiante:", error);
           showNotification(C.errorLoadSports, "error");
         } finally {
           setLoadingSports(false);
@@ -369,7 +369,7 @@ export function SportsProvider({ children }) {
     };
 
     initialize();
-  }, [user?.email, loadTournamentsForSportsman, showNotification]);
+  }, [user?.legajo, loadTournamentsForSportsman, showNotification]);
 
   const rowsTorneosFiltradas = useMemo(
     () => filterTournaments(torneoDeportista, busquedaTorneos),

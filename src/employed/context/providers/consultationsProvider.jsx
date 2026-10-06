@@ -72,7 +72,6 @@ export const ConsultationProvider = ({ children }) => {
       showNotification(C.errorNoLink, "warning", 2000);
       return;
     }
-
     try {
       await navigator.clipboard.writeText(hipervinculo);
       showNotification(C.copyLinkMsg, "success", 2000);
@@ -84,7 +83,7 @@ export const ConsultationProvider = ({ children }) => {
   }, [showNotification]);
 
     const handleCopyLink = useCallback((link) => {
-        handleCopyLinkFrecuente(link);
+      handleCopyLinkFrecuente(link.hipervinculo);
     }, [handleCopyLinkFrecuente]);
 
     const handleDeleteLink = useCallback((row) => {
