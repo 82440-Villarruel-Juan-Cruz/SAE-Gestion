@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Autocomplete,
   Box,
@@ -34,30 +34,39 @@ export default function SearchStudent({
   legajoError = "Ingresá un legajo para buscar",
   careerError = "Seleccioná una carrera para buscar",
   required = false,
+  autoSearch = false,
 }) {
   const isMobile = useMediaQuery("(max-width:932px)");
   const [careerSearch, setCareerSearch] = useState("");
   const [studentSearchLoading, setStudentSearchLoading] = useState(false);
   const [studentSelected, setStudentSelected] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
+  const lastAutoSearchLegajo = useRef("");
 
   useEffect(() => {
-    if (!legajo) {
-      setStudentSelected(null);
-    }
-  }, [legajo]);
-
-  const handleStudentSearch = async () => {
-    const studentId = String(legajo ?? "")
+    const normalizedLegajo = String(legajo ?? "")
       .trim()
       .split("@")[0];
+    const normalizedSelectedLegajo = String(studentSelected?.legajo ?? "")
+      .trim()
+      .split("@")[0];
+
+    if (!normalizedLegajo || normalizedSelectedLegajo !== normalizedLegajo) {
+      setStudentSelected(null);
+    }
+  }, [legajo, studentSelected?.legajo]);
+
+  const searchStudent = async ({ validateCareer = true } = {}) => {
+    const rawLegajo = String(legajo ?? "").trim();
+    const hasFullLegajo = rawLegajo.includes("@");
+    const studentId = rawLegajo.split("@")[0];
     const errors = {};
 
     if (!studentId) {
       errors.legajo = legajoError;
     }
 
-    if (!careerSearch) {
+    if (validateCareer && !hasFullLegajo && !careerSearch) {
       errors.career = careerError;
     }
 
@@ -72,9 +81,12 @@ export default function SearchStudent({
       setStudentSearchLoading(true);
       setStudentSelected(null);
 
-      const student = await onSearchStudent?.(
-        `${studentId}@${careerSearch}.frc.utn.edu.ar`,
-      );
+      const searchLegajo = hasFullLegajo
+        ? rawLegajo
+        : validateCareer
+          ? `${studentId}@${careerSearch}.frc.utn.edu.ar`
+          : studentId;
+      const student = await onSearchStudent?.(searchLegajo);
       if (!student?.legajo) {
         onError?.("Alumno no encontrado", "error");
         return;
@@ -87,6 +99,30 @@ export default function SearchStudent({
     } finally {
       setStudentSearchLoading(false);
     }
+  };
+
+  useEffect(() => {
+    const normalizedLegajo = String(legajo ?? "").trim();
+
+    if (
+      !autoSearch ||
+      !normalizedLegajo ||
+      studentSelected ||
+      studentSearchLoading ||
+      lastAutoSearchLegajo.current === normalizedLegajo
+    ) {
+      return;
+    }
+
+    lastAutoSearchLegajo.current = normalizedLegajo;
+    searchStudent({ validateCareer: false });
+    // searchStudent depende del formulario; para autoseleccionar sólo debe
+    // dispararse cuando cambia el legajo recibido.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoSearch, legajo, studentSelected, studentSearchLoading]);
+
+  const handleStudentSearch = () => {
+    searchStudent();
   };
 
   const clearStudentSearch = () => {

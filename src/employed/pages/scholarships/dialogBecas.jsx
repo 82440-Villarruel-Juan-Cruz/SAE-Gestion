@@ -79,8 +79,7 @@ export default function DialogBecas() {
   const [preview, setPreview] = useState(createPreviewState());
   const open = dialogOpen && dialogType === "becario";
   const todayInputDate = getTodayInputDate();
-  const showStudentSearch =
-    dialogMode === "create" && !dialogData.nombre_becario;
+  const showStudentSearch = dialogMode === "create" || dialogMode === "edit";
   const showStudentData =
     dialogMode === "edit" || Boolean(dialogData.nombre_becario);
   const selectedScholarshipType =
@@ -184,6 +183,7 @@ export default function DialogBecas() {
     "";
 
   const handleStudentSelect = (student) => {
+    setFieldErrors((prev) => ({ ...prev, student: "" }));
     handleDataChange("legajo", student.legajo);
     handleDataChange("nombre_becario", getStudentName(student));
     fetchBecasAlumno(student.legajo);
@@ -197,6 +197,17 @@ export default function DialogBecas() {
     setDocumentationStatus(EMPTY_SCHOLARSHIP_DOCUMENTATION_STATUS);
     setBecasAlumno([]);
     setActiveBecaTab(0);
+    setFieldErrors((prev) => ({ ...prev, student: "" }));
+  };
+
+  const handleStudentLegajoChange = (value) => {
+    handleDataChange("legajo", value);
+    handleDataChange("nombre_becario", "");
+    handleDataChange("beca", null);
+    setBecasAlumno([]);
+    setActiveBecaTab(0);
+    setDocumentationStatus(EMPTY_SCHOLARSHIP_DOCUMENTATION_STATUS);
+    setFieldErrors((prev) => ({ ...prev, student: "" }));
   };
 
   const handleScholarshipTypeChange = (option) => {
@@ -412,10 +423,10 @@ export default function DialogBecas() {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSaveBecarioDialog = () => {
+  const handleSaveBecarioDialog = async () => {
     if (!validateBecarioData()) return;
 
-    handleSaveBecario();
+    await handleSaveBecario();
   };
 
   return (
@@ -473,9 +484,7 @@ export default function DialogBecas() {
                 <Grid size={{ xs: 12, md: 12 }} m={0}>
                   <SearchStudent
                     legajo={dialogData.legajo ?? ""}
-                    onLegajoChange={(value) =>
-                      handleDataChange("legajo", value)
-                    }
+                    onLegajoChange={handleStudentLegajoChange}
                     onSelectStudent={handleStudentSelect}
                     onClearStudent={handleStudentClear}
                     onSearchStudent={handleBuscarBecarioPorLegajo}
@@ -483,46 +492,11 @@ export default function DialogBecas() {
                     showValidationErrors={Boolean(fieldErrors.student)}
                     legajoError={BS.validationStudentRequired}
                     careerError={BS.validationCareerRequired}
+                    autoSearch={dialogMode === "edit"}
                   />
                 </Grid>
               )}
-              {showStudentData && (
-                <>
-                  <Grid size={{ xs: 12, md: 5 }} m={0}>
-                    <SAETextField
-                      label={BS.fieldStudentId}
-                      value={dialogData.legajo ?? ""}
-                      disabled
-                      fullWidth
-                    />
-                  </Grid>
-                  <Grid size={{ xs: 12, md: 5 }} m={0}>
-                    <SAETextField
-                      label={BS.fieldScholarshipHolderName}
-                      value={dialogData.nombre_becario ?? ""}
-                      disabled
-                      fullWidth
-                    />
-                  </Grid>
-                  {dialogMode === "create" && (
-                    <Grid
-                      size={{ xs: 12, md: 2 }}
-                      m={0}
-                      display="flex"
-                      justifyContent="center"
-                      alignItems="center"
-                    >
-                      <SAEButton
-                        variant="outlined"
-                        onClick={handleStudentClear}
-                        startIcon={<CloseIcon />}
-                      >
-                        {BS.clear}
-                      </SAEButton>
-                    </Grid>
-                  )}
-                </>
-              )}
+
               {showStudentData && (
                 <>
                   <Grid size={{ xs: 12, md: 3 }} m={0}>
@@ -543,8 +517,12 @@ export default function DialogBecas() {
                     <FormControlLabel
                       control={
                         <Switch
-                          checked={dialogMode === "create" ? true:Boolean(dialogData.activo)}
-                          disabled={dialogMode === "create" }
+                          checked={
+                            dialogMode === "create"
+                              ? true
+                              : Boolean(dialogData.activo)
+                          }
+                          disabled={dialogMode === "create"}
                           onChange={(event) =>
                             handleDataChange("activo", event.target.checked)
                           }
@@ -925,7 +903,11 @@ export default function DialogBecas() {
             }
           >
             {" "}
-            {dialogSaving ? BS.saving : dialogMode === "create" ? "Crear" : BS.save}
+            {dialogSaving
+              ? BS.saving
+              : dialogMode === "create"
+                ? "Crear"
+                : BS.save}
           </SAEButton>
         </DialogActions>
       </Dialog>

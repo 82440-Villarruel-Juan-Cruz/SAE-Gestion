@@ -277,14 +277,14 @@ export const EMPTY_SERVICES = {
   id: 0,
   nombre: "",
   nro_telefono: "",
-  nro_telefono_interno: "",
+  nro_interno_telefono: "",
   email_institucional: "",
   horario_atencion: "",
   horario_atencion_final: "",
 };
 export const EMPTY_BECARIO = {
   id: 0,
-  id_becario_previo: 0,
+  id_becario_previo: -1,
   activo: false,
   aceptado_inicio: false,
   puede_pagarle: false,
@@ -567,11 +567,11 @@ export const TRAVEL_REQUIRED_DOCUMENTS = [
     archivoNombre: "",
     formatoNombre: "{legajo}_DNI",
     id_archivo: null,
-    extension:".pdf",
+    extension: ".pdf",
     required: true,
   },
   {
-    id_tipo_documento:13,
+    id_tipo_documento: 13,
     nombre: "Declaración Jurada",
     descripcion:
       "Certificadofirmado en el cual establece un heredero a tu fortuna.",

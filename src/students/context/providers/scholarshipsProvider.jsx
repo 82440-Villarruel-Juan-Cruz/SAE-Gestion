@@ -1040,9 +1040,9 @@ export function ScholarshipsProvider({ children }) {
 
     const payloadBecario = {
       id: 0,
-      legajo: user.datosPerfil.legajo,
+      legajo: formBeca.legajo,
       nombre_becario:
-        user.datosPerfil.nombres + " " + user.datosPerfil.apellidos,
+        formBeca.nombres + " " + formBeca.apellidos,
       alquila: formBeca.alquila,
       fecha_solicitud: new Date().toISOString(),
       aceptado_inicio: false,

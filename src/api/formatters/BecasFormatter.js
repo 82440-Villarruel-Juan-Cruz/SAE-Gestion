@@ -8,12 +8,16 @@ export const mapBecario = (becario = {}) => ({
 
 export const mapServicioInterno = (servicio = {}) => ({
   ...servicio,
+  nro_interno_telefono: servicio.nro_interno_telefono ?? "",
   horario_atencion: formatTime(servicio.horario_atencion),
   horario_atencion_final: formatTime(servicio.horario_atencion_final),
 });
 
-export const mapServicioInternoPayload = (servicio = {}) => ({
-  ...servicio,
-  horario_atencion: toApiTime(servicio.horario_atencion),
-  horario_atencion_final: toApiTime(servicio.horario_atencion_final),
-});
+export const mapServicioInternoPayload = (servicio = {}) => {
+  return {
+    ...servicio,
+    nro_interno_telefono: servicio.nro_interno_telefono ?? "",
+    horario_atencion: toApiTime(servicio.horario_atencion),
+    horario_atencion_final: toApiTime(servicio.horario_atencion_final),
+  };
+};

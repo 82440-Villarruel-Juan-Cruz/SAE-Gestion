@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { Chip } from "@mui/material";
 import { ScholarshipContext } from "../employedContext";
 import { useNotification } from "../../../shared/context/sharedContext";
 import EditIcon from "@mui/icons-material/Edit";
@@ -14,6 +15,7 @@ import {
   ObtenerBecariosEconomicaXLegajo,
   ObtenerBecariosServiciosXLegajo,
   ObtenerBecariosInvestigacionXLegajo,
+  ObtenerBecariosXLegajo,
   ObtenerUsuariosXLegajo,
   CrearBecarioSAE,
   CrearBecarioEconomica,
@@ -129,27 +131,82 @@ export function ScholarshipProvider({ children }) {
     "";
 
   const normalizePreviousBecarioId = (value) => {
-    if (value === null || value === undefined || value === "") return null;
+    if (value === null || value === undefined || value === "") return -1;
 
     const numberValue = Number(value);
-    if (Number.isNaN(numberValue) || numberValue < 0) return null;
+    if (Number.isNaN(numberValue)) return -1;
 
-    return value;
+    return numberValue;
+  };
+
+  const isNewScholarshipHolder = (value) =>
+    value === null || value === undefined || Number(value) === -1;
+
+  const scholarshipHolderTypeColumn = useMemo(
+    () => ({
+      headerName: "Tipo",
+      minWidth: 120,
+      maxWidth: 140,
+      align: "center",
+      headerAlign: "center",
+      renderCell: ({ value }) => {
+        const isNew = isNewScholarshipHolder(value);
+
+        return (
+          <Chip
+            size="small"
+            label={isNew ? "Nuevo" : "Renovacion"}
+            color={isNew ? "success" : "primary"}
+            variant={isNew ? "filled" : "outlined"}
+          />
+        );
+      },
+    }),
+    [],
+  );
+
+  const normalizeBecarioLegajo = (value) => String(value ?? "").trim();
+
+  const getResponseRecord = (value) => {
+    if (Array.isArray(value)) return value[0] ?? null;
+    if (Array.isArray(value?.data)) return value.data[0] ?? null;
+    if (Array.isArray(value?.becario)) return value.becario[0] ?? null;
+    if (Array.isArray(value?.result)) return value.result[0] ?? null;
+    return value?.data ?? value?.becario ?? value?.result ?? value ?? null;
+  };
+
+  const getBecarioResponseId = (value) => {
+    const record = getResponseRecord(value);
+    return (
+      record?.id ??
+      record?.id_becario ??
+      record?.becario?.id ??
+      record?.data?.id ??
+      null
+    );
   };
 
   // Arma el payload del registro base SAE, separado de las becas especificas.
-  const buildBecarioPayload = (data = {}) => ({
-    id: data.id ?? 0,
-    legajo: data.legajo,
-    nombre_becario: getNombreBecario(data),
-    alquila: data.alquila ?? false,
-    fecha_solicitud: data.fecha_solicitud ?? null,
-    aceptado_inicio: Boolean(data.aceptado_inicio),
-    puede_pagarle: Boolean(data.puede_pagarle),
-    activo: data.activo ?? true,
-    anio_beca: data.anio_beca || new Date().getFullYear(),
-    id_becario_previo: normalizePreviousBecarioId(data.id_becario_previo),
-  });
+  const buildBecarioPayload = (data = {}) => {
+    const legajo = normalizeBecarioLegajo(data.legajo);
+
+    if (!legajo) {
+      throw new Error(BS.becarioDialog.validationStudentRequired);
+    }
+
+    return {
+      id: data.id ?? 0,
+      legajo,
+      nombre_becario: getNombreBecario(data),
+      alquila: data.alquila ?? false,
+      fecha_solicitud: data.fecha_solicitud ?? null,
+      aceptado_inicio: Boolean(data.aceptado_inicio),
+      puede_pagarle: Boolean(data.puede_pagarle),
+      activo: data.activo ?? true,
+      anio_beca: data.anio_beca || new Date().getFullYear(),
+      id_becario_previo: normalizePreviousBecarioId(data.id_becario_previo),
+    };
+  };
 
   // Version estable para comparar contra el snapshot original del dialog.
   const buildBecarioComparablePayload = (data = {}) => ({
@@ -160,8 +217,9 @@ export function ScholarshipProvider({ children }) {
   const getBecaId = (beca = {}) => beca.datos?.id ?? beca.id;
 
   // Payload comun al crear una beca economica, de servicio o investigacion.
-  const buildBecaPayload = (beca = {}) => ({
+  const buildBecaPayload = (beca = {}, becario = {}) => ({
     modulos_asignados: Number(beca.modulos_asignados ?? 0),
+    legajo: normalizeBecarioLegajo(becario.legajo),
   });
 
   // Lee ids de relaciones guardadas como objeto o como clave plana del formulario.
@@ -197,8 +255,12 @@ export function ScholarshipProvider({ children }) {
   };
 
   // Crea la beca especifica asociada al registro base del becario.
-  async function crearBecaParaBecario(becarioId, beca = {}) {
-    const payload = buildBecaPayload(beca);
+  async function crearBecaParaBecario(becarioId, beca = {}, becario = {}) {
+    const payload = buildBecaPayload(beca, becario);
+
+    if (!becarioId) {
+      throw new Error("No se pudo obtener el id del becario creado");
+    }
 
     switch (beca.tipo) {
       case SCHOLARSHIP_TYPES.ECONOMICA:
@@ -368,13 +430,17 @@ export function ScholarshipProvider({ children }) {
   );
 
   const becariosColumns = useMemo(
-    () => generateColumns(EMPTY_BECARIO, becarioActions),
-    [becarioActions],
+    () =>
+      generateColumns(EMPTY_BECARIO, becarioActions, {
+        id_becario_previo: scholarshipHolderTypeColumn,
+      }),
+    [becarioActions, scholarshipHolderTypeColumn],
   );
 
   const openCreateBecario = useCallback(() => {
     openDialog("becario", "create", {
       ...EMPTY_BECARIO,
+      id_becario_previo: -1,
       fecha_solicitud: getTodayInputDate(),
     });
   }, [openDialog]);
@@ -385,10 +451,22 @@ export function ScholarshipProvider({ children }) {
     let mensajeSnackbar = BS.saveDefaultSuccess;
     try {
       if (dialogMode === "create") {
-        const nuevoBecario = await CrearBecarioSAE(
-          buildBecarioPayload(dialogData),
+        const becarioPayload = buildBecarioPayload(dialogData);
+        const nuevoBecario = await CrearBecarioSAE(becarioPayload);
+        let becarioId = getBecarioResponseId(nuevoBecario);
+
+        if (!becarioId) {
+          const becarioExistente = await ObtenerBecariosXLegajo(
+            becarioPayload.legajo,
+          );
+          becarioId = getBecarioResponseId(becarioExistente);
+        }
+
+        await crearBecaParaBecario(
+          becarioId,
+          dialogData.beca,
+          becarioPayload,
         );
-        await crearBecaParaBecario(nuevoBecario.id, dialogData.beca);
         await fetchBecariosCompleto();
       }
       if (dialogMode === "edit") {
@@ -403,7 +481,11 @@ export function ScholarshipProvider({ children }) {
         const nuevaBeca = Boolean(dialogData.beca?.tipo);
 
         if (nuevaBeca) {
-          await crearBecaParaBecario(dialogData.id, dialogData.beca);
+          await crearBecaParaBecario(
+            dialogData.id,
+            dialogData.beca,
+            buildBecarioPayload(dialogData),
+          );
         }
 
         if (cambioBecario || cambioBeca || nuevaBeca) {
@@ -415,12 +497,11 @@ export function ScholarshipProvider({ children }) {
       }
 
       showNotification(mensajeSnackbar, "success");
+      closeDialog();
     } catch (err) {
       showNotification(err.message || BS.saveError, "error");
-      throw err;
     } finally {
       setDialogSaving(false);
-      closeDialog();
     }
   };
 

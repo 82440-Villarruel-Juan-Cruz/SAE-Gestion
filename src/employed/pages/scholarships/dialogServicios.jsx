@@ -60,7 +60,7 @@ export default function DialogServicios() {
       case "nro_telefono":
         if (isEmpty(value)) return BS.validationPhoneRequired;
         return isValidPhone(value) ? "" : BS.validationPhoneFormat;
-      case "nro_telefono_interno":
+      case "nro_interno_telefono":
         return !isEmpty(value) && !isValidMinLengthPhone(value, 2)
           ? BS.validationInternalPhone
           : "";
@@ -108,7 +108,7 @@ export default function DialogServicios() {
     const fields = [
       "nombre",
       "nro_telefono",
-      "nro_telefono_interno",
+      "nro_interno_telefono",
       "email_institucional",
       "horario_atencion",
       "horario_atencion_final",
@@ -200,15 +200,15 @@ export default function DialogServicios() {
             <Grid size={{ xs: 12, md: 6 }} m={0}>
               <SAETextField
                 label={BS.fieldInternalPhone}
-                value={dialogData.nro_telefono_interno ?? ""}
+                value={dialogData.nro_interno_telefono ?? ""}
                 onChange={(event) =>
                   handleFieldChange(
-                    "nro_telefono_interno",
+                    "nro_interno_telefono",
                     onlyDigits(event.target.value),
                   )
                 }
-                error={Boolean(fieldErrors.nro_telefono_interno)}
-                helperText={fieldErrors.nro_telefono_interno ?? ""}
+                error={Boolean(fieldErrors.nro_interno_telefono)}
+                helperText={fieldErrors.nro_interno_telefono ?? ""}
                 fullWidth
               />
             </Grid>
