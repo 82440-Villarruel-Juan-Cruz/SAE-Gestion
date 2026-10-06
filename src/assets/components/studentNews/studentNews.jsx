@@ -206,7 +206,7 @@ function ItemNovedad({ item, invertida }) {
   );
 }   
 
-export function NovedadesContent() {
+export function NovedadesContent({ trackViews = true }) {
   const {
     isLoading,
     novedades,
@@ -220,8 +220,10 @@ export function NovedadesContent() {
   const itemsPorPagina = 3;
 
   useEffect(() => {
-    contarVisualizacion(selectedPub?.id);
-  }, [contarVisualizacion,selectedPub]);
+    if (trackViews) {
+      contarVisualizacion(selectedPub?.id);
+    }
+  }, [contarVisualizacion, selectedPub, trackViews]);
   
   const totalPaginas = Math.ceil(novedades.length / itemsPorPagina);
 
@@ -408,10 +410,10 @@ export function DocumentList(listadoDocumentos) {
   );
 }
 // Este componente solo inicializa el Proveedor y llama al contenido interno
-export default function NovedadesEstudiantiles() {
+export default function NovedadesEstudiantiles({ trackViews = true }) {
   return (
     <PressProvider>
-      <NovedadesContent />
+      <NovedadesContent trackViews={trackViews} />
     </PressProvider>
   );
 }

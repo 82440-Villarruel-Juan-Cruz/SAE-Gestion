@@ -1,6 +1,12 @@
 import {useState, useEffect ,useCallback} from "react";
 import { JPAContext } from "../sharedContext"; 
 import { ObtenerEventosPublicos } from "../../../api/JPAService";
+import { getTodayInputDate, normalizeDateInput } from "../../../utils/date.utils";
+
+const isTodayOrFutureEvent = (evento) => {
+  const eventDate = normalizeDateInput(evento.fecha_evento);
+  return eventDate && eventDate >= getTodayInputDate();
+};
 
 export function JPAProvider({ children }) {
   const [eventosJPA, setEventosJPA] = useState([]);
@@ -11,7 +17,7 @@ export function JPAProvider({ children }) {
       try {
           const data = await ObtenerEventosPublicos();
           
-          setEventosJPA(data);
+          setEventosJPA(data.filter(isTodayOrFutureEvent));
       } catch(error) {
           setEventosJPA([]);
           console.error("Error al traer Eventos:", error);

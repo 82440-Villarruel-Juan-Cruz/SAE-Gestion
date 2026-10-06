@@ -24,7 +24,7 @@ import {
   CircularProgress,
   Pagination,
 } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import SAEButton from "../../../assets/components/buttons/SAEButton";
 import SAETextField from "../../../assets/components/inputs/SAETextField";
@@ -38,6 +38,7 @@ import DocumentPreviewDialog from "../../../assets/components/documents/Document
 import NewsPreviewDialog from "../../../assets/components/studentNews/newsPreviewDialog.jsx";
 import SchoolIcon from "@mui/icons-material/School";
 import SAEDataGrid from "../../../assets/components/datagrid/SAEDataGrid";
+import NovedadesEstudiantiles from "../../../assets/components/studentNews/studentNews";
 import { useNotification } from "../../../shared/context/sharedContext.js";
 import { usePress } from "../../context/employedContext";
 import { PressProvider } from "../../context/providers/pressProvider";
@@ -102,6 +103,10 @@ function AdministrarPrensaContent() {
         currentSection={currentSection}
       />
 
+      <Box sx={{ mt: 5 }}>
+        <NovedadesEstudiantiles trackViews={false} />
+      </Box>
+
       <NuevaPublicacionDialog />
 
       <NewsPreviewDialog
@@ -164,13 +169,12 @@ function NuevaPublicacionDialog() {
   const isEdit = dialogMode === "edit";
   const [fieldErrors, setFieldErrors] = useState({});
 
-  useEffect(() => {
-    if (open) {
-      setFieldErrors({});
-    }
-  }, [open, dialogMode]);
-
   const isBlank = (value) => String(value ?? "").trim() === "";
+
+  const handleCloseDialog = () => {
+    setFieldErrors({});
+    closeDialog();
+  };
 
   const clearFieldError = (field) => {
     setFieldErrors((previous) =>
@@ -233,7 +237,7 @@ function NuevaPublicacionDialog() {
 
   return (
     <>
-      <Dialog open={open} onClose={closeDialog} maxWidth="xl" fullWidth>
+      <Dialog open={open} onClose={handleCloseDialog} maxWidth="xl" fullWidth>
         {nuevaData && (
           <>
             <DialogTitle
@@ -246,7 +250,7 @@ function NuevaPublicacionDialog() {
               <Typography variant="h6" fontWeight="bold">
                 {isEdit ? PSN.editTitle : PSN.title}
               </Typography>
-              <IconButton onClick={closeDialog} size="small">
+              <IconButton onClick={handleCloseDialog} size="small">
                 <CloseIcon />
               </IconButton>
             </DialogTitle>
@@ -523,7 +527,7 @@ function NuevaPublicacionDialog() {
             <DialogActions>
               <SAEButton
                 variant="outlined"
-                onClick={closeDialog}
+                onClick={handleCloseDialog}
                 disabled={saving}
                 startIcon={<CloseIcon />}
               >
