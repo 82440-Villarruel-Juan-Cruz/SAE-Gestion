@@ -62,6 +62,7 @@ export default function DialogBecas() {
   const {
     handleSaveBecario,
     handleBuscarBecarioPorLegajo,
+    handleBuscarUltimoBecarioPorLegajo,
     handleBuscarBecario,
     handleBuscarDocumentacionBecario,
     handleDescargarDocumentacionBecario,
@@ -122,12 +123,18 @@ export default function DialogBecas() {
   const activeBecaServiceId =
     activeBeca?.datos?.["servicio.id"] ?? activeBeca?.datos?.servicio?.id ?? "";
 
-  const fetchBecasAlumno = async (legajo) => {
-    if (!legajo) return;
+  const fetchBecasAlumno = async (idBecario) => {
+    if (!idBecario) {
+      setBecasAlumno([]);
+      handleDataChange("becas", []);
+      handleDataChange("originalBecas", []);
+      setActiveBecaTab(0);
+      return;
+    }
 
     try {
       setLoadingBecasAlumno(true);
-      const becas = await handleBuscarBecario(legajo);
+      const becas = await handleBuscarBecario(idBecario);
       setBecasAlumno(becas);
       handleDataChange("becas", becas);
       handleDataChange("originalBecas", JSON.parse(JSON.stringify(becas)));
@@ -166,14 +173,17 @@ export default function DialogBecas() {
       return;
     }
 
+    if (dialogData.id) {
+      fetchBecasAlumno(dialogData.id);
+    }
+
     if (dialogData.legajo) {
-      fetchBecasAlumno(dialogData.legajo);
       fetchDocumentationStatus(dialogData.legajo);
     }
     // handleDataChange viene del dialog compartido y cambia de identidad al editar.
-    // Este efecto debe depender solamente del legajo visible en el dialog.
+    // Este efecto debe depender solo de los datos visibles que disparan cargas.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, dialogData.legajo]);
+  }, [open, dialogData.id, dialogData.legajo]);
 
   const getStudentName = (student = {}) =>
     student.nombre_usuario ??
@@ -182,18 +192,29 @@ export default function DialogBecas() {
     student.Nombre ??
     "";
 
-  const handleStudentSelect = (student) => {
+  const handleStudentSelect = async (student) => {
     setFieldErrors((prev) => ({ ...prev, student: "" }));
     handleDataChange("legajo", student.legajo);
     handleDataChange("nombre_becario", getStudentName(student));
-    fetchBecasAlumno(student.legajo);
+    fetchBecasAlumno(dialogData.id);
     fetchDocumentationStatus(student.legajo);
+
+    if (dialogMode === "create") {
+      try {
+        const previousBecario =
+          await handleBuscarUltimoBecarioPorLegajo(student.legajo);
+        handleDataChange("id_becario_previo", previousBecario?.id ?? null);
+      } catch {
+        handleDataChange("id_becario_previo", null);
+      }
+    }
   };
 
   const handleStudentClear = () => {
     handleDataChange("legajo", "");
     handleDataChange("nombre_becario", "");
     handleDataChange("beca", null);
+    handleDataChange("id_becario_previo", null);
     setDocumentationStatus(EMPTY_SCHOLARSHIP_DOCUMENTATION_STATUS);
     setBecasAlumno([]);
     setActiveBecaTab(0);
@@ -204,6 +225,7 @@ export default function DialogBecas() {
     handleDataChange("legajo", value);
     handleDataChange("nombre_becario", "");
     handleDataChange("beca", null);
+    handleDataChange("id_becario_previo", null);
     setBecasAlumno([]);
     setActiveBecaTab(0);
     setDocumentationStatus(EMPTY_SCHOLARSHIP_DOCUMENTATION_STATUS);
@@ -470,7 +492,7 @@ export default function DialogBecas() {
                   />
                 </Grid>
               )}
-              {dialogMode === "edit" && (
+              {(dialogMode === "edit" || dialogData.id_becario_previo) && (
                 <Grid size={{ xs: 12, md: 6 }} m={0}>
                   <SAETextField
                     label={BS.fieldPreviousScholarshipHolderId}

@@ -488,7 +488,6 @@ export function JPAProvider({ children }) {
         await modificarInteresado(dialogData.id, body);
       } else {
         let res = await eliminarInteresado(dialogData.id);
-        console.log("res:", res);
       }
       fetchInteresados();
       closeDialog();

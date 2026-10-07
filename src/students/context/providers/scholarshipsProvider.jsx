@@ -12,9 +12,9 @@ import DocumentCard from "../../../assets/components/documents/DocumentCard";
 
 import {
   ObtenerBecariosXLegajo,
-  ObtenerBecariosEconomicaXLegajo,
-  ObtenerBecariosServiciosXLegajo,
-  ObtenerBecariosInvestigacionXLegajo,
+  ObtenerBecariosEconomicaXIdBecario,
+  ObtenerBecariosServiciosXId,
+  ObtenerBecariosInvestigacionXIdBecario,
   listarDocumentacionXLegajo,
   descargarDocumentacionXId,
   eliminarDocumentoEstudiante,
@@ -308,9 +308,9 @@ export function ScholarshipsProvider({ children }) {
         setBecarioActual(becario);
 
         const [economica, servicio, investigacion] = await Promise.all([
-          ObtenerBecariosEconomicaXLegajo(user.legajo),
-          ObtenerBecariosServiciosXLegajo(user.legajo),
-          ObtenerBecariosInvestigacionXLegajo(user.legajo),
+          ObtenerBecariosEconomicaXIdBecario(becario.id),
+          ObtenerBecariosServiciosXId(becario.id),
+          ObtenerBecariosInvestigacionXIdBecario(becario.id),
         ]);
 
         setMisBecas(normalizarBecas(economica, servicio, investigacion));
@@ -1041,8 +1041,7 @@ export function ScholarshipsProvider({ children }) {
     const payloadBecario = {
       id: 0,
       legajo: formBeca.legajo,
-      nombre_becario:
-        formBeca.nombres + " " + formBeca.apellidos,
+      nombre_becario: formBeca.nombres + " " + formBeca.apellidos,
       alquila: formBeca.alquila,
       fecha_solicitud: new Date().toISOString(),
       aceptado_inicio: false,
@@ -1051,7 +1050,7 @@ export function ScholarshipsProvider({ children }) {
       anio_beca: new Date().getFullYear(),
       id_becario_previo: null,
     };
-
+    
     const nuevoBecario = await CrearBecarioSAE(payloadBecario);
     setBecarioActual(nuevoBecario);
     return nuevoBecario;

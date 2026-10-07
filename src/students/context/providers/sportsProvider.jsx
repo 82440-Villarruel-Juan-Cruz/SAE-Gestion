@@ -221,7 +221,6 @@ export function SportsProvider({ children }) {
       .every((documento) => documento.subido);
 
   const getOrCreateSportsman = async () => {
-    //console.log(deportista);
     if (deportista?.id) return deportista;
 
     const body = {
@@ -300,13 +299,7 @@ export function SportsProvider({ children }) {
           });
 
           //console.log("[DeportesDocumentos] Tipos filtrados:", typedDocuments);
-          console.table(
-            typedDocuments.map((documento) => ({
-              nombre: documento.nombre,
-              id_tipo_documento: documento.id_tipo_documento,
-              extension: documento.extension,
-            })),
-          );
+          
 
           const uploadedDocuments = await listarDocumentacionXLegajo(
             user.legajo,
@@ -328,19 +321,8 @@ export function SportsProvider({ children }) {
                   }
                 : documento;
             });
-          /*
-          console.log(
-            "[DeportesDocumentos] Lista final con extensiones:",
-            documentsWithUploads,
-          );
-          console.table(
-            documentsWithUploads.map((documento) => ({
-              nombre: documento.nombre,
-              id_tipo_documento: documento.id_tipo_documento,
-              extension: documento.extension,
-              subido: Boolean(documento.subido),
-            })),
-          );*/
+      
+      
           setDocumentos(documentsWithUploads);
           
         } catch (error) {

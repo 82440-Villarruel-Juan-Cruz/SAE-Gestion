@@ -1269,7 +1269,6 @@ export const HealthUsersProvider = ({ children }) => {
   }, []);
 
   const validateField = (field, value, data = dialogData) => {
-      console.log(field,value);
       switch (true) {
           case field === "id":
             return dialogMode === "edit" && isEmpty(value) ? C.validationID:"";

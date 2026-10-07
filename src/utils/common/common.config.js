@@ -545,7 +545,7 @@ export const ECONOMIC_OPTIONAL_DOCUMENTS = [
 ];
 export const TRAVEL_REQUIRED_DOCUMENTS = [
   {
-    id_tipo_documento: 1,
+    id_tipo_documento: null,
     nombre: "Certificado de Alumno Regular",
     descripcion:
       "Certificado vigente que acredita tu condición de estudiante regular.",
@@ -558,7 +558,7 @@ export const TRAVEL_REQUIRED_DOCUMENTS = [
     required: true,
   },
   {
-    id_tipo_documento: 2,
+    id_tipo_documento: null,
     nombre: "Fotocopia Documento",
     descripcion:
       "Copia legible del frente y dorso de tu DNI en un único archivo.",
@@ -571,10 +571,10 @@ export const TRAVEL_REQUIRED_DOCUMENTS = [
     required: true,
   },
   {
-    id_tipo_documento: 13,
-    nombre: "Declaración Jurada",
+    id_tipo_documento: null,
+    nombre: "Declaracion Jurada",
     descripcion:
-      "Certificadofirmado en el cual establece un heredero a tu fortuna.",
+      "Certificado firmado en el cual establece un heredero a tu fortuna.",
     subido: false,
     archivo: null,
     archivoNombre: "",

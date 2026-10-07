@@ -298,13 +298,28 @@ function SchoolarshipChart({ data, years }) {
 }
 
 function SportsChart({ data, years }) {
-  const inscriptionsSeries = useMemo(
+  const selectedYear = years.at(-1);
+  const currentYearSportsData = useMemo(
     () =>
-      buildYearSeries(
-        data.inscripcionesDeportistas,
-        years,
-        C.series.inscriptions,
+      sumByName(
+        data.inscripcionesDeportistas.filter(
+          (item) => Number(item.anio) === selectedYear,
+        ),
+        C.noName,
       ),
+    [selectedYear, data.inscripcionesDeportistas],
+  );
+  const playersByYearSeries = useMemo(
+    () => [
+      {
+        label: C.series.players,
+        data: years.map((year) =>
+          data.inscripcionesDeportistas
+            .filter((item) => Number(item.anio) === year)
+            .reduce((total, item) => total + Number(item.cantidad || 0), 0),
+        ),
+      },
+    ],
     [data.inscripcionesDeportistas, years],
   );
   const tournamentsSeries = useMemo(
@@ -312,6 +327,7 @@ function SportsChart({ data, years }) {
     [data.torneosXDeporte, years],
   );
   const yearLabels = years.map(String);
+  const sportLabels = currentYearSportsData.map((item) => item.label);
 
   return (
     <Grid
@@ -320,10 +336,15 @@ function SportsChart({ data, years }) {
       sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
     >
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <ReportChartCard title={C.charts.sportsPlayersBySportYear}>
+        <ReportChartCard title={C.charts.sportsPlayersBySport(selectedYear)}>
           <BarChart
-            xAxis={[{ data: yearLabels, scaleType: "band" }]}
-            series={inscriptionsSeries}
+            xAxis={[{ data: sportLabels, scaleType: "band" }]}
+            series={[
+              {
+                label: C.series.players,
+                data: currentYearSportsData.map((item) => item.value),
+              },
+            ]}
             width={400}
             height={300}
             slotProps={bottomLegendProps}
@@ -335,7 +356,7 @@ function SportsChart({ data, years }) {
         <ReportChartCard title={C.charts.sportsInscriptionsBySportYear}>
           <BarChart
             xAxis={[{ data: yearLabels, scaleType: "band" }]}
-            series={inscriptionsSeries}
+            series={playersByYearSeries}
             width={400}
             height={300}
             slotProps={bottomLegendProps}

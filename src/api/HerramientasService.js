@@ -5,15 +5,7 @@ const logDocumentTypesExtensions = (documentTypes) => {
     
     return;
   }
-  /*
-  console.log("[TiposDocumento] Respuesta completa:", documentTypes);
-  console.table(
-    documentTypes.map((documentType) => ({
-      id: documentType.id ?? documentType.id_tipo_documento,
-      nombre: documentType.nombre,
-      extension: documentType.extension,
-    })),
-  );*/
+ 
 }
 
 export async function obtenerTiposDocumento() {

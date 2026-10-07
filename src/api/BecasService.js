@@ -72,6 +72,27 @@ export function ObtenerBecariosInvestigacionXLegajo(legajo) {
   );
 }
 
+export function ObtenerBecariosEconomicaXIdBecario(id_becario) {
+  return RequestAPI(
+    `/Beca/ObtenerBecariosEconomicaXIdBecario/${encodeURIComponent(id_becario)}`,
+    "GET",
+  );
+}
+
+export function ObtenerBecariosServiciosXId(id_becario) {
+  return RequestAPI(
+    `/Beca/ObtenerBecariosServiciosXIdBecario/${encodeURIComponent(id_becario)}`,
+    "GET",
+  );
+}
+
+export function ObtenerBecariosInvestigacionXIdBecario(id_becario) {
+  return RequestAPI(
+    `/Beca/ObtenerBecariosInvestigacionXIdBecario/${encodeURIComponent(id_becario)}`,
+    "GET",
+  );
+}
+
 export function ObtenerBecariosXLegajo(legajo) {
   return RequestAPI(
     `/Beca/ObtenerBecariosXLegajo/${encodeURIComponent(legajo)}`,

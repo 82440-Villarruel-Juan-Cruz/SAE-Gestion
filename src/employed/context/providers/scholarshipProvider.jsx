@@ -12,9 +12,9 @@ import {
   CrearProyectoInvestigacion,
   EditarProyectoInvestigacion,
   EditarServicioInterno,
-  ObtenerBecariosEconomicaXLegajo,
-  ObtenerBecariosServiciosXLegajo,
-  ObtenerBecariosInvestigacionXLegajo,
+  ObtenerBecariosEconomicaXIdBecario,
+  ObtenerBecariosServiciosXId,
+  ObtenerBecariosInvestigacionXIdBecario,
   ObtenerBecariosXLegajo,
   ObtenerUsuariosXLegajo,
   CrearBecarioSAE,
@@ -59,13 +59,13 @@ export function ScholarshipProvider({ children }) {
 
   //#region Helpers de becarios
 
-  // Busca las becas especificas de un alumno y las normaliza para mostrarlas en tabs.
-  async function handleBuscarBecario(legajo) {
+  // Busca las becas especificas de un becario y las normaliza para mostrarlas en tabs.
+  async function handleBuscarBecario(idBecario) {
     const [becasEconomicas, becasServicios, becasInvestigacion] =
       await Promise.all([
-        ObtenerBecariosEconomicaXLegajo(legajo),
-        ObtenerBecariosServiciosXLegajo(legajo),
-        ObtenerBecariosInvestigacionXLegajo(legajo),
+        ObtenerBecariosEconomicaXIdBecario(idBecario),
+        ObtenerBecariosServiciosXId(idBecario),
+        ObtenerBecariosInvestigacionXIdBecario(idBecario),
       ]);
 
     return [
@@ -91,6 +91,11 @@ export function ScholarshipProvider({ children }) {
   async function handleBuscarBecarioPorLegajo(legajo) {
     const becario = await ObtenerUsuariosXLegajo(String(legajo).trim());
     return getFirstRecord(becario);
+  }
+
+  async function handleBuscarUltimoBecarioPorLegajo(legajo) {
+    const becarios = await ObtenerBecariosXLegajo(String(legajo).trim());
+    return getLatestBecario(becarios);
   }
 
   // Cruza documentos requeridos de becas con tipos de documento y archivos subidos.
@@ -131,10 +136,10 @@ export function ScholarshipProvider({ children }) {
     "";
 
   const normalizePreviousBecarioId = (value) => {
-    if (value === null || value === undefined || value === "") return -1;
+    if (value === null || value === undefined || value === "") return null;
 
     const numberValue = Number(value);
-    if (Number.isNaN(numberValue)) return -1;
+    if (Number.isNaN(numberValue) || numberValue === -1) return null;
 
     return numberValue;
   };
@@ -174,6 +179,30 @@ export function ScholarshipProvider({ children }) {
     if (Array.isArray(value?.result)) return value.result[0] ?? null;
     return value?.data ?? value?.becario ?? value?.result ?? value ?? null;
   };
+
+  const getResponseRecords = (value) => {
+    if (Array.isArray(value)) return value;
+    if (Array.isArray(value?.data)) return value.data;
+    if (Array.isArray(value?.becario)) return value.becario;
+    if (Array.isArray(value?.result)) return value.result;
+
+    const record = getResponseRecord(value);
+    return record ? [record] : [];
+  };
+
+  const getLatestBecario = (value) =>
+    getResponseRecords(value)
+      .filter((becario) => becario?.id)
+      .sort((a, b) => {
+        const yearDiff = Number(b.anio_beca ?? 0) - Number(a.anio_beca ?? 0);
+        if (yearDiff) return yearDiff;
+
+        const dateDiff =
+          new Date(b.fecha_solicitud ?? 0) - new Date(a.fecha_solicitud ?? 0);
+        if (dateDiff) return dateDiff;
+
+        return Number(b.id ?? 0) - Number(a.id ?? 0);
+      })[0] ?? null;
 
   const getBecarioResponseId = (value) => {
     const record = getResponseRecord(value);
@@ -440,7 +469,7 @@ export function ScholarshipProvider({ children }) {
   const openCreateBecario = useCallback(() => {
     openDialog("becario", "create", {
       ...EMPTY_BECARIO,
-      id_becario_previo: -1,
+      id_becario_previo: null,
       fecha_solicitud: getTodayInputDate(),
     });
   }, [openDialog]);
@@ -451,7 +480,17 @@ export function ScholarshipProvider({ children }) {
     let mensajeSnackbar = BS.saveDefaultSuccess;
     try {
       if (dialogMode === "create") {
-        const becarioPayload = buildBecarioPayload(dialogData);
+        const previousBecarioId = normalizePreviousBecarioId(
+          dialogData.id_becario_previo,
+        );
+        const previousBecario = previousBecarioId
+          ? null
+          : await handleBuscarUltimoBecarioPorLegajo(dialogData.legajo);
+        const becarioPayload = buildBecarioPayload({
+          ...dialogData,
+          id_becario_previo: previousBecarioId ?? previousBecario?.id ?? null,
+        });
+
         const nuevoBecario = await CrearBecarioSAE(becarioPayload);
         let becarioId = getBecarioResponseId(nuevoBecario);
 
@@ -462,11 +501,7 @@ export function ScholarshipProvider({ children }) {
           becarioId = getBecarioResponseId(becarioExistente);
         }
 
-        await crearBecaParaBecario(
-          becarioId,
-          dialogData.beca,
-          becarioPayload,
-        );
+        await crearBecaParaBecario(becarioId, dialogData.beca, becarioPayload);
         await fetchBecariosCompleto();
       }
       if (dialogMode === "edit") {
@@ -636,6 +671,7 @@ export function ScholarshipProvider({ children }) {
       value={{
         handleBuscarBecario,
         handleBuscarBecarioPorLegajo,
+        handleBuscarUltimoBecarioPorLegajo,
         handleBuscarDocumentacionBecario,
         handleDescargarDocumentacionBecario,
 

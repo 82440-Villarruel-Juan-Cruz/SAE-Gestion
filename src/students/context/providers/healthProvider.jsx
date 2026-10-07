@@ -296,7 +296,7 @@ export const HealthUsersProvider = ({ children }) => {
         // 1. Guardamos en la base de datos primero (para obtener el ID real que autogenera el backend)
         await CrearTurnos(body);
       } else if (dialogMode === "delete") {
-        console.log("Eliminando turno con ID:", body); // Debugging line
+        console.error("Eliminando turno con ID:", body); // Debugging line
         await ModificarTurno(id_nuevo, body);
       }
       fetchTurnosEstudiante(dialogData.legajo ?? usuarioSelected);
