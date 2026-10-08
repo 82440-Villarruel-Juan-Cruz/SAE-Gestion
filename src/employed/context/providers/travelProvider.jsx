@@ -674,18 +674,7 @@ export function TravelProvider({ children }) {
         // Si datos_documento ya es un dataURL (comienza con data:), usarlo como está
         // Si no, es base64, convertirlo a dataURL
         let src = fetched.datos_documento;
-        if (!src.startsWith("data:")) {
-          const mimeMap = {
-            pdf: "application/pdf",
-            png: "image/png",
-            jpg: "image/jpeg",
-            jpeg: "image/jpeg",
-            gif: "image/gif",
-            webp: "image/webp",
-          };
-          const mime = mimeMap[ext] || "application/octet-stream";
-          src = `data:${mime};base64,${src}`;
-        }
+
         setPreviewSrc(src);
         setPreviewIsPdf(ext === "pdf");
       } catch (err) {
