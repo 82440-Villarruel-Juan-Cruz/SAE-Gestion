@@ -1,4 +1,4 @@
-import { useState, useMemo ,useEffect} from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Autocomplete,
   Box,
@@ -41,13 +41,19 @@ import DocumentPreviewDialog from "../../../assets/components/documents/Document
 import SAEPage from "../../../assets/components/page/SAEPage";
 
 import { digitsOnly } from "../../../utils/text.utils";
-import { formatCbu,formatCuit,formatCurrencyInputFromText,parseCurrencyInput,sanitizeCurrencyInput} from "../../../utils/formatters.utils";
+import {
+  formatCbu,
+  formatCuit,
+  formatCurrencyInputFromText,
+  parseCurrencyInput,
+  sanitizeCurrencyInput,
+} from "../../../utils/formatters.utils";
 
 import { TravelProvider } from "../../context/providers/travelProvider";
 import { useTravel } from "../../context/employedContext";
 import { useNotification } from "../../../shared/context/sharedContext";
 
-import { TRAVEL_REQUIRED_DOCUMENTS } from "../../../utils/common/common.config";
+import { TRAVELS_REQUIRED_DOCUMENTS } from "../../../utils/common/common.config";
 import { TRAVEL_STRINGS } from "../../../utils/strings/employed.strings";
 import { formatDate } from "../../../utils/date.utils.js";
 import { DataGrid } from "@mui/x-data-grid";
@@ -77,7 +83,6 @@ function EmployedTravelsContent() {
 
   const sectionConfig = useMemo(
     () => ({
-
       viajes: {
         title: "Viajes Activos",
         dialog: openCreateTravels,
@@ -87,7 +92,7 @@ function EmployedTravelsContent() {
         columns: travelsColumns,
         loading: loadingTravels,
       },
-       empresas: {
+      empresas: {
         title: "Empresas",
         dialog: openCreateBussiness,
         addButton: "Nueva Empresa",
@@ -125,8 +130,8 @@ function EmployedTravelsContent() {
         currentSection={activeSection}
         onSectionChange={handleSectionChange}
       />
-      <TravelHistory/>
-      
+      <TravelHistory />
+
       {dialogOpen && dialogType === "bussiness" && <BussinessDialog />}
       {dialogOpen && dialogType === "travels" && <TravelsDialog />}
       {dialogOpen && dialogType === "documents" && <DocumentsDialog />}
@@ -134,7 +139,12 @@ function EmployedTravelsContent() {
   );
 }
 function TravelHistory() {
-  const {fetchTravelsXDate,oldTravelsRows,travelHistoryColumns,loadingOldTravels}=useTravel();
+  const {
+    fetchTravelsXDate,
+    oldTravelsRows,
+    travelHistoryColumns,
+    loadingOldTravels,
+  } = useTravel();
   const getDefaultPurchaseDateRange = () => {
     const today = new Date();
     const firstDayOfMonth = new Date(
@@ -147,8 +157,8 @@ function TravelHistory() {
       fechaDesde: formatDate(firstDayOfMonth, "input"),
       fechaHasta: formatDate(today, "input"),
     };
-  };  
- const [dateRange, setDateRange] = useState(getDefaultPurchaseDateRange);
+  };
+  const [dateRange, setDateRange] = useState(getDefaultPurchaseDateRange);
 
   const handleFechaDesdeChange = (event) => {
     const fechaDesde = event.target.value;
@@ -172,144 +182,154 @@ function TravelHistory() {
 
   useEffect(() => {
     fetchTravelsXDate(dateRange.fechaDesde, dateRange.fechaHasta);
-  }, [dateRange.fechaDesde, dateRange.fechaHasta,fetchTravelsXDate]);
+  }, [dateRange.fechaDesde, dateRange.fechaHasta, fetchTravelsXDate]);
 
   return (
-      <Box>
-        <Card
+    <Box>
+      <Card
+        sx={{
+          borderRadius: 4,
+          boxShadow: "0 18px 45px rgba(21, 61, 113, 0.08)",
+          overflow: "hidden",
+          mt: 3,
+          mb: 4,
+        }}
+      >
+        <Box
           sx={{
-            borderRadius: 4,
-            boxShadow: "0 18px 45px rgba(21, 61, 113, 0.08)",
-            overflow: "hidden",
-            mt: 3,
-            mb: 4,
+            background: "var(--gradient)",
+            color: "white",
+            px: 3,
+            py: 2.5,
           }}
         >
-          <Box
-            sx={{
-              background: "var(--gradient)",
-              color: "white",
-              px: 3,
-              py: 2.5,
-            }}
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            alignItems={{ xs: "stretch", sm: "center" }} // "stretch" ayuda en móviles para que ocupen todo el ancho
+            justifyContent="space-between"
+            spacing={2}
           >
-      <Stack
-      direction={{ xs: "column", sm: "row" }}
-      alignItems={{ xs: "stretch", sm: "center" }} // "stretch" ayuda en móviles para que ocupen todo el ancho
-      justifyContent="space-between"
-      spacing={2}
-    >
-      {/* Bloque Izquierdo: Icono y Título */}
-      <Stack direction="row" alignItems="center" spacing={1.5}>
-        <DashboardIcon sx={{ fontSize: 32 }} />
-        <Box>
-          <Typography variant="h4" fontWeight={700}>
-            {C.historyTravelTitle}
-          </Typography>
-        </Box>
-      </Stack>
+            {/* Bloque Izquierdo: Icono y Título */}
+            <Stack direction="row" alignItems="center" spacing={1.5}>
+              <DashboardIcon sx={{ fontSize: 32 }} />
+              <Box>
+                <Typography variant="h4" fontWeight={700}>
+                  {C.historyTravelTitle}
+                </Typography>
+              </Box>
+            </Stack>
 
-      <Stack 
-        direction="row" 
-        alignItems="center" 
-        spacing={1.5}
-        sx={{ width: { xs: "100%", sm: "auto" }, justifyContent: { xs: "space-between", sm: "flex-end" } }}
-      >
-        <SAETextField
-          size="small"
-          label={C.filterDateFrom}
-          type="date"
-          value={dateRange.fechaDesde}
-          onChange={handleFechaDesdeChange}
-          sx={{
-            width: { xs: "45%", sm: 180 }, // Usa porcentajes en móvil para que entren en la misma línea
-            "& .MuiOutlinedInput-root": {
-              bgcolor: "rgba(255,255,255,0.12)",
-              color: "white",
-              "& fieldset": { borderColor: "rgba(255,255,255,0.3)" },
-              "&:hover fieldset": {
-                borderColor: "rgba(255,255,255,0.6)",
-              },
-              "&.Mui-focused fieldset": { borderColor: "white" },
-            },
-            "& .MuiInputLabel-root": {
-              color: "rgba(255,255,255,0.7)",
-            },
-            "& .MuiInputLabel-root.Mui-focused": { color: "white" },
-            "& .MuiInputAdornment-root svg": {
-              color: "rgba(255,255,255,0.7)",
-            },
-          }}
-          slotProps={{
-            htmlInput: { max: dateRange.fechaHasta },
-          }}
-        />
-
-        {/* Guion intermedio estilizado en blanco */}
-        <Typography sx={{ color: "white", fontWeight: 700, px: 0.5 }}>
-          -
-        </Typography>
-
-        <SAETextField
-          size="small"
-          label={C.filterDateTo}
-          type="date"
-          value={dateRange.fechaHasta}
-          onChange={handleFechaHastaChange}
-          sx={{
-            width: { xs: "45%", sm: 180 }, // Usa porcentajes en móvil para mantener la simetría
-            "& .MuiOutlinedInput-root": {
-              bgcolor: "rgba(255,255,255,0.12)",
-              color: "white",
-              "& fieldset": { borderColor: "rgba(255,255,255,0.3)" },
-              "&:hover fieldset": {
-                borderColor: "rgba(255,255,255,0.6)",
-              },
-              "&.Mui-focused fieldset": { borderColor: "white" },
-            },
-            "& .MuiInputLabel-root": {
-              color: "rgba(255,255,255,0.7)",
-            },
-            "& .MuiInputLabel-root.Mui-focused": { color: "white" },
-            "& .MuiInputAdornment-root svg": {
-              color: "rgba(255,255,255,0.7)",
-            },
-          }}
-          slotProps={{
-            input: {},
-            htmlInput: {
-              min: dateRange.fechaDesde,
-              max: dateRange.today,
-            },
-          }}
-        />                
-      </Stack>
-    </Stack>
-          </Box>
-          <CardContent sx={{ p: 0 }}>
-            <Box sx={{ width: "100%" }}>
-              <DataGrid
-                rows={oldTravelsRows}
-                columns={travelHistoryColumns}
-                loading={loadingOldTravels}
-                autoHeight
-                disableRowSelectionOnClick
-                pageSizeOptions={[5, 10, 25]}
-                initialState={{
-                  pagination: { paginationModel: { pageSize: 5 } },
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={1.5}
+              sx={{
+                width: { xs: "100%", sm: "auto" },
+                justifyContent: { xs: "space-between", sm: "flex-end" },
+              }}
+            >
+              <SAETextField
+                size="small"
+                label={C.filterDateFrom}
+                type="date"
+                value={dateRange.fechaDesde}
+                onChange={handleFechaDesdeChange}
+                sx={{
+                  width: { xs: "45%", sm: 180 }, // Usa porcentajes en móvil para que entren en la misma línea
+                  "& .MuiOutlinedInput-root": {
+                    bgcolor: "rgba(255,255,255,0.12)",
+                    color: "white",
+                    "& fieldset": { borderColor: "rgba(255,255,255,0.3)" },
+                    "&:hover fieldset": {
+                      borderColor: "rgba(255,255,255,0.6)",
+                    },
+                    "&.Mui-focused fieldset": { borderColor: "white" },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "rgba(255,255,255,0.7)",
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": { color: "white" },
+                  "& .MuiInputAdornment-root svg": {
+                    color: "rgba(255,255,255,0.7)",
+                  },
                 }}
-                localeText={{ noRowsLabel: "No hay registros activos" }}
-                sx={{ borderRadius: 0, border: "none" }}
+                slotProps={{
+                  htmlInput: { max: dateRange.fechaHasta },
+                }}
               />
-            </Box>
-          </CardContent>
-        </Card>
-      </Box>
+
+              {/* Guion intermedio estilizado en blanco */}
+              <Typography sx={{ color: "white", fontWeight: 700, px: 0.5 }}>
+                -
+              </Typography>
+
+              <SAETextField
+                size="small"
+                label={C.filterDateTo}
+                type="date"
+                value={dateRange.fechaHasta}
+                onChange={handleFechaHastaChange}
+                sx={{
+                  width: { xs: "45%", sm: 180 }, // Usa porcentajes en móvil para mantener la simetría
+                  "& .MuiOutlinedInput-root": {
+                    bgcolor: "rgba(255,255,255,0.12)",
+                    color: "white",
+                    "& fieldset": { borderColor: "rgba(255,255,255,0.3)" },
+                    "&:hover fieldset": {
+                      borderColor: "rgba(255,255,255,0.6)",
+                    },
+                    "&.Mui-focused fieldset": { borderColor: "white" },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "rgba(255,255,255,0.7)",
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": { color: "white" },
+                  "& .MuiInputAdornment-root svg": {
+                    color: "rgba(255,255,255,0.7)",
+                  },
+                }}
+                slotProps={{
+                  input: {},
+                  htmlInput: {
+                    min: dateRange.fechaDesde,
+                    max: dateRange.today,
+                  },
+                }}
+              />
+            </Stack>
+          </Stack>
+        </Box>
+        <CardContent sx={{ p: 0 }}>
+          <Box sx={{ width: "100%" }}>
+            <DataGrid
+              rows={oldTravelsRows}
+              columns={travelHistoryColumns}
+              loading={loadingOldTravels}
+              autoHeight
+              disableRowSelectionOnClick
+              pageSizeOptions={[5, 10, 25]}
+              initialState={{
+                pagination: { paginationModel: { pageSize: 5 } },
+              }}
+              localeText={{ noRowsLabel: "No hay registros activos" }}
+              sx={{ borderRadius: 0, border: "none" }}
+            />
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }
 
 function BussinessDialog() {
-  const { handleBussinessSave,fieldErrors, setFieldErrors, setTouchedFields,validateField, resetValidation } = useTravel();
+  const {
+    handleBussinessSave,
+    fieldErrors,
+    setFieldErrors,
+    setTouchedFields,
+    validateField,
+    resetValidation,
+  } = useTravel();
   const {
     dialogOpen,
     dialogMode,
@@ -357,13 +377,14 @@ function BussinessDialog() {
                   label={C.travelID}
                   type="number"
                   fullWidth
-                  value={dialogData.id||""}
-                  onChange={(e) => handleDataChange("id", e.target.value,
-                       {
-                          setTouched: setTouchedFields,
-                          setErrors: setFieldErrors,
-                          validateFn: validateField
-                        })}
+                  value={dialogData.id || ""}
+                  onChange={(e) =>
+                    handleDataChange("id", e.target.value, {
+                      setTouched: setTouchedFields,
+                      setErrors: setFieldErrors,
+                      validateFn: validateField,
+                    })
+                  }
                   disabled={true}
                   error={Boolean(fieldErrors.id)}
                   helperText={fieldErrors.id}
@@ -374,29 +395,29 @@ function BussinessDialog() {
               <SAETextField
                 label={C.businessName}
                 value={dialogData.nombre}
-                onChange={(e) => handleDataChange("nombre", e.target.value,
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      })}
+                onChange={(e) =>
+                  handleDataChange("nombre", e.target.value, {
+                    setTouched: setTouchedFields,
+                    setErrors: setFieldErrors,
+                    validateFn: validateField,
+                  })
+                }
                 required
                 fullWidth
                 error={Boolean(fieldErrors.nombre)}
-                helperText={fieldErrors.nombre}                
+                helperText={fieldErrors.nombre}
               />
             </Grid>
-            <Grid size={{ xs: 12}} m={0}>
+            <Grid size={{ xs: 12 }} m={0}>
               <SAETextField
                 label={C.businessPhone}
                 value={dialogData.contacto}
                 onChange={(e) =>
-                  handleDataChange("contacto", digitsOnly(e.target.value),
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      })
+                  handleDataChange("contacto", digitsOnly(e.target.value), {
+                    setTouched: setTouchedFields,
+                    setErrors: setFieldErrors,
+                    validateFn: validateField,
+                  })
                 }
                 error={Boolean(fieldErrors.contacto)}
                 helperText={fieldErrors.contacto}
@@ -408,12 +429,13 @@ function BussinessDialog() {
               <SAETextField
                 label={C.businessEmail}
                 value={dialogData.email}
-                onChange={(e) => handleDataChange("email", e.target.value,
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      })}
+                onChange={(e) =>
+                  handleDataChange("email", e.target.value, {
+                    setTouched: setTouchedFields,
+                    setErrors: setFieldErrors,
+                    validateFn: validateField,
+                  })
+                }
                 error={Boolean(fieldErrors.email)}
                 helperText={fieldErrors.email}
                 required
@@ -425,12 +447,11 @@ function BussinessDialog() {
                 label={C.businessCUIT}
                 value={dialogData.cuit}
                 onChange={(e) =>
-                  handleDataChange("cuit", formatCuit(e.target.value),
-                    {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      })
+                  handleDataChange("cuit", formatCuit(e.target.value), {
+                    setTouched: setTouchedFields,
+                    setErrors: setFieldErrors,
+                    validateFn: validateField,
+                  })
                 }
                 error={Boolean(fieldErrors.cuit)}
                 helperText={fieldErrors.cuit}
@@ -443,12 +464,11 @@ function BussinessDialog() {
                 label={C.businessCBU}
                 value={dialogData.cbu}
                 onChange={(e) =>
-                  handleDataChange("cbu", formatCbu(e.target.value),
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      })
+                  handleDataChange("cbu", formatCbu(e.target.value), {
+                    setTouched: setTouchedFields,
+                    setErrors: setFieldErrors,
+                    validateFn: validateField,
+                  })
                 }
                 error={Boolean(fieldErrors.cbu)}
                 helperText={fieldErrors.cbu}
@@ -462,20 +482,19 @@ function BussinessDialog() {
                   <Switch
                     checked={dialogData.activo}
                     onChange={(e) =>
-                      handleDataChange("activo", e.target.checked,
-                     {
+                      handleDataChange("activo", e.target.checked, {
                         setTouched: setTouchedFields,
                         setErrors: setFieldErrors,
-                        validateFn: validateField
+                        validateFn: validateField,
                       })
                     }
                     color="primary"
-                error={Boolean(fieldErrors.activo)}
-                helperText={fieldErrors.activo}                    
+                    error={Boolean(fieldErrors.activo)}
+                    helperText={fieldErrors.activo}
                   />
                 }
                 label={
-                  dialogData.activo ? C.businessActive: C.businessNoActive
+                  dialogData.activo ? C.businessActive : C.businessNoActive
                 }
               />
             )}
@@ -517,7 +536,16 @@ function BussinessDialog() {
 }
 
 function TravelsDialog() {
-  const { bussiness, handleTravelSave,fieldErrors, setFieldErrors, touchedFields, setTouchedFields,validateField, resetValidation } = useTravel();
+  const {
+    bussiness,
+    handleTravelSave,
+    fieldErrors,
+    setFieldErrors,
+    touchedFields,
+    setTouchedFields,
+    validateField,
+    resetValidation,
+  } = useTravel();
   const {
     dialogOpen,
     dialogMode,
@@ -574,29 +602,29 @@ function TravelsDialog() {
     });
   };
 
-const sanitizeAddressPart = (value = "") =>
-  // Eliminamos guiones sueltos que rompan la estructura, 
-  // pero permitimos que el usuario tenga un espacio al final mientras escribe.
-  value.replace(/-/g, " ").replace(/\s{2,}/g, " ");
+  const sanitizeAddressPart = (value = "") =>
+    // Eliminamos guiones sueltos que rompan la estructura,
+    // pero permitimos que el usuario tenga un espacio al final mientras escribe.
+    value.replace(/-/g, " ").replace(/\s{2,}/g, " ");
 
-const parseAddress = (value = "") => {
-  // 1. Separamos estrictamente por " - " (con espacios alrededor) 
-  // para no alterar los espacios internos de cada input individual
-  const parts = String(value).split(" - ");
-  
-  // NO usamos .trim() aquí dentro para no romper el tipeo en vivo
-  return [parts[0] || "", parts[1] || "", parts[2] || ""];
-};
+  const parseAddress = (value = "") => {
+    // 1. Separamos estrictamente por " - " (con espacios alrededor)
+    // para no alterar los espacios internos de cada input individual
+    const parts = String(value).split(" - ");
 
-const handleAddressChange = (index, value, dataName) => {
-  const parts = parseAddress(dialogData[dataName]);
-  parts[index] = sanitizeAddressPart(value);
-  
-  const hasAddressData = parts.some((part) => part.trim() !== "");
-  
-  // Al unir, sólo usamos .trim() si todo el string está vacío
-  handleDialogChange(dataName, hasAddressData ? parts.join(" - ") : "");
-};
+    // NO usamos .trim() aquí dentro para no romper el tipeo en vivo
+    return [parts[0] || "", parts[1] || "", parts[2] || ""];
+  };
+
+  const handleAddressChange = (index, value, dataName) => {
+    const parts = parseAddress(dialogData[dataName]);
+    parts[index] = sanitizeAddressPart(value);
+
+    const hasAddressData = parts.some((part) => part.trim() !== "");
+
+    // Al unir, sólo usamos .trim() si todo el string está vacío
+    handleDialogChange(dataName, hasAddressData ? parts.join(" - ") : "");
+  };
 
   const addressPartsOrigin = parseAddress(dialogData.origen);
   const addressPartsDestiny = parseAddress(dialogData.destino);
@@ -632,12 +660,13 @@ const handleAddressChange = (index, value, dataName) => {
                   type="number"
                   fullWidth
                   value={dialogData.id}
-                  onChange={(e) => handleDialogChange("id", e.target.value,
-                       {
-                          setTouched: setTouchedFields,
-                          setErrors: setFieldErrors,
-                          validateFn: validateField
-                        })}
+                  onChange={(e) =>
+                    handleDialogChange("id", e.target.value, {
+                      setTouched: setTouchedFields,
+                      setErrors: setFieldErrors,
+                      validateFn: validateField,
+                    })
+                  }
                   disabled={true}
                   error={Boolean(fieldErrors.id)}
                   helperText={fieldErrors.id}
@@ -648,12 +677,13 @@ const handleAddressChange = (index, value, dataName) => {
               <SAETextField
                 label={C.travelName}
                 value={dialogData.nombre}
-                onChange={(e) => handleDialogChange("nombre", e.target.value,
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      })}
+                onChange={(e) =>
+                  handleDialogChange("nombre", e.target.value, {
+                    setTouched: setTouchedFields,
+                    setErrors: setFieldErrors,
+                    validateFn: validateField,
+                  })
+                }
                 required
                 fullWidth
                 error={Boolean(fieldErrors.nombre)}
@@ -667,12 +697,11 @@ const handleAddressChange = (index, value, dataName) => {
                 fullWidth
                 value={dialogData.cantidad_personas}
                 onChange={(e) =>
-                  handleDialogChange("cantidad_personas", e.target.value,
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      })
+                  handleDialogChange("cantidad_personas", e.target.value, {
+                    setTouched: setTouchedFields,
+                    setErrors: setFieldErrors,
+                    validateFn: validateField,
+                  })
                 }
                 error={Boolean(fieldErrors.cantidad_personas)}
                 helperText={fieldErrors.cantidad_personas}
@@ -685,12 +714,11 @@ const handleAddressChange = (index, value, dataName) => {
                 type="date"
                 value={dialogData.fecha_inicio}
                 onChange={(e) =>
-                  handleDialogChange("fecha_inicio", e.target.value,
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      })
+                  handleDialogChange("fecha_inicio", e.target.value, {
+                    setTouched: setTouchedFields,
+                    setErrors: setFieldErrors,
+                    validateFn: validateField,
+                  })
                 }
                 fullWidth
                 required
@@ -705,12 +733,11 @@ const handleAddressChange = (index, value, dataName) => {
                 type="date"
                 value={dialogData.fecha_fin}
                 onChange={(e) =>
-                  handleDialogChange("fecha_fin", e.target.value,
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      })
+                  handleDialogChange("fecha_fin", e.target.value, {
+                    setTouched: setTouchedFields,
+                    setErrors: setFieldErrors,
+                    validateFn: validateField,
+                  })
                 }
                 fullWidth
                 required
@@ -724,7 +751,11 @@ const handleAddressChange = (index, value, dataName) => {
             </Grid>
             <Grid size={{ xs: 12 }}>
               <Divider variant="middle" sx={{ my: 2 }}>
-                <Chip label={C.travelOrigin} size="small" sx={{ fontWeight: 700 }} />
+                <Chip
+                  label={C.travelOrigin}
+                  size="small"
+                  sx={{ fontWeight: 700 }}
+                />
               </Divider>
             </Grid>
             <Grid size={{ xs: 12, md: 4 }} sx={{ my: 1 }}>
@@ -770,7 +801,11 @@ const handleAddressChange = (index, value, dataName) => {
             </Grid>
             <Grid size={{ xs: 12 }}>
               <Divider variant="middle" sx={{ my: 2 }}>
-                <Chip label={C.travelDestiny} size="small" sx={{ fontWeight: 700 }} />
+                <Chip
+                  label={C.travelDestiny}
+                  size="small"
+                  sx={{ fontWeight: 700 }}
+                />
               </Divider>
             </Grid>
             <Grid size={{ xs: 12, md: 4 }} sx={{ my: 1 }}>
@@ -832,11 +867,11 @@ const handleAddressChange = (index, value, dataName) => {
                   handleDialogChange(
                     "id_empresa_viaje",
                     newValue ? newValue.id : null,
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      }
+                    {
+                      setTouched: setTouchedFields,
+                      setErrors: setFieldErrors,
+                      validateFn: validateField,
+                    },
                   );
                 }}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -854,8 +889,8 @@ const handleAddressChange = (index, value, dataName) => {
                       ...params.inputProps,
                       readOnly: true,
                     }}
-                  error={Boolean(fieldErrors.id_empresa_viaje)}
-                  helperText={fieldErrors.id_empresa_viaje}
+                    error={Boolean(fieldErrors.id_empresa_viaje)}
+                    helperText={fieldErrors.id_empresa_viaje}
                   />
                 )}
               />
@@ -873,11 +908,11 @@ const handleAddressChange = (index, value, dataName) => {
                   handleDialogChange(
                     "costo_aproximado",
                     sanitizeCurrencyInput(e.target.value),
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      }
+                    {
+                      setTouched: setTouchedFields,
+                      setErrors: setFieldErrors,
+                      validateFn: validateField,
+                    },
                   )
                 }
                 onBlur={(e) =>
@@ -908,37 +943,39 @@ const handleAddressChange = (index, value, dataName) => {
                   <Switch
                     checked={dialogData.seguro || false}
                     onChange={(e) =>
-                      handleDialogChange("seguro", e.target.checked,
-                     {
+                      handleDialogChange("seguro", e.target.checked, {
                         setTouched: setTouchedFields,
                         setErrors: setFieldErrors,
-                        validateFn: validateField
+                        validateFn: validateField,
                       })
                     }
                     color="primary"
                     error={Boolean(fieldErrors.seguro)}
-                helperText={fieldErrors.seguro}
+                    helperText={fieldErrors.seguro}
                   />
                 }
-                label={dialogData.seguro ? C.travelInsurence : C.travelNoInsurence}
+                label={
+                  dialogData.seguro ? C.travelInsurence : C.travelNoInsurence
+                }
               />
             </Grid>
             <Grid size={{ xs: 12 }} m={0}>
               <SAETextField
                 label={C.travelMotive}
                 value={dialogData.motivo}
-                onChange={(e) => handleDialogChange("motivo", e.target.value,
-                     {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField
-                      })}
+                onChange={(e) =>
+                  handleDialogChange("motivo", e.target.value, {
+                    setTouched: setTouchedFields,
+                    setErrors: setFieldErrors,
+                    validateFn: validateField,
+                  })
+                }
                 fullWidth
                 required
                 rows={2}
                 multiline
                 error={Boolean(fieldErrors.motivo)}
-                helperText={fieldErrors.motivo}                
+                helperText={fieldErrors.motivo}
               />
             </Grid>
           </Grid>
@@ -1043,7 +1080,7 @@ function DocumentsDialog() {
           }}
         >
           <Typography variant="h6" component="span" sx={{ fontWeight: "bold" }}>
-           {C.travelDocs} {docsViaje.nombre}
+            {C.travelDocs} {docsViaje.nombre}
           </Typography>
           <IconButton onClick={closeDialog} size="small">
             <CloseIcon />
@@ -1053,7 +1090,7 @@ function DocumentsDialog() {
           <Stack spacing={1} sx={{ pt: 1 }}>
             <Autocomplete
               disablePortal
-              options={TRAVEL_REQUIRED_DOCUMENTS}
+              options={TRAVELS_REQUIRED_DOCUMENTS}
               getOptionLabel={(option) => option.nombre}
               onChange={(event, newValue) => {
                 // 'newValue' es el objeto completo del perfil seleccionado (o null)
@@ -1067,7 +1104,7 @@ function DocumentsDialog() {
               // Asegura que la comparación se haga por id
               isOptionEqualToValue={(option, value) => option.id === value.id}
               value={
-                TRAVEL_REQUIRED_DOCUMENTS.find(
+                TRAVELS_REQUIRED_DOCUMENTS.find(
                   (doc) => doc.id === selectedTypeDoc?.id,
                 ) || null
               }

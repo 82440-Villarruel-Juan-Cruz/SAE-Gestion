@@ -120,7 +120,6 @@ export const EMPTY_TURNO_PACIENTE = {
   fecha_atencion: "",
   hora_atencion: "",
   id_estado_turno: 0,
-  estado: "",
 };
 
 export const EMPTY_ESPECIALIDAD = {
@@ -326,7 +325,7 @@ export const PERSONAL_FIELDS = [
   { name: "direccion", label: "Domicilio", type: "text", md: 12 },
 ];
 
-const TRAVELS_REQUIRED_DOCUMENTS = [
+export const TRAVELS_REQUIRED_DOCUMENTS = [
   {
     id: 3,
     nombre: "Listado de Estudiantes Viajantes",
