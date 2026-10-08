@@ -71,7 +71,7 @@ export function ScholarshipsContent() {
     formatCuil,
     today,
     missingRequiredFields,
-
+    handleChange: handleProfileChange,
     handleMaskedChange,
     handleAddressChange,
     handleProfileSave,
@@ -216,7 +216,7 @@ export function ScholarshipsContent() {
               label={D.personalInfoNames}
               fullWidth
               value={datosPerfil.nombres}
-              onChange={(e) => handleChange("nombres", e.target.value)}
+              onChange={(e) => handleProfileChange("nombres", e.target.value)}
               InputLabelProps={{ shrink: true }}
               slotProps={{ htmlInput: { maxLength: 60 } }}
               required
@@ -233,7 +233,7 @@ export function ScholarshipsContent() {
               label={D.personalInfoLastNames}
               fullWidth
               value={datosPerfil.apellidos}
-              onChange={(e) => handleChange("apellidos", e.target.value)}
+              onChange={(e) => handleProfileChange("apellidos", e.target.value)}
               InputLabelProps={{ shrink: true }}
               slotProps={{ htmlInput: { maxLength: 60 } }}
               required
@@ -284,7 +284,9 @@ export function ScholarshipsContent() {
               label={D.personalInfoBirth}
               type="date"
               value={datosPerfil.fecha_nacimiento}
-              onChange={(e) => handleChange("fecha_nacimiento", e.target.value)}
+              onChange={(e) =>
+                handleProfileChange("fecha_nacimiento", e.target.value)
+              }
               fullWidth
               slotProps={{
                 inputLabel: { shrink: true },
@@ -307,7 +309,7 @@ export function ScholarshipsContent() {
               type="email"
               fullWidth
               value={datosPerfil.email}
-              onChange={(e) => handleChange("email", e.target.value)}
+              onChange={(e) => handleProfileChange("email", e.target.value)}
               InputLabelProps={{ shrink: true }}
               slotProps={{ htmlInput: { maxLength: 100 } }}
               error={emailHasError}
