@@ -28,7 +28,7 @@ import {
   ObtenerTurnos,
   RegistrarFalta,
   ObtenerFaltasXCUIL,
-  CrearTurnos,
+  CrearTurnosEmpleado,
   ModificarTurno,
   ObtenerTurnosActivos,
   ObtenerTurnosFinalizados,
@@ -52,10 +52,18 @@ import {
   EMPTY_PERSONAL,
   EMPTY_TURNO,
 } from "../../../utils/common/common.config.js";
-import { compareDatesDesc, toApiDateTime, toTimeInput } from "../../../utils/date.utils";
+import {
+  compareDatesDesc,
+  toApiDateTime,
+  toTimeInput,
+} from "../../../utils/date.utils";
 import { HEALTH_STRING } from "../../../utils/strings/employed.strings.js";
 import { isEmpty } from "../../../utils/text.utils.js";
-import { isEndDateBeforeStartDate, isPositiveNumber, validateCuil } from "../../../utils/validation.utils.js";
+import {
+  isEndDateBeforeStartDate,
+  isPositiveNumber,
+  validateCuil,
+} from "../../../utils/validation.utils.js";
 
 // #endregion
 
@@ -558,35 +566,9 @@ export const HealthUsersProvider = ({ children }) => {
       };
 
       if (dialogMode === "create") {
-        //console.log("Creando turno con body:", body); // Debugging line
-        // 1. Guardamos en la base de datos primero (para obtener el ID real que autogenera el backend)
-        const respuestaBackend = await CrearTurnos(body);
-
-        // Si tu backend retorna el objeto creado con su ID, usalo. Si no, usa el body.
-        const turnoCreadoCompleto = {
-          ...body,
-          ...(respuestaBackend?.data ?? respuestaBackend ?? {}),
-          id:
-            respuestaBackend?.data?.id ??
-            respuestaBackend?.id ??
-            body.id ??
-            Date.now(),
-          especialista:
-            respuestaBackend?.data?.especialista ??
-            respuestaBackend?.especialista ??
-            body.especialista,
-        };
-        turnoCreadoCompleto.id_estado_turno = dialogData.id_estado_turno; // Asegurar propiedad para lógica local
-
-        // 2. Insertamos en el estado local de React de forma instantánea sin hacer FETCH
-        actualizarListaPorEstado(
-          dialogData.id_estado_turno,
-          "agregar",
-          turnoCreadoCompleto,
-        );
-        setAllTurnos((prev) =>
-          sortTurnosByFechaAtencionDesc([...prev, turnoCreadoCompleto]),
-        );
+        // Guardamos en la base y recargamos todos los turnos desde la API.
+        await CrearTurnosEmpleado(body);
+        await fetchTurnosMedicos();
       } else if (dialogMode === "edit") {
         // En edición conocemos el ID anterior, buscamos el estado viejo antes de actualizarlo
         const turnoPrevio = allTurnos.find((t) => t.id === id_nuevo);
@@ -669,6 +651,7 @@ export const HealthUsersProvider = ({ children }) => {
     allTurnos,
     estadosTurno,
     handleValidation,
+    fetchTurnosMedicos,
     setPendienteTurnos,
     setAsignadosTurnos,
     setEnCursoTurnos,
@@ -719,7 +702,7 @@ export const HealthUsersProvider = ({ children }) => {
   );
 
   const handleEspecialidadesSave = async () => {
-    if(!validate()){
+    if (!validate()) {
       setDialogError("Campos no Validos");
       return;
     }
@@ -736,7 +719,9 @@ export const HealthUsersProvider = ({ children }) => {
       };
 
       if (dialogMode === "create") {
-        await CrearEspecialidad(body);
+        // Guardamos en la base y recargamos todos los turnos desde la API.
+        await CrearTurnosEmpleado(body);
+        await fetchTurnosMedicos();
       } else if (dialogMode === "edit") {
         await ModificaEspecialidad(id_nuevo, body);
       }
@@ -827,7 +812,7 @@ export const HealthUsersProvider = ({ children }) => {
   );
 
   const handlePersonalSave = async () => {
-    if(!validate()){
+    if (!validate()) {
       setDialogError("Campos no Validos");
       return;
     }
@@ -857,8 +842,10 @@ export const HealthUsersProvider = ({ children }) => {
         };
 
         if (dialogMode === "create") {
-          await CrearPersonal(body);
-        } else if (dialogMode === "edit") {
+        // Guardamos en la base y recargamos todos los turnos desde la API.
+        await CrearTurnosEmpleado(body);
+        await fetchTurnosMedicos();
+      } else if (dialogMode === "edit") {
           await ModificarPersonal(dialogData.cuil, body);
         }
         setDialogOpen(false);
@@ -916,7 +903,7 @@ export const HealthUsersProvider = ({ children }) => {
   );
 
   const handleCursoSave = async () => {
-    if(!validate()){
+    if (!validate()) {
       setDialogError("Campos no Validos");
       return;
     }
@@ -936,7 +923,9 @@ export const HealthUsersProvider = ({ children }) => {
       };
 
       if (dialogMode === "create") {
-        await CrearCurso(body);
+        // Guardamos en la base y recargamos todos los turnos desde la API.
+        await CrearTurnosEmpleado(body);
+        await fetchTurnosMedicos();
       } else if (dialogMode === "edit") {
         await ModificarCurso(dialogData.id, body);
       } else {
@@ -995,41 +984,41 @@ export const HealthUsersProvider = ({ children }) => {
     fetchHorarios();
   }, [fetchHorarios]);
 
-  const fetchHorariosXEmpleado = useCallback(async (cuil = selectedEmploy?.cuil) => {
-    setSelectedHorariosLoading(true);
-    setDialogError(null);
-    //Todo esto es para que no guarde informacion en las tarjetas
-    setForm(getEmptyHorarioForm());
-    setDeleteId(null);
-    setEditingId(null);
-    try {
-      if (cuil) {
-        let data = await ObtenerHorariosXCUIL(cuil);
-        data = data.map(mapHorarioSalud);
-        setSelectedHorarios(data);
-      } else {
+  const fetchHorariosXEmpleado = useCallback(
+    async (cuil = selectedEmploy?.cuil) => {
+      setSelectedHorariosLoading(true);
+      setDialogError(null);
+      //Todo esto es para que no guarde informacion en las tarjetas
+      setForm(getEmptyHorarioForm());
+      setDeleteId(null);
+      setEditingId(null);
+      try {
+        if (cuil) {
+          let data = await ObtenerHorariosXCUIL(cuil);
+          data = data.map(mapHorarioSalud);
+          setSelectedHorarios(data);
+        } else {
+          setSelectedHorarios([]);
+        }
+      } catch {
+        setDialogError("Error recuperando los horarios");
         setSelectedHorarios([]);
+      } finally {
+        setSelectedHorariosLoading(false);
       }
-    } catch {
-      setDialogError("Error recuperando los horarios");
-      setSelectedHorarios([]);
-    } finally {
-      setSelectedHorariosLoading(false);
-    }
-  }, [selectedEmploy?.cuil, setSelectedHorarios, setDialogError]);
+    },
+    [selectedEmploy?.cuil, setSelectedHorarios, setDialogError],
+  );
 
   useEffect(() => {
     fetchHorariosXEmpleado();
   }, [fetchHorariosXEmpleado]);
 
-  const handleEmployChange = useCallback(
-    (_e, value) => {
-      setSelectedEmploy(value);
+  const handleEmployChange = useCallback((_e, value) => {
+    setSelectedEmploy(value);
 
-      setShowNuevoForm(false);
-    },
-    [],
-  );
+    setShowNuevoForm(false);
+  }, []);
 
   const handleHorarioSaved = useCallback(() => {
     if (selectedEmploy) fetchHorariosXEmpleado(selectedEmploy.cuil);
@@ -1264,54 +1253,67 @@ export const HealthUsersProvider = ({ children }) => {
   const [touchedFields, setTouchedFields] = useState({});
 
   const resetValidation = useCallback(() => {
-      setFieldErrors({});
-      setTouchedFields({});
+    setFieldErrors({});
+    setTouchedFields({});
   }, []);
 
   const validateField = (field, value, data = dialogData) => {
-      switch (true) {
-          case field === "id":
-            return dialogMode === "edit" && isEmpty(value) ? C.validationID:"";
-          case field === "id_especialidad":
-            return isPositiveNumber(field) ? C.validationEmploySpeciality:"";
-          case field.includes("nombre") || field.includes("apellido") || field.includes("descripcion"):
-            return isEmpty(value) ? C.validationEmpty : "";                  
-          case field === "activo":
-            return isEmpty(value)? C.validationActive:"";
-          case  field === "cuil" || field === "cuit":
-            return !validateCuil(value) ? C.validationCuil : "";
-          case field === "fecha_inicio" || field === "fecha_nacimiento":
-            return  isEmpty(value) ? C.validationDate:"";
-          case field === "fecha_fin":
-              if (isEmpty(value)) return C.validationDate;
-              return isEndDateBeforeStartDate(data.fecha_inicio, value)
-                  ? C.validationCourseEndAfterStart
-                  : "";
-          case field === "cupo_maximo":
-              return  isEmpty(value) || !isPositiveNumber(value) ? C.validationQuant:""; 
+    switch (true) {
+      case field === "id":
+        return dialogMode === "edit" && isEmpty(value) ? C.validationID : "";
+      case field === "id_especialidad":
+        return isPositiveNumber(field) ? C.validationEmploySpeciality : "";
+      case field.includes("nombre") ||
+        field.includes("apellido") ||
+        field.includes("descripcion"):
+        return isEmpty(value) ? C.validationEmpty : "";
+      case field === "activo":
+        return isEmpty(value) ? C.validationActive : "";
+      case field === "cuil" || field === "cuit":
+        return !validateCuil(value) ? C.validationCuil : "";
+      case field === "fecha_inicio" || field === "fecha_nacimiento":
+        return isEmpty(value) ? C.validationDate : "";
+      case field === "fecha_fin":
+        if (isEmpty(value)) return C.validationDate;
+        return isEndDateBeforeStartDate(data.fecha_inicio, value)
+          ? C.validationCourseEndAfterStart
+          : "";
+      case field === "cupo_maximo":
+        return isEmpty(value) || !isPositiveNumber(value)
+          ? C.validationQuant
+          : "";
 
-          default:
-              return data?C.validationActive:"";
-      }
+      default:
+        return data ? C.validationActive : "";
+    }
+  };
+  const validate = () => {
+    //Un "switch" medio raro
+    const fields =
+      dialogType === "personal"
+        ? ["cuil", "nombre", "apellido", "id_especialidad", "activo"]
+        : dialogType === "especialidades"
+          ? ["id", "nombre", "descripcion", "activo"]
+          : [
+              "id",
+              "nombre_curso",
+              "nombre_docente",
+              "fecha_inicio",
+              "fecha_fin",
+              "cupo_maximo",
+              "activo",
+            ];
 
-    };
-    const validate = () => {
-
-        //Un "switch" medio raro
-        const fields = dialogType === "personal"? ["cuil","nombre","apellido","id_especialidad","activo"]:
-                        dialogType === "especialidades"? ["id","nombre","descripcion","activo"]:
-                        ["id","nombre_curso","nombre_docente","fecha_inicio","fecha_fin","cupo_maximo","activo"];
-
-        const errors = fields.reduce((result, field) => {
-            const message = validateField(field, dialogData[field]);
-            return message ? { ...result, [field]: message } : result;
-        }, {});
-        setFieldErrors(errors);
-        setTouchedFields(
-            fields.reduce((result, field) => ({ ...result, [field]: true }), {}),
-        );
-        return Object.keys(errors).length === 0;
-    };
+    const errors = fields.reduce((result, field) => {
+      const message = validateField(field, dialogData[field]);
+      return message ? { ...result, [field]: message } : result;
+    }, {});
+    setFieldErrors(errors);
+    setTouchedFields(
+      fields.reduce((result, field) => ({ ...result, [field]: true }), {}),
+    );
+    return Object.keys(errors).length === 0;
+  };
 
   return (
     <HealthContext.Provider
@@ -1410,7 +1412,7 @@ export const HealthUsersProvider = ({ children }) => {
         touchedFields,
         resetValidation,
         validate,
-        validateField
+        validateField,
       }}
     >
       {children}

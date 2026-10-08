@@ -133,6 +133,9 @@ export function CrearTurnos(body) {
   return RequestAPI('/Salud/CrearTurnoMedico/', 'POST', body);
 }
 
+export function CrearTurnosEmpleado(body) {
+  return RequestAPI('/Salud/CrearTurnoMedicoEmpleado/', 'POST', body);
+}
 export function ModificarTurno(id, body) {
   return RequestAPI(
     `/Salud/ModificarTurnoMedico/${encodeURIComponent(id)}`,
