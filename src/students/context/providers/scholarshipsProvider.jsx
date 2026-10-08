@@ -293,7 +293,7 @@ export function ScholarshipsProvider({ children }) {
   // Carga el becario base y las becas asociadas al usuario logueado.
   const cargarMisBecas = useCallback(
     async ({ showLoading = true } = {}) => {
-      if (!user?.email) return;
+      if (!user?.legajo) return;
 
       try {
         if (showLoading) setLoadingScholarships(true);
@@ -323,7 +323,7 @@ export function ScholarshipsProvider({ children }) {
         if (showLoading) setLoadingScholarships(false);
       }
     },
-    [normalizarBecas, showNotification, user?.email, C],
+    [normalizarBecas, showNotification, user?.legajo, C],
   );
 
   // Carga directa desde "Mis Documentos". El formulario usa el mismo servicio,
@@ -707,7 +707,7 @@ export function ScholarshipsProvider({ children }) {
   const cargarProyectosInvestigacion = useCallback(async () => {
     try {
       const data = await ObtenerProyectosInvestigacion();
-      setProyectosRows(Array.isArray(data) ? data : []);
+      setProyectosRows(Array.isArray(data) ? data.filter(proyecto => proyecto.activo) : []);
     } catch {
       setProyectosRows([]);
     }
