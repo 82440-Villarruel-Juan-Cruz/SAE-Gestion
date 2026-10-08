@@ -619,7 +619,8 @@ export function TravelProvider({ children }) {
       setDialogError("");
       try {
         let res = await EliminarInscriptosViaje(inscriptToDelete.id);
-        if (res.ok) {
+
+        if (res.trim() === "Inscripto Eliminado") {
           await fetchInscriptosXTravel(travelData.id);
           setDialogOpen(false);
           setUsuarioSelected(null);
