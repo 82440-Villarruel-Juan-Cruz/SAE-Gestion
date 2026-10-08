@@ -1093,6 +1093,7 @@ export function ScholarshipsProvider({ children }) {
       const mensaje = await crearBecaSegunTipo(becario.id);
       await subirDocumentosRequeridos();
       await cargarMisBecas();
+      setDialogOpen(false);
       setSaving(false);
       showNotification(mensaje, "success");
     } catch (err) {

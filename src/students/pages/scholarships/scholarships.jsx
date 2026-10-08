@@ -16,7 +16,7 @@ import {
 
 import { AddCircleOutline } from "@mui/icons-material";
 import Diversity3Icon from "@mui/icons-material/Diversity3";
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 import { SCHOLARSHIP_STRINGS } from "../../../utils/strings/student.strings";
 import {
@@ -297,55 +297,57 @@ function ScholarshipsContent() {
           ))}
 
           {/* Card especial para abrir el formulario de nueva solicitud. */}
-          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-            <Card
-              onClick={!perfilIncompleto ? handleAgregarBeca : undefined}
-              sx={{
-                minWidth: 350,
-                maxWidth: { xs: "100%", sm: 400 },
-                height: "100%",
-                borderRadius: 4,
-                cursor: perfilIncompleto ? "not-allowed" : "pointer",
-                pointerEvents: perfilIncompleto ? "none" : "auto",
-                border: "2px dashed rgba(17, 53, 101, 0.25)",
-                backgroundColor: "#f8fbff",
-                transition: "all 0.25s ease",
-                "&:hover": {
-                  backgroundColor: perfilIncompleto ? "#f8fbff" : "#eef5ff",
-                  borderColor: perfilIncompleto
-                    ? "rgba(17, 53, 101, 0.25)"
-                    : "primary.main",
-                },
-              }}
-            >
-              <CardContent
+          {misBecas.length < 3 && (
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <Card
+                onClick={!perfilIncompleto ? handleAgregarBeca : undefined}
                 sx={{
-                  pt: 2,
-                  pl: 3,
-                  pr: 3,
-                  gap: 2,
+                  minWidth: 350,
+                  maxWidth: { xs: "100%", sm: 400 },
                   height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  minHeight: 220,
+                  borderRadius: 4,
+                  cursor: perfilIncompleto ? "not-allowed" : "pointer",
+                  pointerEvents: perfilIncompleto ? "none" : "auto",
+                  border: "2px dashed rgba(17, 53, 101, 0.25)",
+                  backgroundColor: "#f8fbff",
+                  transition: "all 0.25s ease",
+                  "&:hover": {
+                    backgroundColor: perfilIncompleto ? "#f8fbff" : "#eef5ff",
+                    borderColor: perfilIncompleto
+                      ? "rgba(17, 53, 101, 0.25)"
+                      : "primary.main",
+                  },
                 }}
               >
-                <AddCircleOutline color="primary" sx={{ fontSize: 60 }} />
-                <Typography variant="h6" textAlign="center">
-                  {C.cardSolicitarTitle}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  textAlign="center"
+                <CardContent
+                  sx={{
+                    pt: 2,
+                    pl: 3,
+                    pr: 3,
+                    gap: 2,
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    minHeight: 220,
+                  }}
                 >
-                  {C.cardSolicitarSubtitle}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+                  <AddCircleOutline color="primary" sx={{ fontSize: 60 }} />
+                  <Typography variant="h6" textAlign="center">
+                    {C.cardSolicitarTitle}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    textAlign="center"
+                  >
+                    {C.cardSolicitarSubtitle}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          )}
         </Grid>
 
         {!loadingScholarships && perfilIncompleto && (

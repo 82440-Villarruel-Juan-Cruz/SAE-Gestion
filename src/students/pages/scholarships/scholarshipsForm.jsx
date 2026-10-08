@@ -11,9 +11,14 @@ import {
   Autocomplete,
   Typography,
   Stack,
+  Card,
+  CardContent,
 } from "@mui/material";
 import { Close, AddCircleOutline } from "@mui/icons-material";
-import { useMyProfile, useNotification } from "../../../shared/context/sharedContext";
+import {
+  useMyProfile,
+  useNotification,
+} from "../../../shared/context/sharedContext";
 
 import SAEButton from "../../../assets/components/buttons/SAEButton";
 import SAETextField from "../../../assets/components/inputs/SAETextField";
@@ -22,12 +27,17 @@ import DocumentCard from "../../../assets/components/documents/DocumentCard";
 
 import { SCHOLARSHIP_STRINGS } from "../../../utils/strings/student.strings";
 import { PERSONAL_FIELDS } from "../../../utils/common/common.config";
-import { SCHOLARSHIP_TYPE,
+import {
+  SCHOLARSHIP_TYPE,
   MAX_FILE_SIZE_MB,
   MAX_FILE_SIZE_BYTES,
-  DEFAULT_ACCEPTED_EXTENSIONS } from "../../../utils/common/constants";
+  DEFAULT_ACCEPTED_EXTENSIONS,
+} from "../../../utils/common/constants";
 
-import { getDocumentKey, hasDocumentFile } from "../../../utils/documents.utils";
+import {
+  getDocumentKey,
+  hasDocumentFile,
+} from "../../../utils/documents.utils";
 import { useScholarships } from "../../context/studentContext";
 import { ProfileContextProvider } from "../../../shared/context/providers/profileProvider";
 
@@ -35,7 +45,7 @@ const C = SCHOLARSHIP_STRINGS;
 
 const isEconomicOptionalDocument = (documento) => documento.required === false;
 
-export default function ScholarshipsForm(){
+export default function ScholarshipsForm() {
   return (
     <ProfileContextProvider>
       <ScholarshipsContent />
@@ -44,12 +54,25 @@ export default function ScholarshipsForm(){
 }
 
 export function ScholarshipsContent() {
+  const { dialogOpen, dialogSaving, setDialogSaving, closeDialog } = useNotification();
   const {
-    dialogOpen,
-    dialogSaving,
-    closeDialog
-  } = useNotification();
-  const {datosPerfil} = useMyProfile();
+    datosPerfil,
+    addressParts,
+    requiredError,
+    emailHasError,
+    phoneHasError,
+    dniHasError,
+    formatDni,
+    formatCuil,
+    today,
+    missingRequiredFields,
+
+    handleMaskedChange,
+    handleAddressChange,
+    handleProfileSave,
+    formatPhone,
+    cuilHasError,
+  } = useMyProfile();
   const {
     handleChange,
     handlePreview,
@@ -58,19 +81,35 @@ export function ScholarshipsContent() {
     formBeca,
     setFormBeca,
     setDocumentoAEliminar,
-    proyectosRows,serviciosRows,
+    proyectosRows,
+    serviciosRows,
     documentosRequeridos,
     setDocumentosRequeridos,
     documentosEconomicaVisibles,
     documentosEconomicosOpcionalesDisponibles,
     handleDocumentoEconomicoDelete,
-    documentoEconomicoOpcionalId, setDocumentoEconomicoOpcionalId,
+    documentoEconomicoOpcionalId,
+    setDocumentoEconomicoOpcionalId,
     handleAgregarDocumentoEconomico,
     uploadingDocumentoId,
     setDocumentosEconomica,
-    handleDialogSave
-    
+    handleDialogSave,
+    saving,
   } = useScholarships(); //Esto en teoria lo llamamos desde dentro del provider de becas
+
+  const isSaving = dialogSaving || saving;
+
+  const handleSaveScholarshipRequest = async () => {
+    if (isSaving) return;
+
+    setDialogSaving(true);
+    try {
+      await handleProfileSave();
+      await handleDialogSave();
+    } finally {
+      setDialogSaving(false);
+    }
+  };
 
   return (
     <Dialog open={dialogOpen} onClose={closeDialog} fullWidth maxWidth="lg">
@@ -84,7 +123,7 @@ export function ScholarshipsContent() {
         <Typography variant="h6" component="span" sx={{ fontWeight: "bold" }}>
           {C.cardSolicitarTitle}
         </Typography>
-        <IconButton onClick={closeDialog} size="small" disabled={dialogSaving}>
+        <IconButton onClick={closeDialog} size="small" disabled={isSaving}>
           <Close />
         </IconButton>
       </DialogTitle>
@@ -98,7 +137,7 @@ export function ScholarshipsContent() {
           pt: "16px !important",
         }}
       >
-        {dialogSaving && (
+        {isSaving && (
           <Box
             sx={{
               position: "absolute",
@@ -127,7 +166,7 @@ export function ScholarshipsContent() {
             sx={{ fontWeight: 700 }}
           />
         </Divider>
-
+        {/* 
         <Grid container spacing={2}>
           {PERSONAL_FIELDS.map((field) => (
             <Grid key={field.name} size={{ xs: 12, sm: 6, md: field.md ?? 6 }}>
@@ -148,6 +187,241 @@ export function ScholarshipsContent() {
               />
             </Grid>
           ))}
+        </Grid> */}
+
+        <Grid container spacing={{ xs: 1.5, sm: 2 }} mb={{ xs: 3, md: 4 }}>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <SAETextField
+              label={C.personalInfoID}
+              fullWidth
+              disabled
+              value={datosPerfil.legajo}
+              InputLabelProps={{ shrink: true }}
+              required
+              error={requiredError(datosPerfil.legajo)}
+              helperText={
+                requiredError(datosPerfil.legajo)
+                  ? "El legajo es obligatorio"
+                  : ""
+              }
+            />
+          </Grid>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <SAETextField
+              label={C.personalInfoNames}
+              fullWidth
+              value={datosPerfil.nombres}
+              onChange={(e) => handleChange("nombres", e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              slotProps={{ htmlInput: { maxLength: 60 } }}
+              required
+              disabled
+              error={requiredError(datosPerfil.nombres)}
+              helperText={
+                requiredError(datosPerfil.nombres) ? C.nameRequired : ""
+              }
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 4 }}>
+            <SAETextField
+              label={C.personalInfoLastNames}
+              fullWidth
+              value={datosPerfil.apellidos}
+              onChange={(e) => handleChange("apellidos", e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              slotProps={{ htmlInput: { maxLength: 60 } }}
+              required
+              disabled
+              error={requiredError(datosPerfil.apellidos)}
+              helperText={
+                requiredError(datosPerfil.apellidos) ? C.lastNameRequired : ""
+              }
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 4 }}>
+            <SAETextField
+              label={C.personalInfoDNI}
+              fullWidth
+              value={formatDni(datosPerfil.dni)}
+              onChange={handleMaskedChange("dni", formatDni)}
+              InputLabelProps={{ shrink: true }}
+              placeholder="12.345.678"
+              slotProps={{
+                htmlInput: { inputMode: "numeric", maxLength: 10 },
+              }}
+              required
+              error={dniHasError}
+              helperText={dniHasError ? C.DNIRequired : ""}
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 4 }}>
+            <SAETextField
+              label={C.personalInfoCUIL}
+              fullWidth
+              value={formatCuil(datosPerfil.cuil)}
+              onChange={handleMaskedChange("cuil", formatCuil)}
+              InputLabelProps={{ shrink: true }}
+              placeholder="20-12345678-3"
+              slotProps={{
+                htmlInput: { inputMode: "numeric", maxLength: 13 },
+              }}
+              required
+              error={cuilHasError}
+              helperText={cuilHasError ? C.CUILRequired : ""}
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 4 }}>
+            <SAETextField
+              label={C.personalInfoBirth}
+              type="date"
+              value={datosPerfil.fecha_nacimiento}
+              onChange={(e) => handleChange("fecha_nacimiento", e.target.value)}
+              fullWidth
+              slotProps={{
+                inputLabel: { shrink: true },
+                htmlInput: { max: today },
+              }}
+              required
+              error={requiredError(datosPerfil.fecha_nacimiento)}
+              helperText={
+                requiredError(datosPerfil.fecha_nacimiento)
+                  ? C.birthDateRequired
+                  : ""
+              }
+            />
+          </Grid>
+        </Grid>
+        <Grid container spacing={{ xs: 1.5, sm: 2 }} mb={{ xs: 3, md: 4 }}>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <SAETextField
+              label={C.contactInfoEmail}
+              type="email"
+              fullWidth
+              value={datosPerfil.email}
+              onChange={(e) => handleChange("email", e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              slotProps={{ htmlInput: { maxLength: 100 } }}
+              error={emailHasError}
+              required
+              helperText={emailHasError ? C.emailRequired : ""}
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6 }}>
+            <SAETextField
+              label={C.contactInfoPhone}
+              fullWidth
+              value={datosPerfil.telefono}
+              onChange={handleMaskedChange("telefono", formatPhone)}
+              InputLabelProps={{ shrink: true }}
+              placeholder="+54 351 123-4567"
+              slotProps={{
+                htmlInput: { inputMode: "tel", maxLength: 16 },
+              }}
+              error={phoneHasError}
+              required
+              helperText={phoneHasError ? C.phoneRequired : ""}
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 3 }}>
+            <SAETextField
+              label={C.contactInfoProvince}
+              fullWidth
+              value={addressParts[0]}
+              onChange={(e) => handleAddressChange(0, e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              slotProps={{ htmlInput: { maxLength: 50 } }}
+              required
+              error={requiredError(addressParts[0])}
+              helperText={
+                requiredError(addressParts[0]) ? C.provinceRequired : ""
+              }
+            />
+          </Grid>
+          <Grid size={{ xs: 12, md: 3 }}>
+            <SAETextField
+              label={C.contactInfoCity}
+              fullWidth
+              value={addressParts[1]}
+              onChange={(e) => handleAddressChange(1, e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              slotProps={{ htmlInput: { maxLength: 60 } }}
+              required
+              error={requiredError(addressParts[1])}
+              helperText={requiredError(addressParts[1]) ? C.cityRequired : ""}
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 4 }}>
+            <SAETextField
+              label={C.contactInfoStreet}
+              fullWidth
+              value={addressParts[2]}
+              onChange={(e) => handleAddressChange(2, e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              slotProps={{ htmlInput: { maxLength: 80 } }}
+              required
+              error={requiredError(addressParts[2])}
+              helperText={
+                requiredError(addressParts[2]) ? C.streetRequired : ""
+              }
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 2 }}>
+            <SAETextField
+              label={C.contactInfoNumber}
+              fullWidth
+              value={addressParts[3]}
+              onChange={(e) => handleAddressChange(3, e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              slotProps={{
+                htmlInput: { inputMode: "numeric", maxLength: 6 },
+              }}
+              required
+              error={requiredError(addressParts[3])}
+              helperText={
+                requiredError(addressParts[3]) ? C.numberRequired : ""
+              }
+            />
+          </Grid>
+
+          {missingRequiredFields.length > 0 && (
+            <Grid size={{ xs: 12 }}>
+              <Card
+                sx={{
+                  bgcolor: "rgba(235, 235, 41, 0.7)",
+                  border: "1px solid rgba(235, 41, 41, 0.1)",
+                }}
+              >
+                <CardContent sx={{ p: 2 }}>
+                  <Typography
+                    variant="h6"
+                    color="textPrimary"
+                    fontWeight={600}
+                    py={1}
+                  >
+                    {C.missingSubtitle}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    sx={{ lineHeight: 2 }}
+                  >
+                    {missingRequiredFields.length === 1
+                      ? C.missingOneField
+                      : C.missingMultipleFields}
+                    {missingRequiredFields.join(", ")}.
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          )}
         </Grid>
 
         <Divider variant="middle" sx={{ mt: 0.5 }}>
@@ -156,7 +430,7 @@ export function ScholarshipsContent() {
 
         <Autocomplete
           fullWidth
-          disabled={dialogSaving}
+          disabled={isSaving}
           options={C.listaTiposBecas}
           value={
             C.listaTiposBecas.find(
@@ -182,7 +456,7 @@ export function ScholarshipsContent() {
         {formBeca?.tipoBeca === SCHOLARSHIP_TYPE.INVESTIGACION && (
           <Autocomplete
             fullWidth
-            disabled={dialogSaving}
+            disabled={isSaving}
             options={proyectosRows}
             value={formBeca?.beca ?? null}
             getOptionLabel={(option) =>
@@ -201,7 +475,7 @@ export function ScholarshipsContent() {
         {formBeca?.tipoBeca === SCHOLARSHIP_TYPE.SERVICIO && (
           <Autocomplete
             fullWidth
-            disabled={dialogSaving}
+            disabled={isSaving}
             options={serviciosRows}
             value={formBeca?.beca ?? null}
             getOptionLabel={(option) => option.nombre ?? ""}
@@ -224,7 +498,7 @@ export function ScholarshipsContent() {
             name="descripcionSituacion"
             value={formBeca?.descripcionSituacion}
             onChange={handleChange}
-            disabled={dialogSaving}
+            disabled={isSaving}
           />
         )}
 
@@ -241,7 +515,7 @@ export function ScholarshipsContent() {
         {documentosRequeridos?.length > 0 && (
           <Grid container spacing={2} sx={{ mt: 1 }}>
             {documentosRequeridos?.map((item) => (
-              <Grid size={{ xs: 12,md:4 }}key={getDocumentKey(item)}>
+              <Grid size={{ xs: 12, md: 4 }} key={getDocumentKey(item)}>
                 <DocumentCard
                   documento={item}
                   notUploadedLabel={C.docStateNotUploaded}
@@ -255,9 +529,7 @@ export function ScholarshipsContent() {
                       setDocumentosRequeridos,
                     )
                   }
-                  onDelete={(documento) =>
-                    setDocumentoAEliminar(documento)
-                  }
+                  onDelete={(documento) => setDocumentoAEliminar(documento)}
                   uploadDisabled={
                     item.subido || uploadingDocumentoId === getDocumentKey(item)
                   }
@@ -284,7 +556,7 @@ export function ScholarshipsContent() {
             <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
               <Autocomplete
                 fullWidth
-                disabled={dialogSaving}
+                disabled={isSaving}
                 options={documentosEconomicosOpcionalesDisponibles}
                 value={
                   documentosEconomicosOpcionalesDisponibles.find(
@@ -312,7 +584,7 @@ export function ScholarshipsContent() {
               <SAEButton
                 variant="contained"
                 onClick={handleAgregarDocumentoEconomico}
-                disabled={!documentoEconomicoOpcionalId || dialogSaving}
+                disabled={!documentoEconomicoOpcionalId || isSaving}
                 startIcon={<AddCircleOutline />}
                 sx={{ minWidth: { sm: 150 } }}
               >
@@ -324,7 +596,7 @@ export function ScholarshipsContent() {
         {documentosEconomicaVisibles?.length > 0 && (
           <Grid container spacing={2.5} sx={{ mt: 1 }}>
             {documentosEconomicaVisibles?.map((item) => (
-              <Grid size={{ xs: 12,md:4}} key={getDocumentKey(item)}>
+              <Grid size={{ xs: 12, md: 4 }} key={getDocumentKey(item)}>
                 <DocumentCard
                   documento={item}
                   notUploadedLabel={C.docStateNotUploaded}
@@ -354,15 +626,15 @@ export function ScholarshipsContent() {
       </DialogContent>
 
       <DialogActions>
-        <SAEButton onClick={closeDialog} disabled={dialogSaving}>
+        <SAEButton onClick={closeDialog} disabled={isSaving}>
           {C.cancelButton}
         </SAEButton>
         <SAEButton
           variant="contained"
-          onClick={handleDialogSave}
-          disabled={dialogSaving}
+          onClick={handleSaveScholarshipRequest}
+          disabled={isSaving}
         >
-          {dialogSaving ? C.savingButton : C.saveButton}
+          {isSaving ? C.savingButton : C.saveButton}
         </SAEButton>
       </DialogActions>
     </Dialog>
