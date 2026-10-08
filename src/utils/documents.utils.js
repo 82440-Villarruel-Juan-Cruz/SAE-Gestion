@@ -237,7 +237,11 @@ export const isPreviewableDocument = (document = {}) =>
 export const getImageSource = (document = {}) => {
   if (!document?.datos_documento) return "";
 
-  if (document.datos_documento.startsWith("data:")) {
+  if (
+    document.datos_documento.startsWith("data:") ||
+    document.datos_documento.startsWith("blob:") ||
+    /^https?:\/\//i.test(document.datos_documento)
+  ) {
     return document.datos_documento;
   }
 

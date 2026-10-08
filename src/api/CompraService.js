@@ -12,6 +12,15 @@ import {
 // Se reexporta para conservar el contrato que ya utilizan otros servicios.
 export { RequestAPI };
 
+function normalizeDocumentListResponse(response) {
+  if (Array.isArray(response)) return response;
+  if (Array.isArray(response?.data)) return response.data;
+  if (Array.isArray(response?.documentos)) return response.documentos;
+  if (Array.isArray(response?.documents)) return response.documents;
+  if (Array.isArray(response?.items)) return response.items;
+  return response ? [response] : [];
+}
+
 export async function ObtenerComprasXFecha(fechaInicio, fechaFin, documentTypes) {
   const data = await RequestAPI(
     `/Compra/ObtenerComprasXFecha/${encodeURIComponent(fechaInicio)}/${encodeURIComponent(fechaFin)}`,
@@ -82,11 +91,13 @@ export function CrearInforme(body) {
   return RequestAPI("/Compra/CrearInforme/", "POST", body);
 }
 
-export function ListarDocumentacionXCompra(idCompra) {
-  return RequestAPI(
+export async function ListarDocumentacionXCompra(idCompra) {
+  const response = await RequestAPI(
     `/Compra/ListarDocumentacionXCompra/${encodeURIComponent(idCompra)}`,
     "GET",
   );
+
+  return normalizeDocumentListResponse(response);
 }
 
 // Los documentos se manejan fuera de RequestAPI porque no son respuestas JSON
