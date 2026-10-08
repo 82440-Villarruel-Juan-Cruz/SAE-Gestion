@@ -15,33 +15,6 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import SAEHorizontalCarousel from "../carousel/SAEHorizontalCarousel";
 import { formatDate } from "../../../utils/date.utils";
-const settingsSchedule = {
-  dots: true,
-  infinite: false,
-  speed: 500,
-  slidesToShow: 3, // Cuántas tarjetas se ven en computadora
-  slidesToScroll: 1,
-  swipe: true,
-  swipeToSlide: true,
-  touchMove: true,
-  draggable: true,
-  responsive: [
-    {
-      breakpoint: 1024, // En pantallas medianas (tablets)
-      settings: {
-        slidesToShow: 2,
-        slidesToScroll: 1,
-      },
-    },
-    {
-      breakpoint: 600,
-      settings: {
-        slidesToShow: 1,
-        slidesToScroll: 1,
-      },
-    },
-  ],
-};
 
 export function CalendarEvent({ eventos }) {
   const isDesktop = useMediaQuery("(min-width:1200px)", {
@@ -90,18 +63,6 @@ export function CalendarEvent({ eventos }) {
         },
       }}
     >
-      {/* <Slider {...settingsSchedule} responsive={[]} slidesToShow={slidesToShow}>
-        {eventos.map((evento) => {
-          return (
-            <EventoCard
-              key={
-                evento.id ?? `${evento.nombre_evento}-${evento.fecha_evento}`
-              }
-              evento={evento}
-            ></EventoCard>
-          );
-        })}
-      </Slider> */}
       <SAEHorizontalCarousel
         items={eventos}
         slidesToShow={coursesSlidesToShow}
@@ -120,7 +81,7 @@ export function CalendarEvent({ eventos }) {
 
 function EventoCard({ evento }) {
   const scheduleLabel = evento.duracion
-    ? `${evento.horario_inicio} - ${evento.duracion}`
+    ? `${evento.horario_inicio} - ${evento.horario_fin}`
     : evento.horario_inicio;
 
   return (
