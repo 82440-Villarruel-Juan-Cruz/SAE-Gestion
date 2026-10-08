@@ -554,7 +554,7 @@ export const TRAVEL_REQUIRED_DOCUMENTS = [
     archivoNombre: "",
     formatoNombre: "{legajo}_AlumnoRegular",
     id_archivo: null,
-    extension: ".pdf",
+    extension: null,
     required: true,
   },
   {
@@ -567,7 +567,7 @@ export const TRAVEL_REQUIRED_DOCUMENTS = [
     archivoNombre: "",
     formatoNombre: "{legajo}_DNI",
     id_archivo: null,
-    extension: ".pdf",
+    extension: null,
     required: true,
   },
   {
@@ -575,12 +575,15 @@ export const TRAVEL_REQUIRED_DOCUMENTS = [
     nombre: "Declaracion Jurada",
     descripcion:
       "Certificado firmado en el cual establece un heredero a tu fortuna.",
+    externalUrl:
+      "https://docs.google.com/document/d/1wbuUbySrYoNTnyOcojTkkMGHOleb0Afq/edit?usp=drivesdk&ouid=116947469098280320832&rtpof=true&sd=true",
+    externalUrlLabel: "Ejemplo",
     subido: false,
     archivo: null,
     archivoNombre: "",
     formatoNombre: "{idViaje}_{legajo}_DDJJ",
     id_archivo: null,
-    extension: ".pdf",
+    extension: null,
     required: true,
   },
 ];
