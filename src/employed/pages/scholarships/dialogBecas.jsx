@@ -502,7 +502,18 @@ export default function DialogBecas() {
                   />
                 </Grid>
               )}
-              {showStudentSearch && (
+              {(dialogMode === "edit") && (
+                <SAETextField
+                  label={BS.studenName}
+                  value={dialogData?.nombre_becario ?? ""}
+                  disabled={true}
+                  
+                  fullWidth
+                  
+                />
+              )}
+              
+              {showStudentSearch && dialogMode === "create" &&(
                 <Grid size={{ xs: 12, md: 12 }} m={0}>
                   <SearchStudent
                     legajo={dialogData.legajo ?? ""}

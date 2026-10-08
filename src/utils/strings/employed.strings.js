@@ -863,6 +863,7 @@ export const BECAS_STRINGS = {
   saveNoChanges: "No se detectaron cambios para guardar",
   saveMissingCardLogic: "No hay lógica de guardado definida para esta card:",
   saveError: "Ocurrió un error al guardar",
+  studenName: "Nombre",
   missingScholarshipId: (name) => `No se encontró el id de la beca ${name}`,
 
   becarioDialog: {
