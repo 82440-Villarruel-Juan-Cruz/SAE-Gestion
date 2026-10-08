@@ -95,10 +95,13 @@ export function useDocumentPreview({ downloadById, messages = {} }) {
       }
 
       try {
-        const downloadedDocument = await downloadById(documentId);
+        const downloadedResponse = await downloadById(documentId);
+        const downloadedDocument = Array.isArray(downloadedResponse)
+          ? downloadedResponse[0]
+          : downloadedResponse;
         const previewDocument = {
           ...document,
-          ...downloadedDocument,
+          ...(downloadedDocument ?? {}),
         };
 
         if (

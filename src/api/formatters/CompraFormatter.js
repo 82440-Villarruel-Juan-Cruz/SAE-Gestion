@@ -38,10 +38,37 @@ export const isInformeDocument = (
   );
 };
 
-export const normalizeDocument = (document = {}) => ({
-  ...document,
-  name: getDocumentName(document),
-});
+export const normalizeDocument = (document = {}) => {
+  const normalized = {
+    ...document,
+    id: document.id ?? document.id_documento ?? document.idDocumento ?? null,
+    id_documento:
+      document.id_documento ?? document.idDocumento ?? document.id ?? null,
+    id_tipo_documento:
+      document.id_tipo_documento ??
+      document.idTipoDocumento ??
+      document.id_tipo ??
+      document.idTipo ??
+      null,
+    nombre_documento:
+      document.nombre_documento ??
+      document.nombreDocumento ??
+      document.nombre_archivo ??
+      document.nombreArchivo ??
+      document.name ??
+      "",
+    datos_documento:
+      document.datos_documento ?? document.datosDocumento ?? null,
+    extension: document.extension ?? document.ext ?? "",
+    tamanio: document.tamanio ?? document.size ?? document.tamano ?? null,
+    ruta: document.ruta ?? document.path ?? null,
+  };
+
+  return {
+    ...normalized,
+    name: getDocumentName(normalized),
+  };
+};
 
 export const normalizeInforme = (informe = {}, idCompra = null) => {
   const safeInforme = informe ?? {};
@@ -75,7 +102,7 @@ export const normalizePurchase = (
   documentos = [],
   documentTypes = PURCHASE_DOCUMENTS,
 ) => {
-  const idCompra = purchase.id;
+  const idCompra = purchase.id ?? purchase.id_compra ?? purchase.idCompra ?? null;
   const normalizedDocuments = (Array.isArray(documentos) ? documentos : [])
     .filter(Boolean)
     .map(normalizeDocument);
@@ -171,7 +198,7 @@ export const PURCHASE_COLUMNS_SAMPLE = {
 
 export const generatePurchaseRows = (data) =>
   generateBaseRows(data, (item) => ({
-    id: item.id,
+    id: item.id ?? item.id_compra ?? item.idCompra ?? null,
     id_usuario: item.id_usuario,
     nombre_usuario: item.nombre_usuario ?? "",
     nombre_compra: item.nombre_compra ?? "",
