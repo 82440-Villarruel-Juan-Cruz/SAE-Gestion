@@ -400,6 +400,8 @@ export const SCHOLARSHIPS_REQUERID_DOCUMENTS = [
     archivo: null,
     archivoNombre: "",
     formatoNombre: "{legajo}_CBU",
+    externalUrl: "https://docs.google.com/document/d/1wbuUbySrYoNTnyOcojTkkMGHOleb0Afq/edit?usp=drivesdk&ouid=116947469098280320832&rtpof=true&sd=true",
+    externalUrlLabel: "Ejemplo",
     id_archivo: null,
     extension: null,
     required: true,
@@ -573,10 +575,7 @@ export const TRAVEL_REQUIRED_DOCUMENTS = [
     id_tipo_documento: null,
     nombre: "Declaracion Jurada",
     descripcion:
-      "Certificado firmado en el cual establece un heredero a tu fortuna.",
-    externalUrl:
-      "https://docs.google.com/document/d/1wbuUbySrYoNTnyOcojTkkMGHOleb0Afq/edit?usp=drivesdk&ouid=116947469098280320832&rtpof=true&sd=true",
-    externalUrlLabel: "Ejemplo",
+      "Certificado firmado en el cual se establecen parametros en caso de accidentes. Es fundamental para poder dar de alta los seguros del viaje.",
     subido: false,
     archivo: null,
     archivoNombre: "",
