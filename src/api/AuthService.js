@@ -13,7 +13,12 @@ const UPDATE_USER_ERROR_MESSAGES = {
   404: 'Usuario no encontrado',
   500: 'Error interno del servidor',
 };
-
+const EXTEND_SESSION_ERROR_MESSAGES = {
+  204: 'No se pudo renovar la sesión',
+  401: 'Tu sesión no es válida o venció',
+  409: 'Conflicto al renovar la sesión',
+  500: 'Error interno del servidor',
+};
 function errorResult(error, messages) {
   if (error instanceof ApiError) {
     return {
@@ -77,5 +82,28 @@ export async function ModificarUsuario(id, payload, token) {
     };
   } catch (error) {
     return errorResult(error, UPDATE_USER_ERROR_MESSAGES);
+  }
+}
+
+export async function ExtenderSesion(token) {
+  try {
+    const response = await apiRequest('/Usuarios/ExtenderSesion', {
+      method: 'GET',
+      token,
+      includeHeaders: true,
+    });
+
+    if (response.status === 200 || response.status === 201) {
+      return { success: true, data: response.data };
+    }
+
+    return {
+      success: false,
+      message:
+        EXTEND_SESSION_ERROR_MESSAGES[response.status] ??
+        'Respuesta desconocida',
+    };
+  } catch (error) {
+    return errorResult(error, EXTEND_SESSION_ERROR_MESSAGES);
   }
 }

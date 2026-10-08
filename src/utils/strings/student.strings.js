@@ -247,7 +247,7 @@ export const HEALTH_STRINGS = {
   subject: "Asunto:",
   estimateSchedule: "Hora Aproximada",
   seeMedicAvaila: "Revisar los horarios de inicio y fin del especialista",
-  yourSympthoms: "Explique su dolencia",
+  yourSympthoms: "Motivo de Solicitud del turno",
   deleteAclaration:
     "Está por cancelar el turno, toda la información que se haya utilizado en este turno se perderá como también la disponibilidad.",
   dialogIdTurn: "ID Turno",
@@ -334,7 +334,7 @@ export const TRIPS_STRINGS = {
   docStataUplodaded: "Subido",
   docStateNotUploaded: "No subido",
   deleteDocTitle: "Eliminar Documento",
-    deleteDocMessage: (nombreDoc) =>
+  deleteDocMessage: (nombreDoc) =>
     `¿Estás seguro de que deseas eliminar ${nombreDoc}?`,
   deleteDocButton: "Eliminar",
   docEliminado: "Documento eliminado con éxito",

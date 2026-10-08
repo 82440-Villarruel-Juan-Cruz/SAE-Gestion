@@ -228,7 +228,8 @@ export const HEALTH_STRING = {
 
 export const JPA_STRINGS = {
   headerMainTitle: "Módulo de JPA",
-  headerMainSubtitle: "Gestión de eventos generales y Jornada de puertas abiertas",
+  headerMainSubtitle:
+    "Gestión de eventos generales y Jornada de puertas abiertas",
   headerMainDescription:
     "Permite cargar eventos generales, propios de las SAE, los puestos de cada carrera y los interesados en conocer nuestra regional",
 
@@ -308,7 +309,8 @@ export const USER_STRINGS = {
   employUserName: "Nombre de Usuario",
 
   studentID: "Legajo",
-  employLegajoHelper: "Podés escribirlo sin @frc.utn.edu.ar; se agrega automáticamente.",
+  employLegajoHelper:
+    "Podés escribirlo sin @frc.utn.edu.ar; se agrega automáticamente.",
   employProfile: "Perfíl",
   employActive: "Usuario Activo",
   employNoActive: "Usuario NO Activo",
@@ -659,7 +661,7 @@ export const SPORTS_STRINGS = {
 
   //INSCRIPTOS
   inscriptsList: "Inscriptos Deporte",
-  noInscripts:"No hay Inscriptos en este deporte",
+  noInscripts: "No hay Inscriptos en este deporte",
   //providers
 
   teacherCreated: "Docente creado correctamente",
@@ -840,7 +842,7 @@ export const BECAS_STRINGS = {
   headerTitle: "Módulo de Becas",
   headerSubtitle: "Gestión de Becas",
   headerDescription:
-    "EAdministra becas, proyectos de investigación y servicios desde un solo lugar.",
+    "Administra becas, proyectos de investigación y servicios desde un solo lugar.",
 
   scholarshipTypeEconomica: "Beca económica",
   scholarshipTypeServicio: "Servicio interno",

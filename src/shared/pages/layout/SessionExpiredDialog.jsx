@@ -18,7 +18,7 @@ export default function SessionExpiredDialog() {
   const handleExtendSession = async () => {
     setExtending(true);
     try {
-      extendSession();
+      await extendSession();
       await new Promise((resolve) => setTimeout(resolve, 300));
     } finally {
       setExtending(false);

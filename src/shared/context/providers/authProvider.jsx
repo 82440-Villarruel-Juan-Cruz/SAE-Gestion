@@ -1,10 +1,21 @@
 import { useState, useEffect, useCallback } from "react";
 import { appConfig } from "../../../config/appConfig";
-import ObtenerTokenJWT from "../../../api/AuthService";
+import ObtenerTokenJWT, { ExtenderSesion } from "../../../api/AuthService";
 import { SESSION_EXPIRED_EVENT } from "../../../api/apiClient";
 import { AuthContext } from "../sharedContext";
 
 const SESSION_EXPIRATION_WARNING_MS = 300_000;//Cuando ANTES queremos mostrar el warning
+
+const buildSession = (tokenData = {}, previousSession = {}) => ({
+  ...previousSession,
+  token: tokenData.token ?? previousSession.token ?? "",
+  id: tokenData.id ?? previousSession.id ?? 0,
+  legajo: tokenData.legajo_armado ?? previousSession.legajo ?? "",
+  email: tokenData.legajo_armado ?? previousSession.email ?? "",
+  nombre: tokenData.nombre_usuario ?? previousSession.nombre ?? "",
+  id_perfil: tokenData.id_perfil ?? previousSession.id_perfil ?? 0,
+  expiration: Date.now() + appConfig.sessionTimeout,
+});
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -95,20 +106,12 @@ export function AuthProvider({ children }) {
     window.clearTimeout(warningTimeout);
     window.clearTimeout(expirationTimeout);
   };
-}, [user?.expiration, clearSession]);
+}, [user, clearSession]);
 
   const login = async (legajo, dominio, password) => {
     const result = await ObtenerTokenJWT(legajo, dominio, password);
     if (result.success && result.data) {
-      const session = {
-        token: result.data.token ?? "",
-        id: result.data.id ?? 0,
-        legajo: result.data.legajo_armado ?? "",
-        email: result.data.legajo_armado ?? "",
-        nombre: result.data.nombre_usuario ?? "",
-        id_perfil: result.data.id_perfil ?? 0,
-        expiration: Date.now() + appConfig.sessionTimeout,
-      };
+      const session = buildSession(result.data);
 
       localStorage.setItem("session", JSON.stringify(session));
       setUser(session);
@@ -118,9 +121,9 @@ export function AuthProvider({ children }) {
     return null;
   };
 
-  const extendSession = useCallback(() => {
+  const extendSession = useCallback(async () => {
   const stored = localStorage.getItem("session");
-  if (!stored) return;
+  if (!stored) return null;
 
   try {
     const parsed = JSON.parse(stored);
@@ -128,19 +131,25 @@ export function AuthProvider({ children }) {
     // Validar que no estemos intentando extender una sesión ya muerta en localStorage
     if (Date.now() > parsed.expiration) {
       clearSession();
-      return;
+      return null;
     }
 
-    const extended = {
-      ...parsed,
-      expiration: Date.now() + appConfig.sessionTimeout,
-    };
+    const result = await ExtenderSesion(parsed.token);
+
+    if (!result.success || !result.data?.token) {
+      clearSession();
+      return null;
+    }
+
+    const extended = buildSession(result.data, parsed);
 
     localStorage.setItem("session", JSON.stringify(extended));
     setSessionExpired(false); 
     setUser(extended); 
+    return extended;
   } catch {
     clearSession();
+    return null;
   }
 }, [clearSession]);
 
