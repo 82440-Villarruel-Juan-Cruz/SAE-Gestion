@@ -468,7 +468,7 @@ function ScholarshipsContent() {
             </Grid>
           ))}
 
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          {/* <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card
               sx={{
                 width: "100%",
@@ -538,7 +538,7 @@ function ScholarshipsContent() {
                 </Stack>
               </CardContent>
             </Card>
-          </Grid>
+          </Grid> */}
         </Grid>
 
         {/* Mini-sección: documentos de beca económica */}
