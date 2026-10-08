@@ -25,7 +25,10 @@ import SAETextField from "../../../assets/components/inputs/SAETextField";
 import SAESpinner from "../../../assets/components/spinner/SAESpinner";
 import DocumentCard from "../../../assets/components/documents/DocumentCard";
 
-import { SCHOLARSHIP_STRINGS } from "../../../utils/strings/student.strings";
+import {
+  SCHOLARSHIP_STRINGS,
+  PROFILE_STRINGS,
+} from "../../../utils/strings/student.strings";
 import { PERSONAL_FIELDS } from "../../../utils/common/common.config";
 import {
   SCHOLARSHIP_TYPE,
@@ -42,6 +45,7 @@ import { useScholarships } from "../../context/studentContext";
 import { ProfileContextProvider } from "../../../shared/context/providers/profileProvider";
 
 const C = SCHOLARSHIP_STRINGS;
+const D = PROFILE_STRINGS;
 
 const isEconomicOptionalDocument = (documento) => documento.required === false;
 
@@ -54,7 +58,8 @@ export default function ScholarshipsForm() {
 }
 
 export function ScholarshipsContent() {
-  const { dialogOpen, dialogSaving, setDialogSaving, closeDialog } = useNotification();
+  const { dialogOpen, dialogSaving, setDialogSaving, closeDialog } =
+    useNotification();
   const {
     datosPerfil,
     addressParts,
@@ -192,7 +197,7 @@ export function ScholarshipsContent() {
         <Grid container spacing={{ xs: 1.5, sm: 2 }} mb={{ xs: 3, md: 4 }}>
           <Grid size={{ xs: 12, md: 4 }}>
             <SAETextField
-              label={C.personalInfoID}
+              label={D.personalInfoID}
               fullWidth
               disabled
               value={datosPerfil.legajo}
@@ -208,7 +213,7 @@ export function ScholarshipsContent() {
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
             <SAETextField
-              label={C.personalInfoNames}
+              label={D.personalInfoNames}
               fullWidth
               value={datosPerfil.nombres}
               onChange={(e) => handleChange("nombres", e.target.value)}
@@ -225,7 +230,7 @@ export function ScholarshipsContent() {
 
           <Grid size={{ xs: 12, md: 4 }}>
             <SAETextField
-              label={C.personalInfoLastNames}
+              label={D.personalInfoLastNames}
               fullWidth
               value={datosPerfil.apellidos}
               onChange={(e) => handleChange("apellidos", e.target.value)}
@@ -242,7 +247,7 @@ export function ScholarshipsContent() {
 
           <Grid size={{ xs: 12, md: 4 }}>
             <SAETextField
-              label={C.personalInfoDNI}
+              label={D.personalInfoDNI}
               fullWidth
               value={formatDni(datosPerfil.dni)}
               onChange={handleMaskedChange("dni", formatDni)}
@@ -259,7 +264,7 @@ export function ScholarshipsContent() {
 
           <Grid size={{ xs: 12, md: 4 }}>
             <SAETextField
-              label={C.personalInfoCUIL}
+              label={D.personalInfoCUIL}
               fullWidth
               value={formatCuil(datosPerfil.cuil)}
               onChange={handleMaskedChange("cuil", formatCuil)}
@@ -276,7 +281,7 @@ export function ScholarshipsContent() {
 
           <Grid size={{ xs: 12, md: 4 }}>
             <SAETextField
-              label={C.personalInfoBirth}
+              label={D.personalInfoBirth}
               type="date"
               value={datosPerfil.fecha_nacimiento}
               onChange={(e) => handleChange("fecha_nacimiento", e.target.value)}
@@ -298,7 +303,7 @@ export function ScholarshipsContent() {
         <Grid container spacing={{ xs: 1.5, sm: 2 }} mb={{ xs: 3, md: 4 }}>
           <Grid size={{ xs: 12, md: 6 }}>
             <SAETextField
-              label={C.contactInfoEmail}
+              label={D.contactInfoEmail}
               type="email"
               fullWidth
               value={datosPerfil.email}
@@ -313,7 +318,7 @@ export function ScholarshipsContent() {
 
           <Grid size={{ xs: 12, md: 6 }}>
             <SAETextField
-              label={C.contactInfoPhone}
+              label={D.contactInfoPhone}
               fullWidth
               value={datosPerfil.telefono}
               onChange={handleMaskedChange("telefono", formatPhone)}
@@ -330,7 +335,7 @@ export function ScholarshipsContent() {
 
           <Grid size={{ xs: 12, md: 3 }}>
             <SAETextField
-              label={C.contactInfoProvince}
+              label={D.contactInfoProvince}
               fullWidth
               value={addressParts[0]}
               onChange={(e) => handleAddressChange(0, e.target.value)}
@@ -345,7 +350,7 @@ export function ScholarshipsContent() {
           </Grid>
           <Grid size={{ xs: 12, md: 3 }}>
             <SAETextField
-              label={C.contactInfoCity}
+              label={D.contactInfoCity}
               fullWidth
               value={addressParts[1]}
               onChange={(e) => handleAddressChange(1, e.target.value)}
@@ -359,7 +364,7 @@ export function ScholarshipsContent() {
 
           <Grid size={{ xs: 12, md: 4 }}>
             <SAETextField
-              label={C.contactInfoStreet}
+              label={D.contactInfoStreet}
               fullWidth
               value={addressParts[2]}
               onChange={(e) => handleAddressChange(2, e.target.value)}
@@ -375,7 +380,7 @@ export function ScholarshipsContent() {
 
           <Grid size={{ xs: 12, md: 2 }}>
             <SAETextField
-              label={C.contactInfoNumber}
+              label={D.contactInfoNumber}
               fullWidth
               value={addressParts[3]}
               onChange={(e) => handleAddressChange(3, e.target.value)}
