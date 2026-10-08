@@ -237,12 +237,12 @@ export const isPreviewableDocument = (document = {}) =>
 export const getImageSource = (document = {}) => {
   if (!document?.datos_documento) return "";
 
-  if (
-    document.datos_documento.startsWith("data:") ||
-    document.datos_documento.startsWith("blob:") ||
-    /^https?:\/\//i.test(document.datos_documento)
-  ) {
-    return document.datos_documento;
+  const source = String(document.datos_documento).trim();
+  const blobIndex = source.indexOf("blob:");
+  if (blobIndex >= 0) return source.slice(blobIndex);
+
+  if (source.startsWith("data:") || /^https?:\/\//i.test(source)) {
+    return source;
   }
 
   const mimeByExtension = {
@@ -257,7 +257,7 @@ export const getImageSource = (document = {}) => {
 
   const mime = mimeByExtension[getDocumentExtension(document)] || "image/jpeg";
 
-  return `data:${mime};base64,${document.datos_documento}`;
+  return `data:${mime};base64,${source}`;
 };
 
 /* ==========================================================
