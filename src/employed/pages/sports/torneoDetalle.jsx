@@ -68,9 +68,9 @@ function buildFormData(t) {
   return {
     id: t.id,
     nombre_torneo: t.nombre_torneo ?? "",
-    fecha_inicio: formatDate(t.fecha_inicio, "input"),
-    fecha_fin: formatDate(t.fecha_fin, "input"),
-    fecha_limite_inscripcion: formatDate(t.fecha_limite_inscripcion, "input"),
+    fecha_inicio: t.fecha_inicio,
+    fecha_fin: t.fecha_fin,
+    fecha_limite_inscripcion: t.fecha_limite_inscripcion,
     activo: t.activo ?? true,
     id_deporte: t.id_deporte ?? 0,
     nombre_deporte: t.nombre_deporte ?? "",
@@ -785,7 +785,7 @@ function TorneoContent() {
             />
             {torneo.fecha_inicio && (
               <Chip
-                label={`Inicio: ${formatDate(torneo.fecha_inicio, "short")}`}
+                label={`Inicio: ${torneo.fecha_inicio}`}
                 size="small"
                 sx={{
                   bgcolor: "rgba(255,255,255,0.18)",
@@ -793,11 +793,11 @@ function TorneoContent() {
                   fontWeight: 700,
                   border: "1px solid rgba(255,255,255,0.4)",
                 }}
-              />
+              ></Chip>
             )}
             {torneo.fecha_fin && (
               <Chip
-                label={`Fin: ${formatDate(torneo.fecha_fin, "short")}`}
+                label={`Fin: ${torneo.fecha_fin}`}
                 size="small"
                 sx={{
                   bgcolor: "rgba(255,255,255,0.18)",

@@ -45,7 +45,7 @@ const generateSportsColumns = (
         normalizedKey.startsWith("id_") ||
         normalizedKey.endsWith("_id");
       const isShort = ["estado", "cupo", "duracion"].includes(normalizedKey);
-      
+
       return {
         field: key,
         headerName: formatHeader(key),
@@ -53,7 +53,7 @@ const generateSportsColumns = (
         minWidth: isId || isShort ? 50 : 120,
         maxWidth: isId ? 70 : isShort ? 100 : undefined,
         align: isId || isShort ? "center" : "left",
-        headerAlign: isId || isShort ? "center" : "left", 
+        headerAlign: isId || isShort ? "center" : "left",
         ...overrides[key],
       };
     });
@@ -152,11 +152,7 @@ export function SportsProvider({ children, autoLoad = true }) {
   );
   const fetchDeportistas = useCallback(
     () =>
-      load(
-        setDeportistasRows,
-        setLoadingDeportistas,
-        api.obtenerDeportistas
-      ),
+      load(setDeportistasRows, setLoadingDeportistas, api.obtenerDeportistas),
     [load],
   );
   const fetchDeportes = useCallback(
@@ -359,16 +355,15 @@ export function SportsProvider({ children, autoLoad = true }) {
       if (dialogType === "docente") {
         const body = {
           ...dialogData,
-          fecha_nacimiento: toApiDateTime(dialogData.fecha_nacimiento)
+          fecha_nacimiento: toApiDateTime(dialogData.fecha_nacimiento),
         };
         await (dialogMode === "create"
           ? api.crearDocenteDeportivo(body)
           : api.modificarDocenteDeportivo(dialogData.cuil, body));
         await fetchProfesores();
         showNotification(
-          dialogMode === "create"
-            ? C.teacherCreated
-            : C.teacherUpdated,"success"
+          dialogMode === "create" ? C.teacherCreated : C.teacherUpdated,
+          "success",
         );
       } else if (dialogType === "espacio") {
         await (dialogMode === "create"
@@ -376,15 +371,18 @@ export function SportsProvider({ children, autoLoad = true }) {
           : api.modificarEspacioDeportivo(dialogData.id, dialogData));
         await fetchEspacios();
         showNotification(
-          dialogMode === "create"
-            ? C.placeCreated
-            : C.placeUpdated,"success"
+          dialogMode === "create" ? C.placeCreated : C.placeUpdated,
+          "success",
         );
       } else if (dialogType === "deportista") {
         const body = {
           ...dialogData,
-          vencimiento_ficha: dialogMode === "create"? new Date():toApiDateTime(dialogData.vencimiento_ficha),
-          habilitado_deporte: dialogMode === "create"? false:dialogData.habilitado_deporte,
+          vencimiento_ficha:
+            dialogMode === "create"
+              ? new Date()
+              : toApiDateTime(dialogData.vencimiento_ficha),
+          habilitado_deporte:
+            dialogMode === "create" ? false : dialogData.habilitado_deporte,
         };
         //console.log("deportista",body);
         await (dialogMode === "create"
@@ -392,9 +390,8 @@ export function SportsProvider({ children, autoLoad = true }) {
           : api.modificarDeportista(dialogData.id, body));
         await fetchDeportistas();
         showNotification(
-          dialogMode === "create"
-            ? C.sportsmanCreated
-            : C.sportsmanUpdated,"success"
+          dialogMode === "create" ? C.sportsmanCreated : C.sportsmanUpdated,
+          "success",
         );
       } else {
         await (dialogMode === "create"
@@ -402,9 +399,8 @@ export function SportsProvider({ children, autoLoad = true }) {
           : api.modificarDeporte(dialogData.id, dialogData));
         await fetchDeportes();
         showNotification(
-          dialogMode === "create"
-            ? C.sportsCreated
-            : C.sportsUpdated,"success"
+          dialogMode === "create" ? C.sportsCreated : C.sportsUpdated,
+          "success",
         );
       }
       closeDialog();
@@ -447,25 +443,25 @@ export function SportsProvider({ children, autoLoad = true }) {
   const [loadingInscriptos, setLoadingInscriptos] = useState(false);
 
   const fetchDeportistasXDeporte = useCallback(
-      async (idDeporte) => {
-        if (!idDeporte) return; // Evita buscar si está vacío
-        setLoadingInscriptos(true);
-        try {
-          const data = await api.ObtenerDeportistasXDeporte(idDeporte);
-          if (data) {
-            setDeportistasInscriptos(data);
-          } else {
-            setDialogError("ERROR: Ocurrio un error buscando a los deportistas");
-          }
-        } catch {
-          setDeportistasInscriptos(null);
-          setDialogError("Usuario No encontrado");
-        } finally {
-          setLoadingInscriptos(false);
+    async (idDeporte) => {
+      if (!idDeporte) return; // Evita buscar si está vacío
+      setLoadingInscriptos(true);
+      try {
+        const data = await api.ObtenerDeportistasXDeporte(idDeporte);
+        if (data) {
+          setDeportistasInscriptos(data);
+        } else {
+          setDialogError("ERROR: Ocurrio un error buscando a los deportistas");
         }
-      },
-      [setDialogError],
-    );
+      } catch {
+        setDeportistasInscriptos(null);
+        setDialogError("Usuario No encontrado");
+      } finally {
+        setLoadingInscriptos(false);
+      }
+    },
+    [setDialogError],
+  );
 
   useEffect(() => {
     fetchDeportistasXDeporte();
@@ -473,7 +469,7 @@ export function SportsProvider({ children, autoLoad = true }) {
 
   //#endregion
 
-  const booleanColumn = (yes =C.active, no = C.inactive) => ({
+  const booleanColumn = (yes = C.active, no = C.inactive) => ({
     width: 120,
     flex: 0,
     renderCell: ({ value }) => (
@@ -495,14 +491,14 @@ export function SportsProvider({ children, autoLoad = true }) {
     headerAlign: "center",
     align: "center",
     renderCell: (params) => (
-   <Stack
-      direction="row"
-      alignItems="center"
-      justifyContent="center"
-      sx={{ width: "100%", height: "100%" }}
-    >
-      {renderCell(params)}
-    </Stack>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="center"
+        sx={{ width: "100%", height: "100%" }}
+      >
+        {renderCell(params)}
+      </Stack>
     ),
   });
 
@@ -595,7 +591,7 @@ export function SportsProvider({ children, autoLoad = true }) {
       generateSportsColumns(deportesRows, {
         overrides: { activo: booleanColumn() },
         actions: actionColumn(({ row }) => (
-          <IconButton 
+          <IconButton
             size="small"
             onClick={() => openEditDeporte(row)}
             sx={{ color: "var(--primary)" }}
@@ -613,17 +609,14 @@ export function SportsProvider({ children, autoLoad = true }) {
           fecha_inicio: {
             width: 120,
             flex: 0,
-            valueFormatter: formatDate,
           },
           fecha_fin: {
             width: 120,
             flex: 0,
-            valueFormatter: formatDate,
           },
           fecha_limite_inscripcion: {
             width: 180,
             flex: 0,
-            valueFormatter: formatDate,
           },
           cupo_jugadores: { headerName: "Cupo", width: 80, flex: 0 },
           activo: booleanColumn(),

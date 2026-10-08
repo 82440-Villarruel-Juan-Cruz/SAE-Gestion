@@ -68,14 +68,15 @@ export function toApiDateTimeWithFixedTime(
 export function formatDate(value, format = "display") {
   if (!value) return "";
 
+  const normalizedDate = normalizeDateInput(value);
+
+  if (format === "input") return normalizedDate;
+
   let date;
 
-  // Si ya viene yyyy-MM-dd evitamos problemas de zona horaria
-  if (
-    typeof value === "string" &&
-    /^\d{4}-\d{2}-\d{2}$/.test(value)
-  ) {
-    date = new Date(value.replace(/-/g, "/"));
+  // Si viene como fecha normalizada evitamos problemas de zona horaria
+  if (normalizedDate) {
+    date = new Date(normalizedDate.replace(/-/g, "/"));
   } else {
     date = new Date(value);
   }
@@ -88,13 +89,6 @@ export function formatDate(value, format = "display") {
         day: "2-digit",
         month: "long",
       });
-
-    case "input":
-      return [
-        date.getFullYear(),
-        String(date.getMonth() + 1).padStart(2, "0"),
-        String(date.getDate()).padStart(2, "0"),
-      ].join("-");
 
     case "display":
     default:

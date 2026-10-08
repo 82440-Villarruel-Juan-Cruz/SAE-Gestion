@@ -23,7 +23,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import SAEButton from "../../../assets/components/buttons/SAEButton";
 import SAETextField from "../../../assets/components/inputs/SAETextField";
 import { useSports } from "../../context/employedContext";
-import { getTodayInputDate, toApiDateTime } from "../../../utils/date.utils";
+import {
+  formatDate,
+  getTodayInputDate,
+  toApiDateTime,
+} from "../../../utils/date.utils";
 import { EMPTY_TOURNAMENT_FORM } from "../../../utils/common/common.config";
 import { SPORTS_STRINGS } from "../../../utils/strings/employed.strings";
 import { isEmpty } from "../../../utils/text.utils";
@@ -57,13 +61,27 @@ export default function TorneoFormDialog({
   // Reset form and load catalogs every time dialog opens
   useEffect(() => {
     if (!open) return;
-    setFormData(initialData ?? EMPTY_TOURNAMENT_FORM);
+
+    setFormData(
+      initialData
+        ? {
+            ...initialData,
+            fecha_inicio: formatDate(initialData.fecha_inicio, "input"),
+            fecha_fin: formatDate(initialData.fecha_fin, "input"),
+            fecha_limite_inscripcion: formatDate(
+              initialData.fecha_limite_inscripcion,
+              "input",
+            ),
+          }
+        : EMPTY_TOURNAMENT_FORM,
+    );
     setFieldErrors({});
     setError("");
-
     let cancelled = false;
     setLoadingCatalogos(true);
-    const fetchSports = isEdit ? obtenerDeportesCompleto : obtenerDeportesActivos;
+    const fetchSports = isEdit
+      ? obtenerDeportesCompleto
+      : obtenerDeportesActivos;
 
     Promise.all([fetchSports(), obtenerDocentesDeportivos()])
       .then(([deps, docs]) => {
@@ -247,53 +265,56 @@ export default function TorneoFormDialog({
 
           {/* Deporte autocomplete */}
           <Autocomplete
-              options={deportesList}
-              loading={loadingCatalogos}
-              getOptionLabel={(opt) =>
-                typeof opt === "string" ? opt : (opt.nombre ?? "")
+            options={deportesList}
+            loading={loadingCatalogos}
+            getOptionLabel={(opt) =>
+              typeof opt === "string" ? opt : (opt.nombre ?? "")
+            }
+            value={
+              loadingCatalogos
+                ? null
+                : (deportesList.find(
+                    (d) => String(d.id) === String(formData.id_deporte),
+                  ) ??
+                  deportesList.find(
+                    (d) =>
+                      d.nombre?.toLowerCase() ===
+                      formData.nombre_deporte?.toLowerCase(),
+                  ) ??
+                  (formData.id_deporte
+                    ? {
+                        id: formData.id_deporte,
+                        nombre: formData.nombre_deporte,
+                      }
+                    : null))
+            }
+            onChange={(_, val) => {
+              if (val) {
+                handleChanges({
+                  id_deporte: val.id,
+                  nombre_deporte: val.nombre,
+                });
+              } else {
+                handleChanges({
+                  id_deporte: 0,
+                  nombre_deporte: "",
+                });
               }
-              value={
-                loadingCatalogos
-                  ? null
-                  : deportesList.find(
-                      (d) => String(d.id) === String(formData.id_deporte),
-                    ) ??
-                    deportesList.find(
-                      (d) =>
-                        d.nombre?.toLowerCase() ===
-                        formData.nombre_deporte?.toLowerCase(),
-                    ) ??
-                    (formData.id_deporte
-                      ? { id: formData.id_deporte, nombre: formData.nombre_deporte }
-                      : null)
-              }
-              onChange={(_, val) => {
-                if (val) {
-                  handleChanges({
-                    id_deporte: val.id,
-                    nombre_deporte: val.nombre,
-                  });
-                } else {
-                  handleChanges({
-                    id_deporte: 0,
-                    nombre_deporte: "",
-                  });
-                }
-              }}
-              isOptionEqualToValue={(opt, val) =>
-                String(opt.id) === String(val?.id)
-              }
-              renderInput={(params) => (
-                <SAETextField
-                  {...params}
-                  label={C.sport}
-                  fullWidth
-                  required
-                  error={Boolean(fieldErrors.id_deporte)}
-                  helperText={fieldErrors.id_deporte ?? ""}
-                />
-              )}
-            />
+            }}
+            isOptionEqualToValue={(opt, val) =>
+              String(opt.id) === String(val?.id)
+            }
+            renderInput={(params) => (
+              <SAETextField
+                {...params}
+                label={C.sport}
+                fullWidth
+                required
+                error={Boolean(fieldErrors.id_deporte)}
+                helperText={fieldErrors.id_deporte ?? ""}
+              />
+            )}
+          />
 
           {/* Docente autocomplete */}
           <Autocomplete
