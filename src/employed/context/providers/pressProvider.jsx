@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-
+import { formatDate } from "../../../utils/date.utils";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -117,11 +117,7 @@ export function PressProvider({ children }) {
         onClick: handleDeletePublicacion,
       },
     ],
-    [
-      handleDeletePublicacion,
-      handlePreviewPublicacion,
-      openEditPublicacion,
-    ],
+    [handleDeletePublicacion, handlePreviewPublicacion, openEditPublicacion],
   );
 
   const publicacionesColumns = useMemo(() => {
@@ -141,6 +137,12 @@ export function PressProvider({ children }) {
         minWidth: 150,
         flex: 0,
         renderCell: (params) => booleanChip(params.value),
+      },
+      fecha_vigencia: {
+        valueFormatter: (value) => formatDate(value, "display"),
+      },
+      fecha_inicio: {
+        valueFormatter: (value) => formatDate(value, "display"),
       },
     });
   }, [publicacionesActions]);

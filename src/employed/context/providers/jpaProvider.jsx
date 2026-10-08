@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { formatDate } from "../../../utils/date.utils";
 import { Box, IconButton, Link } from "@mui/material";
 import {
   ObtenerEventosPublicos,
@@ -20,9 +21,16 @@ import EditIcon from "@mui/icons-material/Edit";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import { generateRows,generateColumns } from "../../../utils/datagrid.utils.jsx";
+import {
+  generateRows,
+  generateColumns,
+} from "../../../utils/datagrid.utils.jsx";
 import { toApiDateTime, toApiTime } from "../../../utils/date.utils.js";
-import { EMPTY_EVENTO_PUBLICO, EMPTY_INTERESADOS, EMPTY_STANDS } from "../../../utils/common/common.config.js";
+import {
+  EMPTY_EVENTO_PUBLICO,
+  EMPTY_INTERESADOS,
+  EMPTY_STANDS,
+} from "../../../utils/common/common.config.js";
 import { JPA_STRINGS } from "../../../utils/strings/employed.strings.js";
 import { isEmpty } from "../../../utils/text.utils.js";
 import {
@@ -57,54 +65,57 @@ export function JPAProvider({ children }) {
     setTouchedFields({});
   }, []);
 
-  const validateField = useCallback((field, value, data = dialogData) => {
-    const requiredMessage = "Este campo es obligatorio.";
+  const validateField = useCallback(
+    (field, value, data = dialogData) => {
+      const requiredMessage = "Este campo es obligatorio.";
 
-    switch (field) {
-      case "encargado":
-        if (isEmpty(value)) return requiredMessage;
-        return validateNombreApellido(value, C.eventManager) ?? "";
-      case "nombre_evento":
-        if (isEmpty(value)) return requiredMessage;
-        return isValidText(value) ? "" : C.eventNameFormat;
-      case "lugar":
-      case "fecha_evento":
-      case "nombre_stand":
-        if (isEmpty(value)) return requiredMessage;
-        return isValidText(value) ? "" : C.standNameFormat;
-      case "expositor":
-        if (isEmpty(value)) return requiredMessage;
-        return isValidText(value) ? "" : C.standExpoFormat;
-      case "ubicacion":
-        if (isEmpty(value)) return requiredMessage;
-        return isValidText(value) ? "" : C.standUbiFormat;
-      case "nombre_interesado":
-        if (isEmpty(value)) return requiredMessage;
-        return validateNombreApellido(value, C.interestName) ?? "";
+      switch (field) {
+        case "encargado":
+          if (isEmpty(value)) return requiredMessage;
+          return validateNombreApellido(value, C.eventManager) ?? "";
+        case "nombre_evento":
+          if (isEmpty(value)) return requiredMessage;
+          return isValidText(value) ? "" : C.eventNameFormat;
+        case "lugar":
+        case "fecha_evento":
+        case "nombre_stand":
+          if (isEmpty(value)) return requiredMessage;
+          return isValidText(value) ? "" : C.standNameFormat;
+        case "expositor":
+          if (isEmpty(value)) return requiredMessage;
+          return isValidText(value) ? "" : C.standExpoFormat;
+        case "ubicacion":
+          if (isEmpty(value)) return requiredMessage;
+          return isValidText(value) ? "" : C.standUbiFormat;
+        case "nombre_interesado":
+          if (isEmpty(value)) return requiredMessage;
+          return validateNombreApellido(value, C.interestName) ?? "";
 
-      case "horario_inicio":
-        return isEmpty(value) ? "Ingresá la hora de inicio." : "";
+        case "horario_inicio":
+          return isEmpty(value) ? "Ingresá la hora de inicio." : "";
 
-      case "horario_fin":
-        if (isEmpty(value)) return "Ingresá la hora de fin.";
-        return isTimeAfter(value, data.horario_inicio)
-          ? ""
-          : "La hora de fin debe ser posterior a la de inicio.";
+        case "horario_fin":
+          if (isEmpty(value)) return "Ingresá la hora de fin.";
+          return isTimeAfter(value, data.horario_inicio)
+            ? ""
+            : "La hora de fin debe ser posterior a la de inicio.";
 
-      case "email":
-        if (isEmpty(value)) return "Ingresá un email.";
-        return isValidEmail(value) ? "" : C.interestEmailHelp;
+        case "email":
+          if (isEmpty(value)) return "Ingresá un email.";
+          return isValidEmail(value) ? "" : C.interestEmailHelp;
 
-      case "contacto":
-        if (isEmpty(value)) return "Ingresá un contacto.";
-        return isValidMinLengthPhone(value, 8)
-          ? ""
-          : "Ingresá un teléfono válido.";
+        case "contacto":
+          if (isEmpty(value)) return "Ingresá un contacto.";
+          return isValidMinLengthPhone(value, 8)
+            ? ""
+            : "Ingresá un teléfono válido.";
 
-      default:
-        return "";
-    }
-  }, [dialogData]);
+        default:
+          return "";
+      }
+    },
+    [dialogData],
+  );
 
   const getRequiredFields = useCallback((type) => {
     switch (type) {
@@ -136,49 +147,58 @@ export function JPAProvider({ children }) {
     }
   }, []);
 
-  const validateDialog = useCallback((type) => {
-    const fields = getRequiredFields(type);
-    const errors = fields.reduce((nextErrors, field) => {
-      const message = validateField(field, dialogData[field], dialogData);
-      if (message) nextErrors[field] = message;
-      return nextErrors;
-    }, {});
+  const validateDialog = useCallback(
+    (type) => {
+      const fields = getRequiredFields(type);
+      const errors = fields.reduce((nextErrors, field) => {
+        const message = validateField(field, dialogData[field], dialogData);
+        if (message) nextErrors[field] = message;
+        return nextErrors;
+      }, {});
 
-    setTouchedFields(
-      fields.reduce((nextTouched, field) => ({ ...nextTouched, [field]: true }), {}),
-    );
-    setFieldErrors(errors);
+      setTouchedFields(
+        fields.reduce(
+          (nextTouched, field) => ({ ...nextTouched, [field]: true }),
+          {},
+        ),
+      );
+      setFieldErrors(errors);
 
-    if (Object.keys(errors).length > 0) {
-      setDialogError("Revisá los campos marcados antes de guardar.");
-      return false;
-    }
-
-    setDialogError("");
-    return true;
-  }, [dialogData, getRequiredFields, setDialogError, validateField]);
-
-  const handleValidatedDataChange = useCallback((field, value) => {
-    handleDataChange(field, value);
-    setTouchedFields((previous) => ({ ...previous, [field]: true }));
-    setFieldErrors((previous) => {
-      const nextData = { ...dialogData, [field]: value };
-      const nextErrors = {
-        ...previous,
-        [field]: validateField(field, value, nextData),
-      };
-
-      if (field === "horario_inicio" && touchedFields.horario_fin) {
-        nextErrors.horario_fin = validateField(
-          "horario_fin",
-          nextData.horario_fin,
-          nextData,
-        );
+      if (Object.keys(errors).length > 0) {
+        setDialogError("Revisá los campos marcados antes de guardar.");
+        return false;
       }
 
-      return nextErrors;
-    });
-  }, [dialogData, handleDataChange, touchedFields.horario_fin, validateField]);
+      setDialogError("");
+      return true;
+    },
+    [dialogData, getRequiredFields, setDialogError, validateField],
+  );
+
+  const handleValidatedDataChange = useCallback(
+    (field, value) => {
+      handleDataChange(field, value);
+      setTouchedFields((previous) => ({ ...previous, [field]: true }));
+      setFieldErrors((previous) => {
+        const nextData = { ...dialogData, [field]: value };
+        const nextErrors = {
+          ...previous,
+          [field]: validateField(field, value, nextData),
+        };
+
+        if (field === "horario_inicio" && touchedFields.horario_fin) {
+          nextErrors.horario_fin = validateField(
+            "horario_fin",
+            nextData.horario_fin,
+            nextData,
+          );
+        }
+
+        return nextErrors;
+      });
+    },
+    [dialogData, handleDataChange, touchedFields.horario_fin, validateField],
+  );
 
   {
     /*Seccion Eventos Publicos */
@@ -198,16 +218,22 @@ export function JPAProvider({ children }) {
   }, []);
   const openCreateEventoPublico = () => {
     clearValidation();
-    openDialog("eventoPublico","create",EMPTY_EVENTO_PUBLICO);
+    openDialog("eventoPublico", "create", EMPTY_EVENTO_PUBLICO);
   };
-  const openEditEventoPublico = useCallback((row) => {
-    clearValidation();
-    openDialog("eventoPublico","edit",row);
-  }, [clearValidation, openDialog]);
-  const openDeleteEvento = useCallback((row) => {
-    clearValidation();
-    openDialog("eventoPublico","delete",row);
-  }, [clearValidation, openDialog]);
+  const openEditEventoPublico = useCallback(
+    (row) => {
+      clearValidation();
+      openDialog("eventoPublico", "edit", row);
+    },
+    [clearValidation, openDialog],
+  );
+  const openDeleteEvento = useCallback(
+    (row) => {
+      clearValidation();
+      openDialog("eventoPublico", "delete", row);
+    },
+    [clearValidation, openDialog],
+  );
 
   useEffect(() => {
     fetchEventosPublicos();
@@ -222,7 +248,7 @@ export function JPAProvider({ children }) {
         await eliminarEvento(dialogData.id);
         closeDialog();
         await fetchEventosPublicos();
-        showNotification(C.eventDeleteMsg,"success");
+        showNotification(C.eventDeleteMsg, "success");
         return;
       }
 
@@ -253,7 +279,8 @@ export function JPAProvider({ children }) {
           ? C.eventCreateMsg
           : dialogMode === "edit"
             ? C.eventEditMsg
-            : C.eventDeleteMsg,"success"
+            : C.eventDeleteMsg,
+        "success",
       );
     } catch (err) {
       setDialogError(err.message || C.eventError);
@@ -291,16 +318,22 @@ export function JPAProvider({ children }) {
 
   const openCreateEventoSAE = () => {
     clearValidation();
-    openDialog("eventosInternos","create",EMPTY_EVENTO_PUBLICO);
+    openDialog("eventosInternos", "create", EMPTY_EVENTO_PUBLICO);
   };
-  const openEditEventoSAE = useCallback((row) => {
-    clearValidation();
-    openDialog("eventosInternos","edit",row);
-  }, [clearValidation, openDialog]);
-  const openDeleteEventoSAE = useCallback((row) => {
-    clearValidation();
-    openDialog("eventosInternos","delete",row);
-  }, [clearValidation, openDialog]);
+  const openEditEventoSAE = useCallback(
+    (row) => {
+      clearValidation();
+      openDialog("eventosInternos", "edit", row);
+    },
+    [clearValidation, openDialog],
+  );
+  const openDeleteEventoSAE = useCallback(
+    (row) => {
+      clearValidation();
+      openDialog("eventosInternos", "delete", row);
+    },
+    [clearValidation, openDialog],
+  );
 
   const handleEventoSAESave = async () => {
     if (dialogMode !== "delete" && !validateDialog("eventosInternos")) return;
@@ -311,7 +344,7 @@ export function JPAProvider({ children }) {
         await eliminarEvento(dialogData.id);
         closeDialog();
         await fetchEventosSAE();
-        showNotification(C.eventDeleteMsg,"success");
+        showNotification(C.eventDeleteMsg, "success");
         return;
       }
 
@@ -342,7 +375,8 @@ export function JPAProvider({ children }) {
           ? C.eventCreateMsg
           : dialogMode === "edit"
             ? C.eventEditMsg
-            : C.eventDeleteMsg,"success"
+            : C.eventDeleteMsg,
+        "success",
       );
     } catch (err) {
       setDialogError(err.message || C.eventError);
@@ -380,16 +414,22 @@ export function JPAProvider({ children }) {
 
   const openCreateStands = () => {
     clearValidation();
-    openDialog("stands","create",EMPTY_STANDS);
+    openDialog("stands", "create", EMPTY_STANDS);
   };
-  const openEditStands = useCallback((row) => {
-    clearValidation();
-    openDialog("stands","edit",row);
-  }, [clearValidation, openDialog]);
-  const openDeleteStands = useCallback((row) => {
-    clearValidation();
-    openDialog("stands","delete",row);
-  }, [clearValidation, openDialog]);
+  const openEditStands = useCallback(
+    (row) => {
+      clearValidation();
+      openDialog("stands", "edit", row);
+    },
+    [clearValidation, openDialog],
+  );
+  const openDeleteStands = useCallback(
+    (row) => {
+      clearValidation();
+      openDialog("stands", "delete", row);
+    },
+    [clearValidation, openDialog],
+  );
 
   const handleStandSave = async () => {
     if (dialogMode !== "delete" && !validateDialog("stands")) return;
@@ -422,7 +462,7 @@ export function JPAProvider({ children }) {
           : dialogMode === "edit"
             ? C.standEditMsg
             : C.eventDeleteMsg,
-        "success"
+        "success",
       );
     } catch (err) {
       setDialogError(err.message || C.eventError);
@@ -457,16 +497,22 @@ export function JPAProvider({ children }) {
 
   const openCreateInteresados = () => {
     clearValidation();
-    openDialog("interesados","create",EMPTY_INTERESADOS);
+    openDialog("interesados", "create", EMPTY_INTERESADOS);
   };
-  const openEditInteresados = useCallback((row) => {
-    clearValidation();
-    openDialog("interesados","edit",row);
-  }, [clearValidation, openDialog]);
-  const openDeleteInteresados = useCallback((row) => {
-    clearValidation();
-    openDialog("interesados","delete",row);
-  }, [clearValidation, openDialog]);
+  const openEditInteresados = useCallback(
+    (row) => {
+      clearValidation();
+      openDialog("interesados", "edit", row);
+    },
+    [clearValidation, openDialog],
+  );
+  const openDeleteInteresados = useCallback(
+    (row) => {
+      clearValidation();
+      openDialog("interesados", "delete", row);
+    },
+    [clearValidation, openDialog],
+  );
 
   const handleInteresadoSave = async () => {
     if (dialogMode !== "delete" && !validateDialog("interesados")) return;
@@ -497,7 +543,7 @@ export function JPAProvider({ children }) {
           : dialogMode === "edit"
             ? C.interestEditMsg
             : C.interestDeleteMsg,
-        "success"
+        "success",
       );
     } catch (err) {
       setDialogError(err.message || C.eventError);
@@ -515,109 +561,160 @@ export function JPAProvider({ children }) {
   }
 
   //Eventos//
-  const handleEditEventoPublico = useCallback((row) => {
+  const handleEditEventoPublico = useCallback(
+    (row) => {
       openEditEventoPublico(row);
-  }, [openEditEventoPublico]);
+    },
+    [openEditEventoPublico],
+  );
 
-  const handleDeleteEvento = useCallback((row) => {
+  const handleDeleteEvento = useCallback(
+    (row) => {
       openDeleteEvento(row);
-  }, [openDeleteEvento]);
+    },
+    [openDeleteEvento],
+  );
 
-  const eventsActions = useMemo(() => [{
-      icon: EditIcon,
-      color: "primary",
-      title: "Editar Evento",
-      onClick: handleEditEventoPublico, 
-  },{
-      icon: DeleteIcon,
-      color: "primary",
-      title: "Eliminar Evento",
-      onClick: handleDeleteEvento, 
-  }
-  ], [handleEditEventoPublico,handleDeleteEvento]);
+  const eventsActions = useMemo(
+    () => [
+      {
+        icon: EditIcon,
+        color: "primary",
+        title: "Editar Evento",
+        onClick: handleEditEventoPublico,
+      },
+      {
+        icon: DeleteIcon,
+        color: "primary",
+        title: "Eliminar Evento",
+        onClick: handleDeleteEvento,
+      },
+    ],
+    [handleEditEventoPublico, handleDeleteEvento],
+  );
 
   const eventosPublicosColumns = useMemo(() => {
-    return generateColumns(EMPTY_EVENTO_PUBLICO,eventsActions);
+    return generateColumns(EMPTY_EVENTO_PUBLICO, eventsActions, {
+      fecha_evento: {
+        valueFormatter: (value) => formatDate(value, "display"),
+      },
+    });
   }, [eventsActions]);
 
   //EVENTOS SAE
-    const handleEditEventoSAE = useCallback((row) => {
+  const handleEditEventoSAE = useCallback(
+    (row) => {
       openEditEventoSAE(row);
-  }, [openEditEventoSAE]);
+    },
+    [openEditEventoSAE],
+  );
 
-  const handleDeleteEventoSAE = useCallback((row) => {
+  const handleDeleteEventoSAE = useCallback(
+    (row) => {
       openDeleteEventoSAE(row);
-  }, [openDeleteEventoSAE]);
+    },
+    [openDeleteEventoSAE],
+  );
 
-  const eventsSAEActions = useMemo(() => [{
-      icon: EditIcon,
-      color: "primary",
-      title: "Editar Evento",
-      onClick: handleEditEventoSAE, 
-  },{
-      icon: DeleteIcon,
-      color: "primary",
-      title: "Eliminar Evento",
-      onClick: handleDeleteEventoSAE, 
-  }
-  ], [handleEditEventoSAE,handleDeleteEventoSAE]);
+  const eventsSAEActions = useMemo(
+    () => [
+      {
+        icon: EditIcon,
+        color: "primary",
+        title: "Editar Evento",
+        onClick: handleEditEventoSAE,
+      },
+      {
+        icon: DeleteIcon,
+        color: "primary",
+        title: "Eliminar Evento",
+        onClick: handleDeleteEventoSAE,
+      },
+    ],
+    [handleEditEventoSAE, handleDeleteEventoSAE],
+  );
 
   const eventosSAEColumns = useMemo(() => {
-    return generateColumns(EMPTY_EVENTO_PUBLICO,eventsSAEActions);
+    return generateColumns(EMPTY_EVENTO_PUBLICO, eventsSAEActions, {
+      fecha_evento: {
+        valueFormatter: (value) => formatDate(value, "display"),
+      },
+    });
   }, [eventsSAEActions]);
 
   // STANDS
-  const handleEditStands = useCallback((row) => {
+  const handleEditStands = useCallback(
+    (row) => {
       openEditStands(row);
-  }, [openEditStands]);
+    },
+    [openEditStands],
+  );
 
-  const handleDeleteStands = useCallback((row) => {
+  const handleDeleteStands = useCallback(
+    (row) => {
       openDeleteStands(row);
-  }, [openDeleteStands]);
+    },
+    [openDeleteStands],
+  );
 
-  const standActions = useMemo(() => [{
-      icon: EditIcon,
-      color: "primary",
-      title: "Editar Stands",
-      onClick: handleEditStands, 
-  },{
-      icon: DeleteIcon,
-      color: "primary",
-      title: "Eliminar Stands",
-      onClick: handleDeleteStands, 
-  }
-  ], [handleEditStands,handleDeleteStands]);
+  const standActions = useMemo(
+    () => [
+      {
+        icon: EditIcon,
+        color: "primary",
+        title: "Editar Stands",
+        onClick: handleEditStands,
+      },
+      {
+        icon: DeleteIcon,
+        color: "primary",
+        title: "Eliminar Stands",
+        onClick: handleDeleteStands,
+      },
+    ],
+    [handleEditStands, handleDeleteStands],
+  );
 
   const standsColumns = useMemo(() => {
-    return generateColumns(EMPTY_STANDS,standActions);
-  }, [standActions]); 
+    return generateColumns(EMPTY_STANDS, standActions);
+  }, [standActions]);
 
   //INTERESADOS
-  const handleEditInteresados = useCallback((row) => {
+  const handleEditInteresados = useCallback(
+    (row) => {
       openEditInteresados(row);
-  }, [openEditInteresados]);
+    },
+    [openEditInteresados],
+  );
 
-  const handleDeleteInteresados = useCallback((row) => {
+  const handleDeleteInteresados = useCallback(
+    (row) => {
       openDeleteInteresados(row);
-  }, [openDeleteInteresados]);
+    },
+    [openDeleteInteresados],
+  );
 
-  const interesadosActions = useMemo(() => [{
-      icon: EditIcon,
-      color: "primary",
-      title: "Editar Stands",
-      onClick: handleEditInteresados, 
-  },{
-      icon: DeleteIcon,
-      color: "primary",
-      title: "Eliminar Stands",
-      onClick: handleDeleteInteresados, 
-  }
-  ], [handleEditInteresados,handleDeleteInteresados]);
+  const interesadosActions = useMemo(
+    () => [
+      {
+        icon: EditIcon,
+        color: "primary",
+        title: "Editar Stands",
+        onClick: handleEditInteresados,
+      },
+      {
+        icon: DeleteIcon,
+        color: "primary",
+        title: "Eliminar Stands",
+        onClick: handleDeleteInteresados,
+      },
+    ],
+    [handleEditInteresados, handleDeleteInteresados],
+  );
 
   const interesadosColumns = useMemo(() => {
-    return generateColumns(EMPTY_INTERESADOS,interesadosActions);
-  }, [interesadosActions]); 
-
+    return generateColumns(EMPTY_INTERESADOS, interesadosActions);
+  }, [interesadosActions]);
 
   return (
     <JPAContext.Provider

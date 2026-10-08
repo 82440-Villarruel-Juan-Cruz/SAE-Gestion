@@ -27,9 +27,7 @@ import {
 } from "../../../utils/documents.utils.js";
 import { formatDate } from "../../../utils/date.utils.js";
 import { generateColumns } from "../../../utils/datagrid.utils.jsx";
-import {
-  normalizeCurrencyValue,
-} from "../../../utils/formatters.utils.js";
+import { normalizeCurrencyValue } from "../../../utils/formatters.utils.js";
 import {
   PURCHASE_DOCUMENTS,
   EMPTY_PURCHASES,
@@ -224,10 +222,7 @@ export function PurchaseProvider({ children }) {
         showNotification(C.deleteSuccess, "success");
       } catch (error) {
         setDialogError(error.message || C.deleteError);
-        showNotification(
-          error.message || C.deleteError,
-          "error",
-        );
+        showNotification(error.message || C.deleteError, "error");
       } finally {
         setDialogSaving(false);
       }
@@ -668,7 +663,12 @@ export function PurchaseProvider({ children }) {
   );
 
   const purchasesColumns = useMemo(
-    () => generateColumns(PURCHASE_COLUMNS_SAMPLE, purchaseActions),
+    () =>
+      generateColumns(PURCHASE_COLUMNS_SAMPLE, purchaseActions, {
+        fecha_compra: {
+          valueFormatter: (value) => formatDate(value, "display"),
+        },
+      }),
     [purchaseActions],
   );
 

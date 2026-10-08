@@ -519,6 +519,12 @@ export function TravelProvider({ children }) {
         minWidth: 130,
         renderCell: (params) => formatTravelCost(params.value),
       },
+      fecha_inicio: {
+        valueFormatter: (value) => formatDate(value, "display"),
+      },
+      fecha_fin: {
+        valueFormatter: (value) => formatDate(value, "display"),
+      },
     }),
     [],
   );

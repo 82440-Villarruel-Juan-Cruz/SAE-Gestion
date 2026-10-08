@@ -3,7 +3,7 @@ import { Chip } from "@mui/material";
 import { ScholarshipContext } from "../employedContext";
 import { useNotification } from "../../../shared/context/sharedContext";
 import EditIcon from "@mui/icons-material/Edit";
-
+import { formatDate } from "../../../utils/date.utils";
 import {
   ObtenerProyectosInvestigacion,
   ObtenerBecariosCompleto,
@@ -462,6 +462,9 @@ export function ScholarshipProvider({ children }) {
     () =>
       generateColumns(EMPTY_BECARIO, becarioActions, {
         id_becario_previo: scholarshipHolderTypeColumn,
+        fecha_solicitud: {
+          valueFormatter: (value) => formatDate(value, "display"),
+        },
       }),
     [becarioActions, scholarshipHolderTypeColumn],
   );
