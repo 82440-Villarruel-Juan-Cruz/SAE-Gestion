@@ -7,6 +7,7 @@ import {
   Card,
   CardActionArea,
   CardContent,
+  Collapse,
   Container,
   InputAdornment,
   CircularProgress,
@@ -33,6 +34,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 import SAESpinner from "../../../assets/components/spinner/SAESpinner";
 import SAEButton from "../../../assets/components/buttons/SAEButton";
@@ -45,8 +48,20 @@ import SAEDataGrid from "../../../assets/components/datagrid/SAEDataGrid";
 import { HealthUsersProvider } from "../../context/providers/healthProvider";
 import { useNotification } from "../../../shared/context/sharedContext";
 import { useHealth } from "../../context/employedContext";
-import { formatDate, toTimeInput } from "../../../utils/date.utils";
-import { carreras } from "../../../utils/common/constants";
+import {
+  formatDate,
+  getTodayInputDate,
+  toTimeInput,
+} from "../../../utils/date.utils";
+import { calendarDays, carreras } from "../../../utils/common/constants";
+import {
+  formatAvailabilityRange,
+  formatScheduleRange,
+  getDayScheduleBounds,
+  normalizeTimeValue,
+  timeToMinutes,
+} from "../../../utils/schedule.utils";
+import { normalizeText } from "../../../utils/text.utils";
 import { HEALTH_STRING } from "../../../utils/strings/employed.strings";
 
 const C = HEALTH_STRING;
@@ -92,6 +107,105 @@ const normalizeMedicLabel = (value = "") =>
 const hasValue = (value) =>
   value !== null && value !== undefined && String(value).trim() !== "";
 
+const getCalendarDayLabel = (value) =>
+  calendarDays.find((day) => day.value === Number(value))?.label ?? "Dia";
+
+const DAY_BY_NORMALIZED_LABEL = calendarDays.reduce((days, day) => {
+  days[normalizeText(day.label)] = day.value;
+  return days;
+}, {});
+
+const getDateCalendarDay = (value) => {
+  if (!value) return null;
+
+  const normalizedDate = String(value).substring(0, 10);
+  const [year, month, day] = normalizedDate.split("-").map(Number);
+
+  if (!year || !month || !day) return null;
+
+  return new Date(year, month - 1, day).getDay();
+};
+
+const getTomorrowInputDate = () => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  return formatDate(tomorrow, "input");
+};
+
+const isFutureWeekday = (value) => {
+  const day = getDateCalendarDay(value);
+
+  return (
+    Boolean(value) &&
+    String(value).substring(0, 10) > getTodayInputDate() &&
+    day >= 1 &&
+    day <= 5
+  );
+};
+
+const isAppointmentInsideSchedules = (date, time, schedules = []) => {
+  const day = getDateCalendarDay(date);
+  const appointmentTime = timeToMinutes(time);
+
+  if (day === null || appointmentTime === null) return true;
+
+  return schedules.some((schedule) => {
+    if (Number(schedule.dia) !== Number(day)) return false;
+
+    const start = timeToMinutes(schedule.hora_inicio);
+    const end = timeToMinutes(schedule.hora_fin);
+
+    return (
+      start !== null &&
+      end !== null &&
+      appointmentTime >= start &&
+      appointmentTime <= end
+    );
+  });
+};
+
+const parseSubjectAvailabilities = (subject = "") => {
+  const normalizedSubject = normalizeText(formatAvailabilityTimes(subject));
+  if (!normalizedSubject) return [];
+
+  const dayPattern = Object.keys(DAY_BY_NORMALIZED_LABEL).join("|");
+  const availabilityPattern = new RegExp(
+    `\\b(${dayPattern})\\b\\s+(\\d{1,2}:\\d{2})\\s*(?:hs\\.?\\s*)?(?:a|hasta|-)\\s*(\\d{1,2}:\\d{2})`,
+    "g",
+  );
+  const availabilities = [];
+  let match = availabilityPattern.exec(normalizedSubject);
+
+  while (match) {
+    availabilities.push({
+      dia: DAY_BY_NORMALIZED_LABEL[match[1]],
+      hora_inicio: normalizeTimeValue(match[2]),
+      hora_fin: normalizeTimeValue(match[3]),
+    });
+    match = availabilityPattern.exec(normalizedSubject);
+  }
+
+  return availabilities;
+};
+
+const findSpecialtyInSubject = (subject = "", specialties = []) => {
+  const normalizedSubject = normalizeText(subject);
+  if (!normalizedSubject) return null;
+
+  return (
+    [...specialties]
+      .filter((specialty) => normalizeText(specialty?.nombre))
+      .sort(
+        (a, b) =>
+          normalizeText(b.nombre).length - normalizeText(a.nombre).length,
+      )
+      .find((specialty) =>
+        normalizedSubject.includes(normalizeText(specialty.nombre)),
+      ) ?? null
+  );
+};
+
 const formatAvailabilityTimes = (value) =>
   String(value ?? "").replace(/\b(\d{1,2}:\d{2}):\d{2}\b/g, "$1");
 
@@ -119,6 +233,8 @@ export function TurnGrid() {
     personal,
     especialidadesActivas,
     estadosTurno,
+    allHorarios,
+    loadingHorarios,
   } = useHealth();
 
   const {
@@ -135,6 +251,8 @@ export function TurnGrid() {
 
   const [careerSearch, setCareerSearch] = useState("");
   const [inactiveTurnsType, setInactiveTurnsType] = useState(null);
+  const [showMedicSchedules, setShowMedicSchedules] = useState(false);
+  const [showStudentAvailability, setShowStudentAvailability] = useState(false);
 
   const inactiveTurnsConfig = useMemo(
     () => ({
@@ -186,9 +304,14 @@ export function TurnGrid() {
       ) ?? null
     );
   }, [dialogData.cuil_medico, dialogData.especialista, personal]);
+  const subjectSpecialty = useMemo(
+    () =>
+      findSpecialtyInSubject(dialogData?.asunto, especialidadesActivas ?? []),
+    [dialogData?.asunto, especialidadesActivas],
+  );
   const selectedSpecialtyId = hasValue(dialogData?.id_especialidad)
     ? dialogData.id_especialidad
-    : (selectedMedic?.id_especialidad ?? null);
+    : (selectedMedic?.id_especialidad ?? subjectSpecialty?.id ?? null);
   const hasSelectedSpecialty = hasValue(selectedSpecialtyId);
   const selectedSpecialty = useMemo(
     () =>
@@ -217,6 +340,158 @@ export function TurnGrid() {
       Number(selectedMedic.id_especialidad) === Number(selectedSpecialtyId))
       ? selectedMedic
       : null;
+  const selectedMedicSchedules = useMemo(
+    () =>
+      selectedMedicValue
+        ? allHorarios
+            .filter(
+              (schedule) =>
+                String(schedule.cuil_especialista) ===
+                String(selectedMedicValue.cuil),
+            )
+            .sort((a, b) => {
+              const dayDiff = Number(a.dia) - Number(b.dia);
+              if (dayDiff) return dayDiff;
+
+              return timeToMinutes(a.hora_inicio) - timeToMinutes(b.hora_inicio);
+            })
+        : [],
+    [allHorarios, selectedMedicValue],
+  );
+  const studentAvailabilities = useMemo(
+    () => parseSubjectAvailabilities(dialogData.asunto),
+    [dialogData.asunto],
+  );
+  const appointmentOutsideMedicSchedules =
+    selectedMedicValue &&
+    selectedMedicSchedules.length > 0 &&
+    dialogData.fecha_atencion &&
+    dialogData.hora_atencion &&
+    !isAppointmentInsideSchedules(
+      dialogData.fecha_atencion,
+      dialogData.hora_atencion,
+      selectedMedicSchedules,
+    );
+  const selectedAppointmentDay = getDateCalendarDay(dialogData.fecha_atencion);
+  const selectedDayMedicSchedules =
+    selectedAppointmentDay === null
+      ? []
+      : selectedMedicSchedules.filter(
+          (schedule) => Number(schedule.dia) === Number(selectedAppointmentDay),
+        );
+  const selectedDayStudentAvailabilities =
+    selectedAppointmentDay === null
+      ? []
+      : studentAvailabilities.filter(
+          (availability) =>
+            Number(availability.dia) === Number(selectedAppointmentDay),
+        );
+  const { minTime: selectedDayMedicMinTime, maxTime: selectedDayMedicMaxTime } =
+    getDayScheduleBounds(selectedMedicSchedules, selectedAppointmentDay);
+  const {
+    minTime: selectedDayStudentMinTime,
+    maxTime: selectedDayStudentMaxTime,
+  } = getDayScheduleBounds(studentAvailabilities, selectedAppointmentDay);
+  const getGreaterMinTime = (firstTime, secondTime) =>
+    timeToMinutes(firstTime) > timeToMinutes(secondTime)
+      ? firstTime
+      : secondTime;
+  const getLowerMaxTime = (firstTime, secondTime) =>
+    timeToMinutes(firstTime) < timeToMinutes(secondTime)
+      ? firstTime
+      : secondTime;
+  const turnMinTime =
+    selectedDayMedicSchedules.length > 0 &&
+    selectedDayStudentAvailabilities.length > 0
+      ? getGreaterMinTime(selectedDayMedicMinTime, selectedDayStudentMinTime)
+      : selectedDayMedicSchedules.length > 0
+        ? selectedDayMedicMinTime
+        : selectedDayStudentAvailabilities.length > 0
+          ? selectedDayStudentMinTime
+          : "00:00";
+  const turnMaxTime =
+    selectedDayMedicSchedules.length > 0 &&
+    selectedDayStudentAvailabilities.length > 0
+      ? getLowerMaxTime(selectedDayMedicMaxTime, selectedDayStudentMaxTime)
+      : selectedDayMedicSchedules.length > 0
+        ? selectedDayMedicMaxTime
+        : selectedDayStudentAvailabilities.length > 0
+          ? selectedDayStudentMaxTime
+          : "23:59";
+  const appointmentOutsideStudentAvailabilities =
+    studentAvailabilities.length > 0 &&
+    dialogData.fecha_atencion &&
+    dialogData.hora_atencion &&
+    !isAppointmentInsideSchedules(
+      dialogData.fecha_atencion,
+      dialogData.hora_atencion,
+      studentAvailabilities,
+    );
+  const dateIsInvalid =
+    Boolean(dialogData.fecha_atencion) &&
+    !isFutureWeekday(dialogData.fecha_atencion);
+
+  const validateTurnScheduleBeforeSave = () => {
+    if (dialogData.fecha_atencion && !isFutureWeekday(dialogData.fecha_atencion)) {
+      setDialogError(
+        "La fecha de atencion debe ser futura y de lunes a viernes.",
+      );
+      return false;
+    }
+
+    if (
+      dialogData.fecha_atencion &&
+      dialogData.hora_atencion &&
+      studentAvailabilities.length > 0 &&
+      !isAppointmentInsideSchedules(
+        dialogData.fecha_atencion,
+        dialogData.hora_atencion,
+        studentAvailabilities,
+      )
+    ) {
+      setDialogError(
+        "El turno debe coincidir con la disponibilidad indicada por el estudiante.",
+      );
+      return false;
+    }
+
+    if (!selectedMedicValue || !dialogData.fecha_atencion || !dialogData.hora_atencion) {
+      return true;
+    }
+
+    if (selectedMedicSchedules.length === 0) {
+      setDialogError("El especialista seleccionado no tiene horarios cargados.");
+      return false;
+    }
+
+    if (selectedDayMedicSchedules.length === 0) {
+      setDialogError(
+        "El especialista seleccionado no tiene disponibilidad para ese dia.",
+      );
+      return false;
+    }
+
+    if (
+      !isAppointmentInsideSchedules(
+        dialogData.fecha_atencion,
+        dialogData.hora_atencion,
+        selectedMedicSchedules,
+      )
+    ) {
+      setDialogError(
+        "El horario del turno debe estar dentro de la disponibilidad del especialista.",
+      );
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSaveTurn = () => {
+    if (!validateTurnScheduleBeforeSave()) return;
+
+    handleTurnosSave();
+  };
 
   const handlePatientSearch = () => {
     const studentId = String(dialogData.legajo ?? "")
@@ -634,11 +909,194 @@ export function TurnGrid() {
                         )}
                       />
                     </Grid>
+                    {selectedMedicValue && (
+                      <Grid size={{ xs: 12 }} m={0}>
+                        <Stack
+                          spacing={1}
+                          sx={{
+                            p: 1.5,
+                            borderRadius: 2,
+                            bgcolor: "#F8FBFF",
+                            border: "1px solid #DCE7F5",
+                          }}
+                        >
+                          <Typography
+                            variant="subtitle2"
+                            sx={{ color: "#153b6f", fontWeight: 800 }}
+                          >
+                            Horarios disponibles de {getMedicLabel(selectedMedicValue)}
+                          </Typography>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() =>
+                              setShowMedicSchedules((current) => !current)
+                            }
+                            endIcon={
+                              showMedicSchedules ? (
+                                <KeyboardArrowUpIcon />
+                              ) : (
+                                <KeyboardArrowDownIcon />
+                              )
+                            }
+                            sx={{ alignSelf: "flex-start" }}
+                          >
+                            {showMedicSchedules ? "Ocultar" : "Ver horarios"}
+                          </Button>
+                          <Collapse in={showMedicSchedules} unmountOnExit>
+                            {loadingHorarios ? (
+                              <Stack direction="row" alignItems="center" gap={1}>
+                                <CircularProgress size={18} />
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
+                                  Cargando horarios...
+                                </Typography>
+                              </Stack>
+                            ) : selectedMedicSchedules.length > 0 ? (
+                              <Stack direction="row" flexWrap="wrap" gap={1}>
+                                {selectedMedicSchedules.map(
+                                  (schedule, index) => (
+                                    <Chip
+                                      key={`${schedule.cuil_especialista}-${schedule.dia}-${schedule.hora_inicio}-${schedule.hora_fin}-${index}`}
+                                      icon={<AccessTimeIcon />}
+                                      label={formatScheduleRange(
+                                        schedule,
+                                        getCalendarDayLabel,
+                                      )}
+                                      sx={{
+                                        bgcolor: "#E7F1FF",
+                                        color: "#153b6f",
+                                        fontWeight: 700,
+                                        height: "auto",
+                                        minHeight: 32,
+                                        "& .MuiChip-label": {
+                                          whiteSpace: "normal",
+                                          py: 0.5,
+                                        },
+                                      }}
+                                    />
+                                  ),
+                                )}
+                              </Stack>
+                            ) : (
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                Este especialista no tiene horarios cargados.
+                              </Typography>
+                            )}
+                          </Collapse>
+                          {appointmentOutsideMedicSchedules && (
+                            <Alert severity="warning">
+                              La fecha y hora seleccionadas no coinciden con los
+                              horarios disponibles del especialista.
+                            </Alert>
+                          )}
+                          {selectedMedicValue &&
+                            dialogData.fecha_atencion &&
+                            selectedDayMedicSchedules.length === 0 &&
+                            !dateIsInvalid && (
+                              <Alert severity="warning">
+                                El especialista no tiene disponibilidad para el
+                                dia seleccionado.
+                              </Alert>
+                            )}
+                        </Stack>
+                      </Grid>
+                    )}
                     <Grid size={{ xs: 12 }}>
                       <Divider textAlign="center">
                         <Chip label="Fecha y horario" size="small" />
                       </Divider>
                     </Grid>
+                    {studentAvailabilities.length > 0 && (
+                      <Grid size={{ xs: 12 }} m={0}>
+                        <Stack
+                          spacing={1}
+                          sx={{
+                            p: 1.5,
+                            borderRadius: 2,
+                            bgcolor: "#F8FBFF",
+                            border: "1px solid #DCE7F5",
+                          }}
+                        >
+                          <Typography
+                            variant="subtitle2"
+                            sx={{ color: "#153b6f", fontWeight: 800 }}
+                          >
+                            Disponibilidad indicada por el estudiante
+                          </Typography>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() =>
+                              setShowStudentAvailability((current) => !current)
+                            }
+                            endIcon={
+                              showStudentAvailability ? (
+                                <KeyboardArrowUpIcon />
+                              ) : (
+                                <KeyboardArrowDownIcon />
+                              )
+                            }
+                            sx={{ alignSelf: "flex-start" }}
+                          >
+                            {showStudentAvailability
+                              ? "Ocultar"
+                              : "Ver disponibilidad"}
+                          </Button>
+                          <Collapse in={showStudentAvailability} unmountOnExit>
+                            <Stack direction="row" flexWrap="wrap" gap={1}>
+                              {studentAvailabilities.map(
+                                (availability, index) => (
+                                  <Chip
+                                    key={`${availability.dia}-${availability.hora_inicio}-${availability.hora_fin}-${index}`}
+                                    icon={<AccessTimeIcon />}
+                                    label={formatAvailabilityRange(
+                                      {
+                                        dia: availability.dia,
+                                        hora_desde: availability.hora_inicio,
+                                        hora_hasta: availability.hora_fin,
+                                      },
+                                      getCalendarDayLabel,
+                                    )}
+                                    sx={{
+                                      bgcolor: "#FFFFFF",
+                                      border: "1px solid #B7CBE5",
+                                      color: "#153b6f",
+                                      fontWeight: 700,
+                                      height: "auto",
+                                      minHeight: 32,
+                                      "& .MuiChip-label": {
+                                        whiteSpace: "normal",
+                                        py: 0.5,
+                                      },
+                                    }}
+                                  />
+                                ),
+                              )}
+                            </Stack>
+                          </Collapse>
+                          {appointmentOutsideStudentAvailabilities && (
+                            <Alert severity="warning">
+                              La fecha y hora seleccionadas no coinciden con la
+                              disponibilidad indicada por el estudiante.
+                            </Alert>
+                          )}
+                          {dialogData.fecha_atencion &&
+                            selectedDayStudentAvailabilities.length === 0 &&
+                            !dateIsInvalid && (
+                              <Alert severity="warning">
+                                El estudiante no indicó disponibilidad para el
+                                día seleccionado.
+                              </Alert>
+                            )}
+                        </Stack>
+                      </Grid>
+                    )}
                     <Grid size={{ xs: 12, md: 6 }}>
                       <SAETextField
                         label={C.turnsAppointment}
@@ -648,7 +1106,18 @@ export function TurnGrid() {
                           handleDataChange("fecha_atencion", e.target.value)
                         }
                         fullWidth
-                        slotProps={{ inputLabel: { shrink: true } }}
+                        error={dateIsInvalid}
+                        helperText={
+                          dateIsInvalid
+                            ? "La fecha debe ser futura y de lunes a viernes."
+                            : appointmentOutsideStudentAvailabilities
+                              ? "Elegí un horario dentro de la disponibilidad del estudiante."
+                              : ""
+                        }
+                        slotProps={{
+                          htmlInput: { min: getTomorrowInputDate() },
+                          inputLabel: { shrink: true },
+                        }}
                       />
                     </Grid>
                     <Grid size={{ xs: 12, md: 6 }}>
@@ -660,8 +1129,27 @@ export function TurnGrid() {
                         onChange={(value) =>
                           handleDataChange("hora_atencion", value)
                         }
-                        minTime="00:00"
-                        maxTime="23:59"
+                        minTime={
+                          selectedDayMedicSchedules.length > 0 ||
+                          selectedDayStudentAvailabilities.length > 0
+                            ? turnMinTime
+                            : "00:00"
+                        }
+                        maxTime={
+                          selectedDayMedicSchedules.length > 0 ||
+                          selectedDayStudentAvailabilities.length > 0
+                            ? turnMaxTime
+                            : "23:59"
+                        }
+                        error={Boolean(
+                          appointmentOutsideMedicSchedules ||
+                            appointmentOutsideStudentAvailabilities,
+                        )}
+                        helperText={
+                          appointmentOutsideMedicSchedules
+                            ? "Elegí un horario disponible del especialista."
+                            : ""
+                        }
                         size="big"
                         fullWidth
                       />
@@ -794,7 +1282,7 @@ export function TurnGrid() {
               </SAEButton>
               <SAEButton
                 variant="contained"
-                onClick={handleTurnosSave}
+                onClick={handleSaveTurn}
                 disabled={dialogSaving}
                 startIcon={
                   dialogSaving ? (

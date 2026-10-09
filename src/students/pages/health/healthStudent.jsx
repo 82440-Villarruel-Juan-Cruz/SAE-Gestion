@@ -20,7 +20,7 @@ import {
   CircularProgress,
   useMediaQuery,
 } from "@mui/material";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -64,6 +64,14 @@ import BloodtypeIcon from "@mui/icons-material/Bloodtype";
 
 import { calendarDays } from "../../../utils/common/constants";
 import { formatDate, formatTime } from "../../../utils/date.utils";
+import {
+  formatAvailabilityRange,
+  formatScheduleRange,
+  getDayScheduleBounds,
+  isTimeRangeInsideSchedules,
+  normalizeTimeValue,
+  timeToMinutes,
+} from "../../../utils/schedule.utils";
 import { HEALTH_STRINGS } from "../../../utils/strings/student.strings";
 
 const C = HEALTH_STRINGS;
@@ -79,6 +87,14 @@ const PALETTE = [
 
 const getTurnStatusTextColor = (statusId) =>
   [3, 4, 5].includes(Number(statusId)) ? "#153b6f" : "white";
+
+const formatTurnStatusTitle = (status) => {
+  const normalizedStatus = String(status ?? "").trim().toLowerCase();
+
+  if (!normalizedStatus) return C.realizedTurnsTitle;
+
+  return `Turno ${normalizedStatus.charAt(0).toUpperCase()}${normalizedStatus.slice(1)}`;
+};
 
 const COURSE_PALETTE = ["#C8C1DF", "#BFEBA2", "#AB95EE", "#F6F399", "#F1C6A3"];
 /*
@@ -225,14 +241,10 @@ const getCalendarDayLabel = (value) =>
   C.servicesNoDay;
 
 const formatAvailability = (availability) =>
-  `${getCalendarDayLabel(availability.dia)} - ${formatTurnHour(
-    availability.hora,
-  )}`;
+  formatAvailabilityRange(availability, getCalendarDayLabel);
 
 const formatSchedule = (schedule) =>
-  `${getCalendarDayLabel(schedule.dia)}: ${formatTime(
-    schedule.hora_inicio,
-  )} a ${formatTime(schedule.hora_fin)}`;
+  formatScheduleRange(schedule, getCalendarDayLabel);
 
 export function EmployedStudentContent() {
   const { user } = useAuth();
@@ -1286,43 +1298,111 @@ function DialogHealth() {
     dialogError,
     dialogSaving,
     setDialogError,
+    setDialogData,
     handleDataChange,
     closeDialog,
   } = useNotification();
   const { handleTurnosSave } = useHealth();
   const disponibilidades = dialogData.disponibilidades ?? [];
   const horariosDisponibles = dialogData.horarios_disponibles ?? [];
+  const [availabilityError, setAvailabilityError] = useState("");
+  const availableDays = useMemo(
+    () => new Set(horariosDisponibles.map((horario) => Number(horario.dia))),
+    [horariosDisponibles],
+  );
+  const isAvailabilityDialogError =
+    dialogMode === "create" &&
+    [
+      C.availabilityRequired,
+      C.availabilityInvalidRange,
+      C.availabilityOutOfRange,
+    ].includes(dialogError);
+  const { minTime: selectedDayMinTime, maxTime: selectedDayMaxTime } =
+    getDayScheduleBounds(horariosDisponibles, dialogData.dia_selecionado);
+  const dialogStatusId = Number(dialogData.id_estado_turno);
+  const dialogTitleColor =
+    dialogMode === "show"
+      ? PALETTE[dialogStatusId] || "var(--secondary)"
+      : dialogMode === "delete"
+        ? "#d85656"
+        : "var(--primary)";
+  const dialogTitleTextColor =
+    dialogMode === "show" ? getTurnStatusTextColor(dialogStatusId) : "white";
 
   const handleAddAvailability = () => {
-    if (!dialogData.dia_selecionado || !dialogData.horario_disponible) {
+    if (
+      !dialogData.dia_selecionado ||
+      !dialogData.horario_disponible_desde ||
+      !dialogData.horario_disponible_hasta
+    ) {
+      setAvailabilityError(C.availabilityRequired);
       setDialogError(C.availabilityRequired);
+      return;
+    }
+
+    const horaDesdeValue = normalizeTimeValue(
+      dialogData.horario_disponible_desde,
+    );
+    const horaHastaValue = normalizeTimeValue(
+      dialogData.horario_disponible_hasta,
+    );
+    const horaDesde = timeToMinutes(horaDesdeValue);
+    const horaHasta = timeToMinutes(horaHastaValue);
+
+    if (horaDesde === null || horaHasta === null || horaDesde >= horaHasta) {
+      setAvailabilityError(C.availabilityInvalidRange);
+      setDialogError(C.availabilityInvalidRange);
+      return;
+    }
+
+    if (
+      !isTimeRangeInsideSchedules(
+        horariosDisponibles,
+        dialogData.dia_selecionado,
+        horaDesdeValue,
+        horaHastaValue,
+      )
+    ) {
+      setAvailabilityError(C.availabilityOutOfRange);
+      setDialogError(C.availabilityOutOfRange);
       return;
     }
 
     const nuevaDisponibilidad = {
       dia: Number(dialogData.dia_selecionado),
-      hora: dialogData.horario_disponible,
+      hora_desde: horaDesdeValue,
+      hora_hasta: horaHastaValue,
     };
-    const alreadyExists = disponibilidades.some(
-      (item) =>
-        Number(item.dia) === nuevaDisponibilidad.dia &&
-        item.hora === nuevaDisponibilidad.hora,
-    );
-
-    if (alreadyExists) return;
 
     setDialogError("");
-    handleDataChange("disponibilidades", [
-      ...disponibilidades,
-      nuevaDisponibilidad,
-    ]);
+    setAvailabilityError("");
+    setDialogData((previous) => {
+      const currentAvailability = previous.disponibilidades ?? [];
+      const alreadyExists = currentAvailability.some(
+        (item) =>
+          Number(item.dia) === nuevaDisponibilidad.dia &&
+          normalizeTimeValue(item.hora_desde) ===
+            nuevaDisponibilidad.hora_desde &&
+          normalizeTimeValue(item.hora_hasta) ===
+            nuevaDisponibilidad.hora_hasta,
+      );
+
+      if (alreadyExists) return previous;
+
+      return {
+        ...previous,
+        disponibilidades: [...currentAvailability, nuevaDisponibilidad],
+      };
+    });
   };
 
   const handleRemoveAvailability = (indexToRemove) => {
-    handleDataChange(
-      "disponibilidades",
-      disponibilidades.filter((_item, index) => index !== indexToRemove),
-    );
+    setDialogData((previous) => ({
+      ...previous,
+      disponibilidades: (previous.disponibilidades ?? []).filter(
+        (_item, index) => index !== indexToRemove,
+      ),
+    }));
   };
 
   return (
@@ -1334,26 +1414,28 @@ function DialogHealth() {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
+              bgcolor: dialogTitleColor,
+              color: dialogTitleTextColor,
             }}
           >
             <SAETypography
               variant="h6"
               component="span"
-              sx={{ fontWeight: "bold" }}
+              sx={{ fontWeight: "bold", color: "inherit" }}
             >
               {dialogMode === "create"
                 ? C.requestTurnTitle
                 : dialogMode === "delete"
                   ? C.cancelTurnTitle
-                  : C.realizedTurnsTitle}
+                  : formatTurnStatusTitle(dialogData.estado)}
             </SAETypography>
-            <IconButton onClick={closeDialog} size="small">
+            <IconButton onClick={closeDialog} size="small" sx={{ color: "inherit" }}>
               <CloseIcon />
             </IconButton>
           </DialogTitle>
           <DialogContent dividers>
             <Stack spacing={2} sx={{ pt: 1 }}>
-              {dialogError && (
+              {dialogError && !isAvailabilityDialogError && (
                 <Alert severity="error" onClose={() => setDialogError("")}>
                   {dialogError}
                 </Alert>
@@ -1505,15 +1587,38 @@ function DialogHealth() {
                               value={dialogData.dia_selecionado}
                               label={C.day}
                               fullWidth
-                              onChange={(e) =>
-                                handleDataChange(
-                                  "dia_selecionado",
-                                  e.target.value,
-                                )
-                              }
+                              onChange={(e) => {
+                                const nextDay = e.target.value;
+                                const nextDaySchedule =
+                                  horariosDisponibles.find(
+                                    (horario) =>
+                                      Number(horario.dia) === Number(nextDay),
+                                  );
+
+                                setAvailabilityError("");
+                                setDialogError("");
+                                handleDataChange("dia_selecionado", nextDay);
+
+                                if (nextDaySchedule) {
+                                  handleDataChange(
+                                    "horario_disponible_desde",
+                                    normalizeTimeValue(
+                                      nextDaySchedule.hora_inicio,
+                                    ),
+                                  );
+                                  handleDataChange(
+                                    "horario_disponible_hasta",
+                                    normalizeTimeValue(nextDaySchedule.hora_fin),
+                                  );
+                                }
+                              }}
                             >
                               {calendarDays.map((d) => (
-                                <MenuItem key={d.value} value={d.value}>
+                                <MenuItem
+                                  key={d.value}
+                                  value={d.value}
+                                  disabled={!availableDays.has(Number(d.value))}
+                                >
                                   {d.label}
                                 </MenuItem>
                               ))}
@@ -1521,13 +1626,37 @@ function DialogHealth() {
                           </Box>
                           <Box sx={{ flex: 1, minWidth: 0 }}>
                             <SAETimeField
-                              label={C.estimateSchedule}
-                              value={dialogData.horario_disponible}
-                              onChange={(value) =>
-                                handleDataChange("horario_disponible", value)
-                              }
-                              minTime="00:00"
-                              maxTime="23:59"
+                              label={C.availabilityFrom}
+                              value={dialogData.horario_disponible_desde}
+                              onChange={(value) => {
+                                setAvailabilityError("");
+                                setDialogError("");
+                                handleDataChange(
+                                  "horario_disponible_desde",
+                                  value,
+                                );
+                              }}
+                              minTime={selectedDayMinTime}
+                              maxTime={selectedDayMaxTime}
+                              timeStepsMinutes={15}
+                              size="big"
+                              fullWidth
+                            />
+                          </Box>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <SAETimeField
+                              label={C.availabilityTo}
+                              value={dialogData.horario_disponible_hasta}
+                              onChange={(value) => {
+                                setAvailabilityError("");
+                                setDialogError("");
+                                handleDataChange(
+                                  "horario_disponible_hasta",
+                                  value,
+                                );
+                              }}
+                              minTime={selectedDayMinTime}
+                              maxTime={selectedDayMaxTime}
                               timeStepsMinutes={15}
                               size="big"
                               fullWidth
@@ -1547,6 +1676,11 @@ function DialogHealth() {
                             {C.addAvailability}
                           </SAEButton>
                         </Stack>
+                        {(availabilityError || isAvailabilityDialogError) && (
+                          <Alert severity="error" sx={{ mt: 1.5 }}>
+                            {availabilityError || dialogError}
+                          </Alert>
+                        )}
                       </Grid>
                       <Grid size={{ xs: 12 }} m={0}>
                         <Stack
@@ -1568,7 +1702,7 @@ function DialogHealth() {
                             {disponibilidades.length > 0 ? (
                               disponibilidades.map((disponibilidad, index) => (
                                 <Chip
-                                  key={`${disponibilidad.dia}-${disponibilidad.hora}-${index}`}
+                                  key={`${disponibilidad.dia}-${disponibilidad.hora_desde ?? disponibilidad.hora}-${disponibilidad.hora_hasta ?? ""}-${index}`}
                                   label={formatAvailability(disponibilidad)}
                                   onDelete={() =>
                                     handleRemoveAvailability(index)
@@ -1718,46 +1852,51 @@ function DialogHealth() {
                                   </SAETypography>
                                 </Box>
                               </Stack>
-                              <Box sx={{ minWidth: 0 }}>
-                                <SAETypography
-                                  variant="caption"
-                                  sx={{
-                                    color: "text.secondary",
-                                    fontWeight: 800,
-                                  }}
-                                >
-                                  {C.turnsCardPacient}
-                                </SAETypography>
-                                <SAETypography
-                                  variant="body2"
-                                  sx={{
-                                    fontWeight: 700,
-                                    overflowWrap: "anywhere",
-                                  }}
-                                >
-                                  {dialogData.paciente || C.noNameTurn}
-                                </SAETypography>
-                              </Box>
-                              <Box sx={{ minWidth: 0 }}>
-                                <SAETypography
-                                  variant="caption"
-                                  sx={{
-                                    color: "text.secondary",
-                                    fontWeight: 800,
-                                  }}
-                                >
-                                  {C.turnsCardMedic}
-                                </SAETypography>
-                                <SAETypography
-                                  variant="body2"
-                                  sx={{
-                                    fontWeight: 700,
-                                    overflowWrap: "anywhere",
-                                  }}
-                                >
-                                  {dialogData.especialista || C.noMedic}
-                                </SAETypography>
-                              </Box>
+                              <Stack
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={1.5}
+                              >
+                                <Box sx={{ flex: 1, minWidth: 0 }}>
+                                  <SAETypography
+                                    variant="caption"
+                                    sx={{
+                                      color: "text.secondary",
+                                      fontWeight: 800,
+                                    }}
+                                  >
+                                    {C.turnsCardPacient}
+                                  </SAETypography>
+                                  <SAETypography
+                                    variant="body2"
+                                    sx={{
+                                      fontWeight: 700,
+                                      overflowWrap: "anywhere",
+                                    }}
+                                  >
+                                    {dialogData.paciente || C.noNameTurn}
+                                  </SAETypography>
+                                </Box>
+                                <Box sx={{ flex: 1, minWidth: 0 }}>
+                                  <SAETypography
+                                    variant="caption"
+                                    sx={{
+                                      color: "text.secondary",
+                                      fontWeight: 800,
+                                    }}
+                                  >
+                                    {C.turnsCardMedic}
+                                  </SAETypography>
+                                  <SAETypography
+                                    variant="body2"
+                                    sx={{
+                                      fontWeight: 700,
+                                      overflowWrap: "anywhere",
+                                    }}
+                                  >
+                                    {dialogData.especialista || C.noMedic}
+                                  </SAETypography>
+                                </Box>
+                              </Stack>
                               <Box
                                 sx={{
                                   p: 1,
@@ -1798,6 +1937,151 @@ function DialogHealth() {
                   )}
                   {dialogMode === "show" && (
                     <>
+                      <Grid size={{ xs: 12 }} m={0}>
+                        <Card
+                          variant="outlined"
+                          sx={{
+                            borderRadius: 3,
+                            borderColor: "#DCE7F5",
+                            bgcolor: "#F8FBFF",
+                          }}
+                        >
+                          <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
+                            <SAETypography
+                              variant="subtitle1"
+                              sx={{
+                                color: "var(--primary)",
+                                fontWeight: 800,
+                                mb: 1.25,
+                              }}
+                            >
+                              Detalle del turno
+                            </SAETypography>
+                            <Stack spacing={1.1}>
+                              <Stack
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={1.5}
+                              >
+                                <Box sx={{ flex: 1, minWidth: 0 }}>
+                                  <SAETypography
+                                    variant="caption"
+                                    sx={{
+                                      color: "text.secondary",
+                                      fontWeight: 800,
+                                    }}
+                                  >
+                                    {C.dialogDate}
+                                  </SAETypography>
+                                  <SAETypography
+                                    variant="body2"
+                                    fontWeight={700}
+                                  >
+                                    {formatTurnDate(
+                                      dialogData.fecha_atencion,
+                                    ) || C.noDate}
+                                  </SAETypography>
+                                </Box>
+                                <Box sx={{ flex: 1, minWidth: 0 }}>
+                                  <SAETypography
+                                    variant="caption"
+                                    sx={{
+                                      color: "text.secondary",
+                                      fontWeight: 800,
+                                    }}
+                                  >
+                                    {C.dialogSchedule}
+                                  </SAETypography>
+                                  <SAETypography
+                                    variant="body2"
+                                    fontWeight={700}
+                                  >
+                                    {formatTurnHour(dialogData.hora_atencion) ||
+                                      C.noSchedule}
+                                  </SAETypography>
+                                </Box>
+                              </Stack>
+                              <Stack
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={1.5}
+                              >
+                                <Box sx={{ flex: 1, minWidth: 0 }}>
+                                  <SAETypography
+                                    variant="caption"
+                                    sx={{
+                                      color: "text.secondary",
+                                      fontWeight: 800,
+                                    }}
+                                  >
+                                    {C.turnsCardPacient}
+                                  </SAETypography>
+                                  <SAETypography
+                                    variant="body2"
+                                    sx={{
+                                      fontWeight: 700,
+                                      overflowWrap: "anywhere",
+                                    }}
+                                  >
+                                    {dialogData.paciente || C.noNameTurn}
+                                  </SAETypography>
+                                </Box>
+                                <Box sx={{ flex: 1, minWidth: 0 }}>
+                                  <SAETypography
+                                    variant="caption"
+                                    sx={{
+                                      color: "text.secondary",
+                                      fontWeight: 800,
+                                    }}
+                                  >
+                                    {C.turnsCardMedic}
+                                  </SAETypography>
+                                  <SAETypography
+                                    variant="body2"
+                                    sx={{
+                                      fontWeight: 700,
+                                      overflowWrap: "anywhere",
+                                    }}
+                                  >
+                                    {dialogData.especialista || C.noMedic}
+                                  </SAETypography>
+                                </Box>
+                              </Stack>
+                              <Box
+                                sx={{
+                                  p: 1,
+                                  borderRadius: 2,
+                                  bgcolor: "#F3F7FC",
+                                  border: "1px solid #E0EAF6",
+                                }}
+                              >
+                                <SAETypography
+                                  variant="caption"
+                                  sx={{
+                                    color: "text.secondary",
+                                    display: "block",
+                                    fontWeight: 800,
+                                  }}
+                                >
+                                  {C.turnsCardSuject}
+                                </SAETypography>
+                                <SAETypography
+                                  variant="body2"
+                                  sx={{
+                                    fontWeight: 700,
+                                    overflowWrap: "anywhere",
+                                    display: "-webkit-box",
+                                    WebkitBoxOrient: "vertical",
+                                    WebkitLineClamp: 3,
+                                    overflow: "hidden",
+                                  }}
+                                >
+                                  {dialogData.asunto || C.noSubject}
+                                </SAETypography>
+                              </Box>
+                            </Stack>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                      <Box sx={{ display: "none" }}>
                       <Grid size={{ xs: 12, md: 3 }} m={0}>
                         <SAETextField
                           label={C.dialogIdTurn}
@@ -1821,12 +2105,23 @@ function DialogHealth() {
                           disabled={true}
                         />
                       </Grid>
-                      <Grid size={{ xs: 12 }} m={0}>
+                      <Grid size={{ xs: 12, md: 6 }} m={0}>
                         <SAETextField
                           label={C.turnsCardPacient}
                           value={dialogData.paciente}
                           onChange={(e) =>
                             handleDataChange("paciente", e.target.value)
+                          }
+                          fullWidth
+                          disabled={true}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, md: 6 }} m={0}>
+                        <SAETextField
+                          label={C.turnsCardMedic}
+                          value={dialogData.especialista || C.noMedic}
+                          onChange={(e) =>
+                            handleDataChange("especialista", e.target.value)
                           }
                           fullWidth
                           disabled={true}
@@ -1873,6 +2168,7 @@ function DialogHealth() {
                           disabled={true}
                         />
                       </Grid>
+                      </Box>
                     </>
                   )}
                 </Grid>

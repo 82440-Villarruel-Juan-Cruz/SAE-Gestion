@@ -222,7 +222,7 @@ export const HEALTH_STRINGS = {
   noRegisters: "Sin Registros",
   cancelTurnsTitle: "Turnos Cancelados",
   cancelTurnTitle: "Cancelar turno",
-  cancelTurnSummary: "Turno a cancelar",
+  cancelTurnSummary: "Detalles Turno a cancelar",
   confirmCancelTurn: "Confirmar cancelación",
   realizedTurnsTitle: "Turnos Finalizados",
   requestTurnTitle: "Solicitar turno",
@@ -245,6 +245,12 @@ export const HEALTH_STRINGS = {
   availabilityRequired: "Agregá al menos una disponibilidad.",
   day: "Día",
   subject: "Asunto:",
+  availabilityInvalidRange:
+    "La hora desde debe ser anterior a la hora hasta.",
+  availabilityOutOfRange:
+    "La disponibilidad debe estar dentro del horario del especialista.",
+  availabilityFrom: "Horario desde",
+  availabilityTo: "Horario hasta",
   estimateSchedule: "Hora Aproximada",
   seeMedicAvaila: "Revisar los horarios de inicio y fin del especialista",
   yourSympthoms: "Motivo de Solicitud del turno",

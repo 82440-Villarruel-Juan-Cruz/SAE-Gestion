@@ -125,6 +125,39 @@ const hasCompleteTurnDataForMove = (turno) =>
 const canMoveTurnToState = (turno, nextStateId) =>
   nextStateId === CANCELLED_TURN_STATUS_ID || hasCompleteTurnDataForMove(turno);
 
+const buildTurnBody = ({
+  turno = {},
+  id = turno.id,
+  estadoId = turno.id_estado_turno,
+  mode = "edit",
+  usuarioSelected = null,
+} = {}) => {
+  const todayInput = new Date().toLocaleDateString("sv-SE");
+  const fechaSolicitud =
+    mode === "create" ? todayInput : (turno.fecha_solicitud ?? null);
+  const horaAtencion = String(turno.hora_atencion ?? "").trim();
+
+  return {
+    id: id === "" ? 0 : Number(id ?? 0),
+    cuil_medico:
+      String(turno.cuil_medico ?? "").trim() === ""
+        ? null
+        : String(turno.cuil_medico).trim(),
+    especialista: turno.especialista,
+    legajo: mode === "create" ? usuarioSelected?.legajo : turno.legajo,
+    paciente:
+      mode === "create" ? usuarioSelected?.nombre_usuario : turno.paciente,
+    fecha_solicitud: toApiDateTime(fechaSolicitud, new Date().toISOString()),
+    fecha_atencion: toApiDateTime(turno.fecha_atencion),
+    hora_atencion: horaAtencion === "" ? null : horaAtencion,
+    asunto: turno.asunto,
+    estadosTurno: {
+      id: estadoId,
+      estado_turno: "indiferente",
+    },
+  };
+};
+
 const getEmptyTurnForm = () => ({
   ...EMPTY_TURNO,
   cuil_medico: "",
@@ -379,24 +412,11 @@ export const HealthUsersProvider = ({ children }) => {
           estado: nombreActual.estado_turno,
         };
 
-        const body = {
+        const body = buildTurnBody({
+          turno: foundTurn,
           id: id_turno,
-          cuil_medico: foundTurn.cuil_medico,
-          especialista: foundTurn.especialista,
-          legajo: foundTurn.legajo,
-          paciente: foundTurn.paciente,
-          fecha_solicitud: toApiDateTime(foundTurn.fecha_solicitud),
-          fecha_atencion: toApiDateTime(foundTurn.fecha_atencion),
-          hora_atencion:
-            foundTurn.hora_atencion?.trim() === ""
-              ? null
-              : toApiDateTime(foundTurn.hora_atencion?.trim()),
-          asunto: foundTurn.asunto,
-          estadosTurno: {
-            id: id_estado_nuevo,
-            estado_turno: "indiferente",
-          },
-        };
+          estadoId: id_estado_nuevo,
+        });
 
         // Helper corregido para usar comparaciones numéricas estrictas (id_turno)
         const actualizarListaPorEstado = (estado, operacion, turno) => {
@@ -444,6 +464,7 @@ export const HealthUsersProvider = ({ children }) => {
 
         // 4. PETICIÓN A LA API
         try {
+          
           await ModificarTurno(id_turno, body);
           showNotification("Turno Actualizado!", "success");
         } catch {
@@ -497,42 +518,13 @@ export const HealthUsersProvider = ({ children }) => {
       }
 
       const id_nuevo = dialogData.id === "" ? 0 : Number(dialogData.id);
-      const hoy = new Date();
-      const ISO = hoy.toLocaleDateString("sv-SE");
-
-      // Construcción del objeto que se enviará al servidor
-      const body = {
+      const body = buildTurnBody({
+        turno: dialogData,
         id: id_nuevo,
-        cuil_medico:
-          String(dialogData.cuil_medico ?? "").trim() === ""
-            ? null
-            : dialogData.cuil_medico,
-        especialista: dialogData.especialista,
-        legajo:
-          dialogMode === "create" ? usuarioSelected.legajo : dialogData.legajo,
-        paciente:
-          dialogMode === "create"
-            ? usuarioSelected.nombre_usuario
-            : dialogData.paciente,
-        fecha_solicitud:
-          dialogMode === "create"
-            ? `${ISO}T00:00:00`
-            : dialogData.fecha_solicitud
-              ? `${dialogData.fecha_solicitud}T00:00:00`
-              : new Date(),
-        fecha_atencion: dialogData.fecha_atencion
-          ? `${dialogData.fecha_atencion}T00:00:00`
-          : null,
-        hora_atencion:
-          dialogData.hora_atencion.trim() === ""
-            ? null
-            : dialogData.hora_atencion.trim(),
-        asunto: dialogData.asunto,
-        estadosTurno: {
-          id: dialogData.id_estado_turno,
-          estado_turno: "indiferente",
-        },
-      };
+        estadoId: dialogData.id_estado_turno,
+        mode: dialogMode,
+        usuarioSelected,
+      });
 
       // Helper para inyectar/remover turnos de los estados locales de React
       const actualizarListaPorEstado = (estado, operacion, turno) => {
@@ -1419,3 +1411,4 @@ export const HealthUsersProvider = ({ children }) => {
     </HealthContext.Provider>
   );
 };
+

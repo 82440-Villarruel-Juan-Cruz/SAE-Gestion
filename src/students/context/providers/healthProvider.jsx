@@ -48,6 +48,7 @@ import { useNotification } from "../../../shared/context/sharedContext";
 import { calendarDays} from "../../../utils/common/constants";
 import { EMPTY_TURNO_PACIENTE } from "../../../utils/common/common.config.js";
 import { toApiDateTime, toTimeInput } from "../../../utils/date.utils.js";
+import { formatTimeRange } from "../../../utils/schedule.utils.js";
 import { HealthContext } from "../studentContext";
 
 const TURN_STATUS_COLORS = {
@@ -125,7 +126,8 @@ export const HealthUsersProvider = ({ children }) => {
           especialista_disponible: especialidad.especialista,
           horarios_disponibles: diasYHorarios,
           dia_selecionado: diasYHorarios[0].dia,
-          horario_disponible: diasYHorarios[0].hora_inicio,
+          horario_disponible_desde: diasYHorarios[0].hora_inicio,
+          horario_disponible_hasta: diasYHorarios[0].hora_fin,
           disponibilidades: [],
         });
       }
@@ -249,6 +251,13 @@ export const HealthUsersProvider = ({ children }) => {
             calendarDays?.find(
               (di) => di.value === Number(disponibilidad.dia),
             )?.label ?? "Dia no asignado";
+
+          if (disponibilidad.hora_desde && disponibilidad.hora_hasta) {
+            return `${dia} ${formatTimeRange(
+              disponibilidad.hora_desde,
+              disponibilidad.hora_hasta,
+            )}`;
+          }
 
           return `${dia} ${disponibilidad.hora}`;
         }) ?? [];
