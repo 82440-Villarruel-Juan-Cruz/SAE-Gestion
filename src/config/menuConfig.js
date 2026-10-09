@@ -2,16 +2,16 @@ import Diversity3Icon from "@mui/icons-material/Diversity3";
 import SportsHandballIcon from "@mui/icons-material/SportsHandball";
 import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import HelpIcon from "@mui/icons-material/Help";
-import NewspaperIcon from '@mui/icons-material/Newspaper';
-import HubIcon from '@mui/icons-material/Hub';
-import BadgeIcon from '@mui/icons-material/Badge';
-import LocalAirportIcon from '@mui/icons-material/LocalAirport';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import QueryStatsIcon from '@mui/icons-material/QueryStats';
+import NewspaperIcon from "@mui/icons-material/Newspaper";
+import HubIcon from "@mui/icons-material/Hub";
+import BadgeIcon from "@mui/icons-material/Badge";
+import LocalAirportIcon from "@mui/icons-material/LocalAirport";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import HomeIcon from "@mui/icons-material/Home";
 import LoginIcon from "@mui/icons-material/Login";
 import SchoolIcon from "@mui/icons-material/School";
-
+import DirectionsBusIcon from "@mui/icons-material/DirectionsBus";
 export const sharedMenu = [
   {
     label: "Inicio",
@@ -46,7 +46,8 @@ export const studentMenu = [
     path: "/Mis-Deportes",
     color: "#3062AC",
     icon: SportsHandballIcon,
-    descripcion: "Gestioná tus inscripciones a los deportes y consultá los próximos torneos."
+    descripcion:
+      "Gestioná tus inscripciones a los deportes y consultá los próximos torneos.",
   },
   {
     label: "Becas",
@@ -66,8 +67,8 @@ export const studentMenu = [
     label: "Viajes",
     path: "/Mis-Viajes",
     color: "#E5CCB1",
-    icon: HealthAndSafetyIcon,
-    descripcion: "Consultá servicios de salud y gestioná tus turnos médicos.",
+    icon: DirectionsBusIcon,
+    descripcion: "Consultá tus viajes y gestioná tus solicitudes de transporte",
   },
   {
     label: "Consultas",
@@ -105,14 +106,15 @@ export const employedMenu = [
     path: "/Gestion-Prensa",
     color: "#5E8ACC",
     icon: NewspaperIcon,
-    descripcion: "Gestioná las noticias y documentación que se mostrarán a los alumnos.",
+    descripcion:
+      "Gestioná las noticias y documentación que se mostrarán a los alumnos.",
   },
   {
     label: "Compras",
     path: "/Gestion-Compras",
     color: "#5E8ACC",
     icon: ShoppingCartIcon,
-    descripcion: "Registra las compras que va realizando el área.",   
+    descripcion: "Registra las compras que va realizando el área.",
   },
   {
     label: "Viajes",
@@ -172,14 +174,15 @@ export const adminMenu = [
     path: "/Gestion-Prensa",
     color: "#5E8ACC",
     icon: NewspaperIcon,
-    descripcion: "Gestioná las noticias y documentación que se mostrarán a los alumnos.",
+    descripcion:
+      "Gestioná las noticias y documentación que se mostrarán a los alumnos.",
   },
   {
     label: "Compras",
     path: "/Gestion-Compras",
     color: "#5E8ACC",
     icon: ShoppingCartIcon,
-    descripcion: "Registra las compras que va realizando el área.",   
+    descripcion: "Registra las compras que va realizando el área.",
   },
   {
     label: "Viajes",
@@ -215,7 +218,8 @@ export const adminMenu = [
     path: "/Gestion-Usuarios",
     color: "#e4f7d8",
     icon: BadgeIcon,
-    descripcion: "Gestioná los empleados y usuarios que pueden acceder a la aplicación.",
+    descripcion:
+      "Gestioná los empleados y usuarios que pueden acceder a la aplicación.",
   },
   {
     label: "Reportes",
@@ -223,6 +227,5 @@ export const adminMenu = [
     color: "#e4f7d8",
     icon: QueryStatsIcon,
     descripcion: "Analizá el funcionamiento de cada área.",
-  }
-
+  },
 ];

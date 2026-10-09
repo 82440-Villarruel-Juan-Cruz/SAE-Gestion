@@ -364,7 +364,7 @@ export const SPORTS_REQUIRED_DOCUMENTS = [
   },
   {
     id_tipo_documento: null,
-    nombre: "Fotocopia Documento",
+    nombre: "Documento de Identidad",
     descripcion:
       "Copia legible del frente y dorso de tu DNI en un único archivo.",
     subido: false,
@@ -400,7 +400,8 @@ export const SCHOLARSHIPS_REQUERID_DOCUMENTS = [
     archivo: null,
     archivoNombre: "",
     formatoNombre: "{legajo}_CBU",
-    externalUrl: "https://docs.google.com/document/d/1wbuUbySrYoNTnyOcojTkkMGHOleb0Afq/edit?usp=drivesdk&ouid=116947469098280320832&rtpof=true&sd=true",
+    externalUrl:
+      "https://docs.google.com/document/d/1wbuUbySrYoNTnyOcojTkkMGHOleb0Afq/edit?usp=drivesdk&ouid=116947469098280320832&rtpof=true&sd=true",
     externalUrlLabel: "Ejemplo",
     id_archivo: null,
     extension: null,
@@ -560,7 +561,7 @@ export const TRAVEL_REQUIRED_DOCUMENTS = [
   },
   {
     id_tipo_documento: null,
-    nombre: "Fotocopia Documento",
+    nombre: "Documento de Identidad",
     descripcion:
       "Copia legible del frente y dorso de tu DNI en un único archivo.",
     subido: false,

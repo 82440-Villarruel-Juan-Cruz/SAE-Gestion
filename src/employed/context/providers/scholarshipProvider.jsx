@@ -170,6 +170,26 @@ export function ScholarshipProvider({ children }) {
     [],
   );
 
+  const yesNoColumn = useMemo(
+    () => ({
+      align: "center",
+      headerAlign: "center",
+      renderCell: ({ value }) => {
+        const isTrue = Boolean(value);
+
+        return (
+          <Chip
+            size="small"
+            label={isTrue ? "Si" : "No"}
+            color={isTrue ? "success" : "default"}
+            variant={isTrue ? "filled" : "outlined"}
+          />
+        );
+      },
+    }),
+    [],
+  );
+
   const normalizeBecarioLegajo = (value) => String(value ?? "").trim();
 
   const getResponseRecord = (value) => {
@@ -462,11 +482,14 @@ export function ScholarshipProvider({ children }) {
     () =>
       generateColumns(EMPTY_BECARIO, becarioActions, {
         id_becario_previo: scholarshipHolderTypeColumn,
+        aceptado_inicio: yesNoColumn,
+        puede_pagarle: yesNoColumn,
+        alquila: yesNoColumn,
         fecha_solicitud: {
           valueFormatter: (value) => formatDate(value, "display"),
         },
       }),
-    [becarioActions, scholarshipHolderTypeColumn],
+    [becarioActions, scholarshipHolderTypeColumn, yesNoColumn],
   );
 
   const openCreateBecario = useCallback(() => {

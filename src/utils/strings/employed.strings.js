@@ -543,8 +543,7 @@ export const SPORTS_STRINGS = {
   scheduleValidationTeacher: "Seleccioná un docente",
   scheduleValidationConflictDay: "Revisá el día",
   scheduleValidationConflictTime: "Ya existe un horario con esos datos",
-  scheduleValidationConflictAssignment:
-    "El espacio o docente ya tiene un horario superpuesto",
+  scheduleValidationConflictAssignment: "El espacio o docente ya tiene un horario superpuesto",
 
   active: "Activo",
   inactive: "Desactivado",
@@ -553,8 +552,7 @@ export const SPORTS_STRINGS = {
   scheduleTeacher: "Docente Encargado",
 
   scheduleDelete: "Eliminar Horario",
-  scheduleDeleteWarning:
-    "¿Estás seguro que querés eliminar este horario? Esta acción no se puede deshacer.",
+  scheduleDeleteWarning: "¿Estás seguro que querés eliminar este horario? Esta acción no se puede deshacer.",
 
   cancel: "Cancelar",
   delete: "Eliminar",
