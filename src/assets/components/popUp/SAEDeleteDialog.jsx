@@ -18,7 +18,7 @@ import SAEButton from "../buttons/SAEButton";
 
 export default function SAEDeleteDialog({
   open,
-  entityLabel,
+  entityLabel = "elemento",
   itemName,
   itemId,
   onConfirm,
@@ -80,8 +80,8 @@ export default function SAEDeleteDialog({
           )}
 
           <Typography id="delete-dialog-description">
-            ¿Está seguro de que quiere eliminar este {entityLabel.toLowerCase()}?
-            <br></br> Esta acción no se puede deshacer.
+            Vas a eliminar este {entityLabel.toLowerCase()}. Esta accion no se
+            puede deshacer.
           </Typography>
 
           <Box
@@ -89,14 +89,20 @@ export default function SAEDeleteDialog({
               p: 2,
               borderRadius: 1,
               border: 1,
-              borderColor: "divider",
-              bgcolor: "grey.50",
+              borderColor: "error.light",
+              bgcolor: "#fff5f5",
             }}
           >
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="caption" color="error.main">
               {entityLabel}
             </Typography>
-            <Typography sx={{ fontWeight: 700, overflowWrap: "anywhere" }}>
+            <Typography
+              sx={{
+                color: "error.dark",
+                fontWeight: 700,
+                overflowWrap: "anywhere",
+              }}
+            >
               {itemName || "Sin nombre"}
             </Typography>
             {itemId !== undefined && itemId !== null && itemId !== "" && (

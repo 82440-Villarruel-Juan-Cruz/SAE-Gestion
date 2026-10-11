@@ -7,11 +7,6 @@ import {
   CardContent,
   Stack,
   Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  DialogContentText,
 } from "@mui/material";
 
 import { AddCircleOutline } from "@mui/icons-material";
@@ -33,6 +28,7 @@ import SAESpinner from "../../../assets/components/spinner/SAESpinner";
 import SAEPage from "../../../assets/components/page/SAEPage";
 import DocumentPreviewDialog from "../../../assets/components/documents/DocumentPreviewDialog";
 import DocumentCard from "../../../assets/components/documents/DocumentCard";
+import SAEDeleteDialog from "../../../assets/components/popUp/SAEDeleteDialog";
 import TitleBox from "../../../assets/components/titleBox";
 import HeaderPageStudent from "../../../assets/components/headerPage/headerPageStudent.jsx";
 
@@ -574,24 +570,16 @@ function ScholarshipsContent() {
       {/* El form recibe documentos y callbacks; Scholarships conserva la fuente de verdad. */}
       <ScholarshipsForm />
 
-      <Dialog open={openPopup} onClose={() => setOpenPopup(false)}>
-        <DialogTitle>{C.deleteDocTitle}</DialogTitle>
-
-        <DialogContent>
-          <DialogContentText>
-            {C.deleteDocMessage(
-              documentoAEliminar?.nombre_documento ??
-                documentoAEliminar?.archivoNombre,
-            )}
-          </DialogContentText>
-        </DialogContent>
-
-        <DialogActions>
-          <SAEButton onClick={() => handleDelete(documentoAEliminar)} autoFocus>
-            {C.deleteDocButton}
-          </SAEButton>
-        </DialogActions>
-      </Dialog>
+      <SAEDeleteDialog
+        open={openPopup}
+        entityLabel="Documento"
+        itemName={
+          documentoAEliminar?.nombre_documento ??
+          documentoAEliminar?.archivoNombre
+        }
+        onConfirm={() => handleDelete(documentoAEliminar)}
+        onClose={() => setOpenPopup(false)}
+      />
 
       <DocumentPreviewDialog
         open={preview.open}

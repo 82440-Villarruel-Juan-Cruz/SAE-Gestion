@@ -14,11 +14,6 @@ import {
   Grid,
   IconButton,
   useMediaQuery,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
 } from "@mui/material";
 
 import LocalAirportIcon from "@mui/icons-material/LocalAirport";
@@ -43,6 +38,7 @@ import SAESpinner from "../../../assets/components/spinner/SAESpinner";
 import SAEButton from "../../../assets/components/buttons/SAEButton";
 import DocumentCard from "../../../assets/components/documents/DocumentCard";
 import DocumentPreviewDialog from "../../../assets/components/documents/DocumentPreviewDialog";
+import SAEDeleteDialog from "../../../assets/components/popUp/SAEDeleteDialog";
 import TitleBox from "../../../assets/components/titleBox";
 import StudentHeaderPage from "../../../assets/components/headerPage/headerPageStudent.jsx";
 
@@ -535,19 +531,17 @@ function TravelDocumentsSection() {
           )}
         </section>
       )}
-      <Dialog open={openPopup} onClose={closeDeleteDialog}>
-        <DialogTitle>{C.deleteDocTitle}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            {C.deleteDocMessage(documentoAEliminar?.archivoNombre)}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <SAEButton onClick={() => handleDelete(documentoAEliminar)} autoFocus>
-            {C.deleteDocButton}
-          </SAEButton>
-        </DialogActions>
-      </Dialog>
+      <SAEDeleteDialog
+        open={openPopup}
+        entityLabel="Documento"
+        itemName={
+          documentoAEliminar?.nombre_documento ??
+          documentoAEliminar?.archivoNombre ??
+          documentoAEliminar?.nombre
+        }
+        onConfirm={() => handleDelete(documentoAEliminar)}
+        onClose={closeDeleteDialog}
+      />
       <DocumentPreviewDialog
         open={preview.open}
         onClose={closePreview}

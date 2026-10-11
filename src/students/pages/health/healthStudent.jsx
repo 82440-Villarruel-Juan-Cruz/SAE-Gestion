@@ -646,6 +646,7 @@ export function EmployedStudentContent() {
                           {/* SECCIÓN EN EL FONDO: EL BOTÓN (Queda alineado abajo siempre igual) */}
                           <SAEButton
                             variant="contained"
+                            startIcon={<CalendarMonthIcon />}
                             onClick={() =>
                               openCreateTurnos(user.legajo, especialidad)
                             }
