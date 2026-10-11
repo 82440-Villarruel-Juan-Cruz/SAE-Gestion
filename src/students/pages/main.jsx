@@ -1,4 +1,4 @@
-import { Container, Box, Card} from "@mui/material";
+import { Container, Box, Card,Typography} from "@mui/material";
 import { useAuth } from "../../shared/context/sharedContext";
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 
@@ -8,6 +8,7 @@ import TitleBox from "../../assets/components/titleBox";
 import SAEPage from "../../assets/components/page/SAEPage";
 import HeaderPageStudent from "../../assets/components/headerPage/headerPageStudent.jsx";
 import { MAIN_STRINGS } from "../../utils/strings/student.strings";
+import { CalendarEvent } from "../../assets/components/calendarEvent/calendarEvent.jsx";
 
 const C = MAIN_STRINGS;
 export default function StudentMain() {
@@ -27,7 +28,11 @@ export default function StudentMain() {
         />
 
         <DashboardMenu idPerfil={user?.id_perfil}></DashboardMenu>
-        <NovedadesEstudiantiles />
+        <TitleBox 
+          title={C.eventTitle}
+          description={C.eventDescription}
+        />
+        <CalendarEvent/>
     </SAEPage>
   );
 }

@@ -12,13 +12,11 @@ import {
   Divider,
 } from "@mui/material";
 import SAEButton from "../../../assets/components/buttons/SAEButton";
-import SAESpinner from "../../../assets/components/spinner/SAESpinner";
 import { SAETypography } from "../../../assets/components/typography/SAETypography";
 import { CalendarEvent } from "../../../assets/components/calendarEvent/calendarEvent";
 
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useJPA } from "../../context/sharedContext";
 import { JPAProvider } from "../../context/providers/jpaProvider";
 import { HashLink as Link } from "react-router-hash-link";
 
@@ -764,7 +762,7 @@ function StatCard({ value, label, prefix, suffix }) {
 }
 
 function EventSection() {
-  const { eventosJPA, loadingEventos } = useJPA();
+  
   return (
     <section key={"eventos"} id={"eventos"} style={{ scrollMarginTop: "20px" }}>
       <Box
@@ -787,15 +785,7 @@ function EventSection() {
             {C.eventsDescription}
           </Typography>
         </Box>
-
-        {loadingEventos && (
-          <Stack alignItems="center" width={"100%"} gap={1}>
-            <SAESpinner size="S" />
-          </Stack>
-        )}
-        {!loadingEventos && eventosJPA && (
-          <CalendarEvent eventos={eventosJPA} />
-        )}
+        <CalendarEvent/>
       </Box>
     </section>
   );

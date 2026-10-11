@@ -22,7 +22,7 @@ import { useState, useMemo, useEffect } from "react";
 import { PurchaseProvider } from "../../context/providers/purchaseProvider";
 import { AdminUsersProvider } from "../../context/providers/employProvider";
 import { useEmploy, usePurchase } from "../../context/employedContext";
-import { DataGrid } from "@mui/x-data-grid";
+
 import SAETextField from "../../../assets/components/inputs/SAETextField";
 import SAEButton from "../../../assets/components/buttons/SAEButton";
 import HeaderPageEmployed from "../../../assets/components/headerPage/headerPageEmployed.jsx";
@@ -33,8 +33,6 @@ import { useNotification } from "../../../shared/context/sharedContext";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
-import SearchIcon from "@mui/icons-material/Search";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import SAEPage from "../../../assets/components/page/SAEPage";
 import SAEDataGrid from "../../../assets/components/datagrid/SAEDataGrid";
@@ -121,6 +119,7 @@ function EmployedPurchasesContent() {
         header={COMPRAS_STRINGS.headerTitle}
         title={COMPRAS_STRINGS.headerSubtitle}
         description={COMPRAS_STRINGS.headerDescription}
+        backgroundImage={"images/headers/purchases.jfif"}
       />
       
 

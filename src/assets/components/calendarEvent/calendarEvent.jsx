@@ -15,8 +15,22 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import SAEHorizontalCarousel from "../carousel/SAEHorizontalCarousel";
 import { formatDate } from "../../../utils/date.utils";
+import { useJPA } from "../../../shared/context/sharedContext";
+import { JPAProvider } from "../../../shared/context/providers/jpaProvider";
+import SAESpinner from "../spinner/SAESpinner";
 
-export function CalendarEvent({ eventos }) {
+export function CalendarEvent({ events = null } = {}){
+  return(
+    <JPAProvider>
+      <CalendarContent events={events}/>
+    </JPAProvider>
+  );
+}
+
+//1686
+export function CalendarContent({ events = null } = {}) {
+  const { eventosJPA, loadingEventos } = useJPA();
+  const listadoEventos = events?? eventosJPA;
   const isDesktop = useMediaQuery("(min-width:1200px)", {
     noSsr: true,
   });
@@ -24,59 +38,67 @@ export function CalendarEvent({ eventos }) {
     noSsr: true,
   });
   const coursesSlidesToShow = Math.min(
-    eventos.length || 1,
+    listadoEventos?.length || 1,
     isDesktop ? 3 : isTablet ? 2 : 1,
   );
-  return (
-    <Box
-      sx={{
-        py: { xs: 4, sm: 8 },
-        px: { xs: 0, sm: 4 },
-        width: "100%",
-        boxSizing: "border-box",
-        overflow: "hidden",
-        "& .slick-slider": {
-          width: "100%",
-          touchAction: "pan-y",
-        },
-        "& .slick-list": {
-          margin: { xs: "0 -6px", sm: "0 -10px" },
-        },
-        "& .slick-slide": {
-          padding: { xs: "0 6px", sm: "0 10px" },
-          boxSizing: "border-box",
-          height: "auto",
-          "& > div": {
+  if(loadingEventos){
+    return(
+      <Stack alignItems="center" width={"100%"} gap={1}>
+        <SAESpinner size="S" />
+      </Stack>
+    )
+  }
+  if(!loadingEventos && eventosJPA){
+    return (
+        <Box
+          sx={{
             width: "100%",
-          },
-        },
-        "& .slick-slide > div": {
-          padding: { xs: "0 4px", sm: "0 10px" },
-          boxSizing: "border-box",
-          height: "auto",
-          "& > div": {
-            width: "100%",
-          },
-        },
-        ".slick-prev:before,.slick-next:before": {
-          color: "black",
-        },
-      }}
-    >
-      <SAEHorizontalCarousel
-        items={eventos}
-        slidesToShow={coursesSlidesToShow}
-        getKey={(evento) => evento.id || evento.nombre_evento}
-        activeIndicatorColor="var(--primary)"
-        indicatorColor="var(--textSecondary)"
-        renderItem={(evento, index) => {
-          return (
-            <EventoCard key={evento.id || index} evento={evento}></EventoCard>
-          );
-        }}
-      />
-    </Box>
-  );
+            boxSizing: "border-box",
+            overflow: "hidden",
+            "& .slick-slider": {
+              width: "100%",
+              touchAction: "pan-y",
+            },
+            "& .slick-list": {
+              margin: { xs: "0 -6px", sm: "0 -10px" },
+            },
+            "& .slick-slide": {
+              padding: { xs: "0 6px", sm: "0 10px" },
+              boxSizing: "border-box",
+              height: "auto",
+              "& > div": {
+                width: "100%",
+              },
+            },
+            "& .slick-slide > div": {
+              padding: { xs: "0 4px", sm: "0 10px" },
+              boxSizing: "border-box",
+              height: "auto",
+              "& > div": {
+                width: "100%",
+              },
+            },
+            ".slick-prev:before,.slick-next:before": {
+              color: "black",
+            },
+          }}
+        >
+          <SAEHorizontalCarousel
+            items={listadoEventos}
+            slidesToShow={coursesSlidesToShow}
+            getKey={(evento) => evento.id || evento.nombre_evento}
+            activeIndicatorColor="var(--primary)"
+            indicatorColor="var(--textSecondary)"
+            renderItem={(evento, index) => {
+              return (
+                <EventoCard key={evento.id || index} evento={evento}></EventoCard>
+              );
+            }}
+          />
+        </Box>
+      );
+  }
+  
 }
 
 function EventoCard({ evento }) {

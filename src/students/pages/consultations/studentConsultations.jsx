@@ -164,7 +164,7 @@ export function StudentContent() {
             <Card sx={{ borderRadius: 4, overflow: "hidden" }}>
               <Box
                 sx={{
-                  height: 150,
+                  height: 250,
                   backgroundImage: `url('${baseUrl}${faq.image}')`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",

@@ -1,12 +1,10 @@
-import AttachMoney from "@mui/icons-material/AttachMoney";
-import Science from "@mui/icons-material/Science";
-import SettingsAccessibility from "@mui/icons-material/SettingsAccessibility";
-
 export const MAIN_STRINGS = {
   headerTitle: "Pantalla Principal",
   headerDescription: "Bienvenido ",
   panelTitle: "Tú Gestión",
   panelDescription: "Administra tu vida estudiantil desde un solo lugar",
+  eventTitle:"Eventos",
+  eventDescription:"No te pierdas estas oportunidades!"
 };
 
 export const SCHOLARSHIP_STRINGS = {

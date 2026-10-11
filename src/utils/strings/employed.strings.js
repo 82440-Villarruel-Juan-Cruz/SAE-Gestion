@@ -8,8 +8,10 @@ export const MAIN_STRINGS = {
   panelDescription:
     "Módulos operativos principales para el trabajo diario del equipo.",
 
-  eventsTitle: "Tus horarios y próximos eventos",
-  eventsDescription: "Permite visualizar tus horarios y los eventos próximos",
+  scheduleTitle: "Tus horarios",
+  scheduleDescription: "Permite visualizar tus horarios",
+  eventsTitle: "Próximos eventos",
+  eventsDescription: "Permite los eventos próximos",
 };
 
 export const REPORT_STRINGS = {

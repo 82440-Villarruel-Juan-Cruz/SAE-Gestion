@@ -68,7 +68,7 @@ export default function SAEHorizontalCarousel({
         ))}
       </Slider>
 
-      {items.length > visibleSlides && (
+      {items?.length > visibleSlides && (
         <Stack
           direction="row"
           justifyContent="center"

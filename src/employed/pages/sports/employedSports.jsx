@@ -148,6 +148,7 @@ function EmployedSportsContent() {
         header={C.headerTitle}
         title={C.headerMainSubtitle}
         description={C.headerMainDescription}
+        backgroundImage={"images/headers/deportes.webp"}
       />
 
       <SAEDataGrid
