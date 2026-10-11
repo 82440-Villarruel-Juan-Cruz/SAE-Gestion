@@ -14,6 +14,7 @@ import {
   Stack,
   Typography,
   Tab,
+  CircularProgress,
 } from "@mui/material";
 import { useState } from "react";
 
@@ -61,6 +62,12 @@ export default function SharedJPAParticipar() {
       line: "10",
       color: "orange",
       empresa: "Coniferal",
+    },
+    {
+      id: "20",
+      line: "20",
+      color: "red",
+      empresa: "ERSA",
     },
     {
       id: "21",
@@ -142,13 +149,11 @@ export default function SharedJPAParticipar() {
     },
   ];
 
+  const [fieldErrors, setFieldErrors] = useState({});
   const [dialog, setDialog] = useState(false);
-
   const closeDialog = () => {
     setDialog(false);
   };
-
-  const [fieldErrors, setFieldErrors] = useState({});
 
   const validateField = (field, value) => {
     switch (field) {
@@ -211,12 +216,20 @@ export default function SharedJPAParticipar() {
 
     return Object.keys(errors).length === 0;
   };
+  const [isSending,SetSending] =useState(false);
+
+  const handleSendEmail = async () => {
+    if (!validate()) return;
+    SetSending(true);
+    sendEmail();
+    SetSending(false);
+  };
 
   const sendEmail = (e) => {
     e.preventDefault();
 
     if (!validate(e.currentTarget)) return;
-
+    SetSending(true);
     sendJPAEmailForm(e.currentTarget)
       .then(() => {
         setDialog(true);
@@ -224,6 +237,7 @@ export default function SharedJPAParticipar() {
       .catch((error) => {
         console.error("Error al enviar email:", error);
       });
+    SetSending(false);
   };
   //fin mail
 
@@ -540,7 +554,7 @@ export default function SharedJPAParticipar() {
                     >
                       <SAEButton
                         variant="contained"
-                        type="submit"
+                        onClick={handleSendEmail}
                         color="primary"
                         endIcon={<SendRoundedIcon />}
                         sx={{
@@ -743,9 +757,14 @@ export default function SharedJPAParticipar() {
                     >
                       <SAEButton
                         variant="contained"
-                        type="submit"
+                        onClick={handleSendEmail}
                         color="primary"
-                        endIcon={<SendRoundedIcon />}
+                        disabled={!isSending}
+                        endIcon={
+                          !isSending? 
+                          (<CircularProgress size={16} color="inherit" />):
+                          <SendRoundedIcon />
+                        }                        
                         sx={{
                           width: { xs: "100%", sm: "auto" },
                           px: 5,
@@ -768,7 +787,7 @@ export default function SharedJPAParticipar() {
         onClose={closeDialog}
         aria-labelledby="alert-dialog-title-1"
         aria-describedby="alert-dialog-description-1"
-        PaperProps={{ sx: { borderRadius: 4, p: 1 } }}
+
       >
         <DialogTitle
           id="alert-dialog-title"

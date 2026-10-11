@@ -20,7 +20,7 @@ import SharedJPAElectrical from "./shared/pages/jpa/degrees/electric";
 import SharedJPAIndustrial from "./shared/pages/jpa/degrees/industrial";
 import SharedJPAMecanic from "./shared/pages/jpa/degrees/mecanic";
 import SharedJPAMetalurgic from "./shared/pages/jpa/degrees/metalurgic";
-import SharedJPAParticipar from "./shared/pages/jpa/participar";
+import SharedJPAParticipar from "./shared/pages/jpa/participateForm";
 
 // --------------------------- PAGINAS ESTUDIANTE ---------------------------------- //
 import StudentMain from "./students/pages/main";

@@ -1,7 +1,7 @@
 import DegreePageTemplate from "../../../../assets/components/degrees/DegreePageTemplate";
 
 export default function SharedJPAElectric() {
-  const imageDirBanner = `${import.meta.env.BASE_URL}images/degrees/IngElectricaBanner.png`;
+  const imageDirBanner = `${import.meta.env.BASE_URL}images/jpa/degree-banners/ing-electronica.jpg`;
 
   const materias1Año = [
     "Informática I",

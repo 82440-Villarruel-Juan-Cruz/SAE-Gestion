@@ -1,7 +1,7 @@
 import DegreePageTemplate from "../../../../assets/components/degrees/DegreePageTemplate";
 
 export default function SharedJPACivil() {
-  const imageDirBanner = `${import.meta.env.BASE_URL}images/degrees/IngCivilBanner.png`;
+  const imageDirBanner = `${import.meta.env.BASE_URL}images/jpa/degree-banners/ing-civil.jpg`;
   const materias1Año = [
     "Análisis Matemático I",
     "Algebra y Geometría Analítica",

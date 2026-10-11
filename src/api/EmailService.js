@@ -13,9 +13,24 @@ const sendToConfiguredTemplates = (send) =>
     ),
   );
 
-export function sendJPAEmailForm(formElement) {
+export function sendJPAEmailForm(formData) {
+
   return sendToConfiguredTemplates((templateId, options) =>
-    emailjs.sendForm(EMAILJS_SERVICE_ID, templateId, formElement, options),
+    emailjs.send(
+      EMAILJS_SERVICE_ID,
+      templateId,
+      {
+        form_type: 'Inscripción / Participación JPA',
+        user_name: formData.user_name || '-',
+        user_email: formData.user_email || '-',
+        phone: formData.phone || '-',
+        desc: formData.desc || '-',
+        amount: formData.amount || '-',
+        date: formData.date || '-',
+        carrera: formData.carrera || '-',
+      },
+      options,
+    ),
   );
 }
 

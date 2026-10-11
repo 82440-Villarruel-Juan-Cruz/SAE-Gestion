@@ -7,7 +7,7 @@ export default function HeaderPageEmployed({
   header,
   title,
   description,
-  backgroundImage = "images/carrousel/EntradaUTN.jpg",
+  backgroundImage = "images/carrousel/initial.jpg",
   hideBackButton = false,
   backTo = "/Inicio",
   chips = null,
