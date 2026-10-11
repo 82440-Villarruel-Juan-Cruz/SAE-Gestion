@@ -43,6 +43,17 @@ import { USER_STRINGS } from "../../../utils/strings/employed.strings";
 import SAESpinner from "../../../assets/components/spinner/SAESpinner.jsx";
 
 const C = USER_STRINGS;
+const ALLOWED_EMPLOYEE_PROFILE_NAMES = ["empleado sae", "administrador"];
+
+const normalizeProfileName = (value = "") =>
+  String(value)
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const isAllowedEmployeeProfile = (perfil) =>
+  ALLOWED_EMPLOYEE_PROFILE_NAMES.includes(normalizeProfileName(perfil?.nombre));
 
 const formatProfileList = (perfiles = []) => {
   const profileNames = perfiles.map((perfil) => perfil?.nombre).filter(Boolean);
@@ -234,8 +245,15 @@ function EmpleadosDialog() {
     closeDialog,
   } = useNotification();
   const employWarningEnd = useMemo(
-    () => formatProfileList(perfiles),
+    () => formatProfileList(perfiles.filter(isAllowedEmployeeProfile)),
     [perfiles],
+  );
+  const perfilesDisponibles = useMemo(
+    () =>
+      dialogMode === "create"
+        ? perfiles.filter(isAllowedEmployeeProfile)
+        : perfiles,
+    [dialogMode, perfiles],
   );
 
   return (
@@ -394,7 +412,7 @@ function EmpleadosDialog() {
 
           <Autocomplete
             disablePortal
-            options={perfiles}
+            options={perfilesDisponibles}
             getOptionLabel={(option) => option.nombre}
             onChange={(_event, newValue) => {
               handleDataChange("id_perfil", newValue ? newValue.id : null, {
@@ -405,8 +423,9 @@ function EmpleadosDialog() {
             }}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             value={
-              perfiles.find((perfil) => perfil.id === dialogData.id_perfil) ||
-              null
+              perfilesDisponibles.find(
+                (perfil) => perfil.id === dialogData.id_perfil,
+              ) || null
             }
             renderInput={(params) => (
               <TextField

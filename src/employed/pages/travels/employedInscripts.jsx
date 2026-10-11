@@ -109,8 +109,8 @@ function EmployedIncriptsContent() {
           <HeaderPageEmployed
             header={C.inscriptsManagement}
             title={travelData.nombre}
-            description={`Del ${formatDate(travelData.fecha_inicio,"short")} hasta ${formatDate(travelData.fecha_fin,"short")}`}
-            backgroundImage="images/varias/campus.jpg"
+            description={`Del ${formatDate(travelData.fecha_inicio, "short")} hasta ${formatDate(travelData.fecha_fin, "short")}`}
+            backgroundImage="images/headers/consultations.jpg"
             backTo="/Gestion-Viajes"
             chips={headerChips}
             showUserChips={false}
@@ -118,7 +118,7 @@ function EmployedIncriptsContent() {
           <Grid container spacing={1}>
             <Grid size={{ xs: 12 }} mt={2}>
               <StudentSearchCard />
-              <TitleBox title={C.inscriptsList}/>
+              <TitleBox title={C.inscriptsList} />
 
               <Card
                 sx={{
@@ -227,7 +227,7 @@ function StudentSearchCard() {
             opacity: 0.98,
           }}
         >
-         {C.inscriptsSearch}
+          {C.inscriptsSearch}
         </Typography>
 
         {dialogError && !usuarioSelected && (
@@ -362,7 +362,7 @@ function StudentSearchCard() {
                 size="small"
                 onClick={handleClear}
               >
-               {C.studentSearchAgain}
+                {C.studentSearchAgain}
               </SAEButton>
             </Stack>
           </Box>
@@ -373,13 +373,8 @@ function StudentSearchCard() {
 }
 function InscriptDeleteDialog() {
   const { handleDeleteInscript, inscriptToDelete } = useTravel();
-  const {
-    dialogOpen,
-    dialogSaving,
-    dialogError,
-    setDialogError,
-    closeDialog,
-  } = useNotification();
+  const { dialogOpen, dialogSaving, dialogError, setDialogError, closeDialog } =
+    useNotification();
 
   const itemName =
     inscriptToDelete?.nombre_estudiante ||
@@ -558,7 +553,7 @@ function DocumentsDialog() {
             onClick={handleClose}
             startIcon={<CloseIcon />}
           >
-           {C.travelClose}
+            {C.travelClose}
           </SAEButton>
         </DialogActions>
       </Dialog>
@@ -714,8 +709,7 @@ function InscriptosCard({ datosEstudiante }) {
                   >
                     {estudiante.documentacion_presentada
                       ? C.inscriptsReviewed
-                      : C.inscriptsNoReviewed
-                    }
+                      : C.inscriptsNoReviewed}
                   </Box>
                 </>
               }
