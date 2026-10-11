@@ -2,6 +2,8 @@ import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import {IconButton,Stack} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
@@ -10,6 +12,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import Typography from "@mui/material/Typography";
 import { useId, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const cardStyles = {
   overflow: "hidden",
@@ -45,25 +48,46 @@ export function DegreeHero({
   title,
   subtitle = "Universidad Tecnológica Nacional",
 }) {
+  const navigate = useNavigate();
   return (
     <Box
       component="header"
       sx={{
         position: "relative",
-        minHeight: { xs: 260, sm: 340, md: 420 },
+        minHeight: { xs: 200, sm: 340, md: 420 },
         display: "flex",
         alignItems: "flex-end",
         overflow: "hidden",
         borderRadius: { xs: 3, md: 5 },
-        backgroundImage: `linear-gradient(180deg, rgba(5, 20, 42, 0.04) 25%, rgba(5, 20, 42, 0.84) 100%), url("${image}")`,
-        backgroundSize: "cover",
+        backgroundImage: `linear-gradient(180deg, rgba(5, 20, 42, 0.1) 25%, rgba(23, 57, 108, 0.15) 100%), url("${image}")`,
+        backgroundSize: {xs:"cover",md:"cover"},
         backgroundPosition: "center",
         boxShadow: "0 22px 55px rgba(21, 61, 113, 0.18)",
       }}
     >
+        <IconButton
+          size="small"
+          onClick={() => navigate("/JPA")}
+          sx={{
+            position:"absolute",
+            bottom:{xs:150,sm:270,lg:370},
+            left:10,
+            height:40,
+            width:40,
+            color: "black",
+            bgcolor: "rgba(255,255,255,0.55)",
+            "&:hover": {
+              color: "gray",
+              bgcolor: "rgba(255,255,255,0.12)",
+            },
+          }}
+        >
+          <ArrowBackIcon fontSize="medium" />
+        </IconButton>
       <Box
         sx={{ position: "relative", zIndex: 1, p: { xs: 2.5, sm: 4, md: 5 } }}
       >
+
         <Typography
           sx={{
             mb: 0.75,

@@ -7,7 +7,7 @@ import {
   Chip,
   Link,
   Typography,
-  Divider,
+  Grid
 } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -15,8 +15,22 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import SAEHorizontalCarousel from "../carousel/SAEHorizontalCarousel";
 import { formatDate } from "../../../utils/date.utils";
+import { useJPA } from "../../../shared/context/sharedContext";
+import { JPAProvider } from "../../../shared/context/providers/jpaProvider";
+import SAESpinner from "../spinner/SAESpinner";
 
-export function CalendarEvent({ eventos }) {
+export function CalendarEvent({ events = null } = {}){
+  return(
+    <JPAProvider>
+      <CalendarContent events={events}/>
+    </JPAProvider>
+  );
+}
+
+//1686
+export function CalendarContent({ events = null } = {}) {
+  const { eventosJPA, loadingEventos } = useJPA();
+  const listadoEventos = events?? eventosJPA;
   const isDesktop = useMediaQuery("(min-width:1200px)", {
     noSsr: true,
   });
@@ -24,59 +38,67 @@ export function CalendarEvent({ eventos }) {
     noSsr: true,
   });
   const coursesSlidesToShow = Math.min(
-    eventos.length || 1,
+    listadoEventos?.length || 1,
     isDesktop ? 3 : isTablet ? 2 : 1,
   );
-  return (
-    <Box
-      sx={{
-        py: { xs: 4, sm: 8 },
-        px: { xs: 0, sm: 4 },
-        width: "100%",
-        boxSizing: "border-box",
-        overflow: "hidden",
-        "& .slick-slider": {
-          width: "100%",
-          touchAction: "pan-y",
-        },
-        "& .slick-list": {
-          margin: { xs: "0 -6px", sm: "0 -10px" },
-        },
-        "& .slick-slide": {
-          padding: { xs: "0 6px", sm: "0 10px" },
-          boxSizing: "border-box",
-          height: "auto",
-          "& > div": {
+  if(loadingEventos){
+    return(
+      <Stack alignItems="center" width={"100%"} gap={1}>
+        <SAESpinner size="S" />
+      </Stack>
+    )
+  }
+  if(!loadingEventos && eventosJPA){
+    return (
+        <Box
+          sx={{
             width: "100%",
-          },
-        },
-        "& .slick-slide > div": {
-          padding: { xs: "0 4px", sm: "0 10px" },
-          boxSizing: "border-box",
-          height: "auto",
-          "& > div": {
-            width: "100%",
-          },
-        },
-        ".slick-prev:before,.slick-next:before": {
-          color: "black",
-        },
-      }}
-    >
-      <SAEHorizontalCarousel
-        items={eventos}
-        slidesToShow={coursesSlidesToShow}
-        getKey={(evento) => evento.id || evento.nombre_evento}
-        activeIndicatorColor="var(--primary)"
-        indicatorColor="var(--textSecondary)"
-        renderItem={(evento, index) => {
-          return (
-            <EventoCard key={evento.id || index} evento={evento}></EventoCard>
-          );
-        }}
-      />
-    </Box>
-  );
+            boxSizing: "border-box",
+            overflow: "hidden",
+            "& .slick-slider": {
+              width: "100%",
+              touchAction: "pan-y",
+            },
+            "& .slick-list": {
+              margin: { xs: "0 -6px", sm: "0 -10px" },
+            },
+            "& .slick-slide": {
+              padding: { xs: "0 6px", sm: "0 10px" },
+              boxSizing: "border-box",
+              height: "auto",
+              "& > div": {
+                width: "100%",
+              },
+            },
+            "& .slick-slide > div": {
+              padding: { xs: "0 4px", sm: "0 10px" },
+              boxSizing: "border-box",
+              height: "auto",
+              "& > div": {
+                width: "100%",
+              },
+            },
+            ".slick-prev:before,.slick-next:before": {
+              color: "black",
+            },
+          }}
+        >
+          <SAEHorizontalCarousel
+            items={listadoEventos}
+            slidesToShow={coursesSlidesToShow}
+            getKey={(evento) => evento.id || evento.nombre_evento}
+            activeIndicatorColor="var(--primary)"
+            indicatorColor="var(--textSecondary)"
+            renderItem={(evento, index) => {
+              return (
+                <EventoCard key={evento.id || index} evento={evento}></EventoCard>
+              );
+            }}
+          />
+        </Box>
+      );
+  }
+  
 }
 
 function EventoCard({ evento }) {
@@ -88,7 +110,7 @@ function EventoCard({ evento }) {
     <Card
       sx={{
         my: 2,
-        minHeight: { xs: "auto", sm: 360 },
+        minHeight: { xs: "auto", sm: 280 },
         height: "100%",
         borderRadius: 3,
         overflow: "hidden",
@@ -117,11 +139,16 @@ function EventoCard({ evento }) {
           alignItems={{ xs: "stretch", sm: "center" }}
           spacing={1.5}
         >
-          <Stack direction="row" alignItems="center" spacing={1.25}>
+          <Stack 
+          direction="row" 
+          alignItems="center" 
+          spacing={1.25}
+          minHeight={80}
+          >
             <Box
               sx={{
-                width: 42,
-                height: 42,
+                width:  {xs:30,md:50},
+                height: {xs:30,md:50},
                 flexShrink: 0,
                 borderRadius: 2.5,
                 bgcolor: "rgba(48, 98, 172, 0.09)",
@@ -130,54 +157,62 @@ function EventoCard({ evento }) {
                 placeItems: "center",
               }}
             >
-              <EventAvailableIcon sx={{ fontSize: 24 }} />
+              <EventAvailableIcon sx={{ fontSize: {xs:18,md:24} }} />
             </Box>
-            <Box>
+            <Box >
               <Typography
-                sx={{ fontSize: 13, color: "text.secondary", fontWeight: 700 }}
+                variant="body2"
+                sx={{ color: "text.secondary", fontWeight: 700 }}
               >
                 Fecha
               </Typography>
               <Typography
+              variant="body1"
                 sx={{
-                  fontSize: { xs: 17, sm: 18 },
-                  fontWeight: 800,
-                  color: "#123666",
+                  mt:-1,
+                  fontWeight: 600,
+                  color: "var(--secondary)",
                 }}
               >
                 {formatDate(evento.fecha_evento, "short")}
               </Typography>
             </Box>
           </Stack>
+           <Stack 
+            direction="row" 
+            alignItems="center" 
+            minHeight={80}
+            >
           <Chip
             icon={<AccessTimeIcon />}
             label={scheduleLabel}
             size="large"
             sx={{
-              alignSelf: { xs: "flex-start", sm: "center" },
+              alignSelf: "center",
               height: 34,
               borderRadius: 2,
               bgcolor: "rgba(18, 54, 102, 0.08)",
-              color: "#123666",
+              color: "var(--primary)",
               fontWeight: 800,
               "& .MuiChip-icon": { color: "inherit" },
             }}
           />
+          </Stack>
         </Stack>
 
         <Typography
+        variant="subtitle2"
           sx={{
             px: { xs: 1.5, sm: 2 },
-            py: { xs: 1.5, sm: 1.75 },
             borderRadius: 2.5,
             bgcolor: "#123666",
-            fontSize: { xs: 21, sm: 24 },
             lineHeight: 1.18,
-            fontWeight: 850,
+            fontWeight: 600,
+            minHeight:100,
             color: "white",
             textAlign: "center",
+            alignContent:"center"
           }}
-          mt={2.3}
         >
           {evento.nombre_evento}
         </Typography>
@@ -189,51 +224,49 @@ function EventoCard({ evento }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            marginTop:2
           }}
-          mt={2.3}
         >
-          <Stack sx={{ width: "100%" }}>
-            <Stack
-              direction="row"
-              spacing={1.25}
-              alignItems="flex-start"
-              sx={{
-                flex: 1,
-                minWidth: 0,
-                p: 1.5,
-                borderRadius: 2,
-                bgcolor: "#f7f9fc",
-                border: "1px solid rgba(17, 53, 101, 0.08)",
-                width: "100%",
-              }}
-            >
+          <Grid container size={12}
+              sx={{ 
+                  p: 2,
+                  borderRadius: 2,
+                  minHeight:120,
+                  bgcolor: "#f7f9fc",
+                  border: "1px solid rgba(17, 53, 101, 0.08)",
+                  width: "100%"
+            }}>
+            <Grid size={1}>
               <PersonOutlineIcon
-                sx={{ mt: 0.2, fontSize: 20, color: "var(--primary)" }}
+                sx={{mt:0.5, fontSize: {xs:22,md:24,xl:26}, color: "var(--primary)" }}
               />
-              <Box sx={{ minWidth: 0 }}>
+            </Grid>
+            <Grid size={11}>
                 <Typography
+                  variant="subtitle2"
                   sx={{
-                    fontSize: 12,
                     color: "text.secondary",
-                    fontWeight: 800,
                     textTransform: "uppercase",
+                    textAlign:"left",
                   }}
                 >
-                  Expositor
+                  Presentador
                 </Typography>
-                <Typography
-                  sx={{
-                    fontSize: 15,
-                    fontWeight: 650,
-                    color: "text.primary",
-                    overflowWrap: "anywhere",
-                  }}
-                >
-                  {evento.encargado}
-                </Typography>
-              </Box>
-            </Stack>
-          </Stack>
+            </Grid>
+            <Grid size={10}>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  color: "text.primary",
+                  overflowWrap: "anywhere",
+                }}
+              >
+                {evento.encargado}
+              </Typography>
+            </Grid>
+            
+          </Grid>
+          
         </Box>
 
         <Box sx={{ minHeight: "24px" }} mt={2.3}>

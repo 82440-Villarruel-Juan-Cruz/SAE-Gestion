@@ -1,24 +1,4 @@
-import {
-  Box,
-  Card,
-  CardActionArea,
-  CardContent,
-  Chip,
-  Container,
-  Grid,
-  Stack,
-  Typography,
-} from "@mui/material";
-
-import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
-import SchoolIcon from "@mui/icons-material/School";
-import NewspaperIcon from "@mui/icons-material/Newspaper";
-import AssessmentIcon from "@mui/icons-material/Assessment";
-import GroupsIcon from "@mui/icons-material/Groups";
-import ExploreIcon from "@mui/icons-material/Explore";
-import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
-import ListAltIcon from "@mui/icons-material/ListAlt";
-import ContactSupportIcon from "@mui/icons-material/ContactSupport";
+import { Stack } from "@mui/material";
 
 import DashboardMenu from "../../assets/components/dashboardMenu/DashboardMenu";
 import TitleBox from "../../assets/components/titleBox";
@@ -61,20 +41,24 @@ function EmployedContent() {
       />
       <DashboardMenu idPerfil={user?.id_perfil}></DashboardMenu>
       <TitleBox
-        title={C.eventsTitle}
-        description={C.eventsDescription}
+        title={C.scheduleTitle}
+        description={C.scheduleDescription}
       />
 
       <AdminUsersProvider>
         <EmployedCalendar legajoEmpleado={user.legajo} />
       </AdminUsersProvider>
+       <TitleBox
+        title={C.eventsTitle}
+        description={C.eventsDescription}
+      />
         {loadingEventosSAE && (
           <Stack alignItems="center" width={"100%"} gap={1}>
             <SAESpinner size="S" />
           </Stack>
         )}
         {!loadingEventosSAE && eventosSAE && (
-          <CalendarEvent eventos={eventosSAE} />
+          <CalendarEvent events={eventosSAE} />
         )}
     </SAEPage>
   );

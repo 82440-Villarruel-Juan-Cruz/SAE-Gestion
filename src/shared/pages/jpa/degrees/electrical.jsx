@@ -1,8 +1,7 @@
 import DegreePageTemplate from "../../../../assets/components/degrees/DegreePageTemplate";
 
 export default function SharedJPAElectrical() {
-  const imageDirBanner = `${import.meta.env.BASE_URL}images/degrees/IngElectronicaBanner.png`;
-
+  const imageDirBanner = `${import.meta.env.BASE_URL}images/jpa/degree-banners/ing-electrica.jpg`;
   const materias1Año = [
     "Fundamentos de Informática",
     "Álgebra y geometría analítica",

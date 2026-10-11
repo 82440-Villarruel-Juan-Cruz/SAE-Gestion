@@ -76,7 +76,7 @@ export const LOGIN_STRINGS = {
 export const JPA_STRINGS = {
     participateButton:"Quiero participar",
     universityChip:"Universidad Tecnológica Nacional - Córdoba",
-    heroSubtitle:"Formate en una de las intituciones educativas más importantes de la Argentina y descubrí una experiencia universitaria que va mucho más allá del aula.",
+    heroSubtitle:"Formate en una de las instituciones educativas más importantes de la Argentina y descubrí una experiencia universitaria que va mucho más allá del aula.",
     heroExplore:"Explorar Carreras",
     heroNextEvents:"Próximos Eventos",
     heroCard1:"Carreras",
@@ -102,7 +102,7 @@ export const JPA_STRINGS = {
     whereFindUs:"Ubicación de la Secretaría de Asuntos Estudiantiles",
     findUsBus:"Líneas que te acercan",
 
-    howToTitle:"¿Cómo querés participar?",
+    howToTitle:"¿Interesado en Participar?",
     howToDescription:"Elegí tu perfil y completá el formulario. Nos pondremos en contacto con vos.",
 
     participateName:"Nombre de la organización",

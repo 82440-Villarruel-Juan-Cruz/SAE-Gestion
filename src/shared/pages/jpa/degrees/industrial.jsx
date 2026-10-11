@@ -1,7 +1,7 @@
 import DegreePageTemplate from "../../../../assets/components/degrees/DegreePageTemplate";
 
 export default function SharedJPAIndustrial() {
-  const imageDirBanner = `${import.meta.env.BASE_URL}images/degrees/IngIndustrialBanner.png`;
+   const imageDirBanner = `${import.meta.env.BASE_URL}images/jpa/degree-banners/ing-industrial.jpg`;
 
   const materias1Año = [
     "Informática I",

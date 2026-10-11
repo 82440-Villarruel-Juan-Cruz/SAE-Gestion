@@ -12,13 +12,11 @@ import {
   Divider,
 } from "@mui/material";
 import SAEButton from "../../../assets/components/buttons/SAEButton";
-import SAESpinner from "../../../assets/components/spinner/SAESpinner";
 import { SAETypography } from "../../../assets/components/typography/SAETypography";
 import { CalendarEvent } from "../../../assets/components/calendarEvent/calendarEvent";
 
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useJPA } from "../../context/sharedContext";
 import { JPAProvider } from "../../context/providers/jpaProvider";
 import { HashLink as Link } from "react-router-hash-link";
 
@@ -26,14 +24,12 @@ import Fab from "@mui/material/Fab";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import SchoolIcon from "@mui/icons-material/School";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import AirportShuttleIcon from '@mui/icons-material/AirportShuttle';
 import GroupsIcon from "@mui/icons-material/Groups";
 import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
-import BusinessIcon from "@mui/icons-material/Business";
 import CampaignIcon from "@mui/icons-material/Campaign";
 import WorkIcon from "@mui/icons-material/Work";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
 
 import Slider from "react-slick";
@@ -50,7 +46,7 @@ const settingsHero = {
   infinite: true,
   autoplay: true,
   speed: 1400,
-  autoplaySpeed: 5000,
+  autoplaySpeed: 6000,
   fade: true,
   slidesToShow: 1,
   slidesToScroll: 1,
@@ -59,7 +55,7 @@ const settingsHero = {
     {
       breakpoint: 1024,
       settings: {
-        slidesToShow: 2,
+        slidesToShow: 1,
         slidesToScroll: 1,
       },
     },
@@ -78,7 +74,7 @@ const settings = {
   swipe: true,
   speed: 600,
   autoplay: true,
-  autoplaySpeed: 1800,
+  autoplaySpeed: 4000,
   slidesToShow: 3,
   slidesToScroll: 1,
   swipeToSlide: true,
@@ -111,104 +107,105 @@ const studentJourney = [
     icon: <SchoolIcon />,
     title: "Conocenos",
     subtitle: "Primer paso",
-    description:
-      "Donde comienza tu vida universitaria, conociendo el campus, tus compañeros y la facultad.",
-    text: "Tu etapa de ingreso es un momento emocionante y crucial en tu vida universitaria. Es el punto de partida donde comienzas a construir tu experiencia académica y social. Durante esta fase, tendrás la oportunidad de familiarizarte con el campus, conocer a tus compañeros de clase y establecer conexiones que pueden durar toda la vida. Además, es un momento para descubrir los recursos y servicios que la universidad ofrece para apoyarte en tu camino académico. Aprovechá al máximo esta etapa inicial, participando en actividades de bienvenida, explorando el campus y conectándote con otros estudiantes para comenzar tu aventura universitaria con el pie derecho.",
-    image: `${baseUrl}images/infoSection/becasFRC.jpg`,
-    alt: "Vista Afuera UTN",
+    description: "Vení a conocernos",
+    text: "El punto de partida para <strong>comenzar a estudiar en nuestra Universidad</strong>, donde comenzás a construir tu nueva experiencia académica y social. Durante esta fase, tendrás la oportunidad de familiarizarte con el campus, conocer a tus compañeros de clase y establecer conexiones que pueden durar toda la vida. Además, es un momento para descubrir los recursos y servicios que la universidad ofrece para apoyarte en tu camino académico.<br/> <br/> Desde la <strong>S</strong>ecretaría de <strong>A</strong>suntos <strong>E</strong>studiantiles te invitamos a acercarte a nuestra facultad en <a href='https://maps.app.goo.gl/MhoJUKgTzywVdFsZ9' target='_blank' style='color: #2b6cb0; text-decoration: none; font-weight: 500; border-bottom: 2px solid #90cdf4; padding-bottom: 2px;'>Maestro Lopez esq. Cruz Roja Argentina</a> para ser parte de nuestras presentaciones, eventos, torneos y exposiciones!<br/><br/><strong>¡Te esperamos!</strong>",
+    image: `${baseUrl}images/jpa/journey/posseto-entrada.webp`,
+    alt: "Vista afuera de la UTN desde la calle Marcelo T. de Alvear",
   },
   {
     icon: <GroupsIcon />,
     title: "Inscripción",
-    subtitle: "Cómo empezás a ser parte",
-    description: "Todo lo que debes saber",
-    text: "Comenzás a ser parte de la comunidad universitaria cuando realizás nuestro ingreso. Para completar este proceso tenés que cumplir con una serie de requisitos como haber <strong>finalizado el secundario, rendir un examen de ingreso y presentar la documentación necesaria. </strong> Es posible que te preinscribas para rendir aun sin finalizar tus estudios, pero será requisito una vez hayas realizado los exámenes de ingreso. En la instancia de evaluación deberás rendir <strong> Matemática, Física e Introducción a la vida universitaria. </strong> El centro de estudiantes y la SAE proveen de cursos intensivos para que finalices tu formación académica en estas 3 disciplinas. Acercate a nuestras charlas de ingreso para más información.",
-    image: `${baseUrl}images/journeyJPA/aulaMagnaFRC.jpg`,
-    alt: "Aula Magna de la UTN",
+    subtitle: "Cómo ser parte",
+    description: "Todo lo que debés saber",
+    text: "Comenzás a ser parte de nuestra comunidad cuando te inscribís por primera vez al ingreso; este proceso involucra que tengas <strong>finalizado el secundario y rindas un examen de ingreso. </strong> Es posible que te preinscribas para rendir aun sin finalizar tus estudios, pero será requisito una vez hayas aprobado los exámenes de ingreso y <strong>debas presentar la documentación.</strong><br/><br/> En la instancia de evaluación deberás rendir <strong> Matemática, Física e Introducción a la vida universitaria, </strong> donde el centro de estudiantes y la SAE proveen de cursos intensivos para que finalices tu formación académica en estas 3 disciplinas.<br/> <br/>Una vez tengas certeza de que estás interesado en estudiar, podés conocer más de cómo inscribirte <a href='https://www.frc.utn.edu.ar/ingreso-ingenierias-2027/' target='_blank' style='color: #2b6cb0; text-decoration: none; font-weight: 500; border-bottom: 2px solid #90cdf4; padding-bottom: 2px;'>aquí.</a>",
+    image: `${baseUrl}images/jpa/journey/auditorio-jpa.jpg`,
+    alt: "Auditorio Ing. Héctor Aiassa en el edificio central",
   },
   {
     icon: <DocumentScannerIcon />,
     title: "Trámites",
-    subtitle: "Documentación y certificados",
-    description: "Información importante para simplificarte la vida.",
-    text: "Una vez que ingreses y hayas aprobado los exámenes de ingreso deberás realizar una serie de trámites para completar tu inscripción, entre los cuales se encuentran la presentación de tu <strong>documentación personal, la elección de tu carrera y la inscripción a materias.</strong> Uno de los trámites más importantes para ser estudiante hecho y derecho corresponde al departamento de Alumnos y es indispensable que lo hagas antes de finalizar tu primer año de carrera. La secretaría de asuntos estudiantiles está disponible para ayudarte a completar estos trámites y resolver cualquier duda que puedas tener durante este proceso, no dudes en acercarte para obtener asistencia personalizada.",
-    image: `${baseUrl}images/infoSection/congresoFRC.webp`,
-    alt: "Audtiorio de la UTN",
+    subtitle: "Documentación",
+    description: "Presentación de Documentación",
+    text: "Una vez que ingreses y hayas aprobado los exámenes de ingreso deberás presentar en el <strong> Departamento de Alumnos </strong> documentos como <strong>tu fotocopia del DNI, Analítico o Analítico en trámite, Constancia de CUIL y una copia de tu partida de nacimiento (Descargable de CiDi)</strong>. <br/><br/> La presentación de esta documentación personal, la elección de tu carrera y la inscripción a las materias de primer año son fundamentales para que seas considerado un estudiante hecho y derecho de nuestra universidad.<br/><br/>Si necesitás asesoramiento en cómo sacar turno para el departamento o en dónde solicitar los documentos no dudes en acercarte a la <strong>SAE</strong> para recibir atención personalizada a tu problemática.",
+    image: `${baseUrl}images/jpa/journey/documentacion.jpg`,
+    alt: "Primer plano de una carpeta con papeles",
   },
   {
     icon: <SportsSoccerIcon />,
     title: "Vida UTN",
     subtitle: "Más que estudiar",
-    description: "Ir a la UTN es más que estudiar.",
-    text: "Desde la secretaría de asuntos estudiantiles contamos con un área dedicada a la realización de deportes como actividad recreativa. En nuestra facultad contamos con deportes como:<strong> Fútbol, Fútbol sala, Vóley, Básquet, Natación, Arquería</strong>, todos con sus respectivos entrenamientos para todos los géneros. Además contamos con convenios con diferentes gimnasios para que puedas entrenar en tu día a día, ofreciendo descuentos especiales por ser alumno de nuestra Universidad. Si estás interesado en representar a la facultad dentro de las diferentes disciplinas deportivas, podés acercarte a la <strong>S</strong>ecretaría de <strong>A</strong>suntos <strong>E</strong>studiantiles para más información.",
-    image: `${baseUrl}images/infoSection/deportesFRC.webp`,
-    alt: "Campus de la UTN",
+    description: "Comunidad Deportiva",
+    text: "Desde la Secretaría de Asuntos Estudiantiles contamos con un área dedicada a la realización de deportes como actividad recreativa y competitiva. Contamos con <strong>convenios con diferentes espacios deportivos</strong> para que puedas entrenar en tu día a día, ofreciendo descuentos especiales por ser alumno de nuestra Universidad.<br/><br/>Además en nuestra facultad tenemos un predio dedicado a deportes como<strong> fútbol 11, fútbol sala, vóley, básquet, natación y arquería</strong> con sus respectivos entrenamientos para todos los géneros.<br/><br/>Si estás interesado en representar a la facultad en una o más disciplinas, no dudes en formar parte de nuestros equipos para participar en los torneos deportivos que se realizan durante todo el año.",
+    image: `${baseUrl}images/jpa/journey/campus.jpg`,
+    alt: "Campus de la UTN a las afueras de Córdoba",
   },
   {
-    icon: <BusinessIcon />,
-    title: "Industria",
-    subtitle: "Conocé empresas",
-    description: "Te acercamos a la realidad laboral.",
-    text: "Las visitas a empresas son una excelente oportunidad para conocer la realidad del <strong>mundo laboral y establecer contactos con profesionales de la industria.</strong> Durante estas visitas, los estudiantes pueden aprender sobre las prácticas empresariales, las oportunidades de empleo y las tendencias del mercado. La secretaría en conjunto a diferentes cátedras de la facultad organiza visitas a empresas de diversos sectores, brindando a los estudiantes la oportunidad de explorar diferentes industrias y <strong>conocer de primera mano las oportunidades laborales disponibles.</strong> Estas visitas son una parte importante de la experiencia universitaria, ya que permiten a los estudiantes conectar su formación académica con el mundo real y prepararse para su futura carrera profesional.",
-    image: `${baseUrl}images/infoSection/visitasFRC.jpg`,
-    alt: "Visita Guiada a Fabrica",
+    icon: <AirportShuttleIcon />,
+    title: "Viajes",
+    subtitle: "Explorá con la UTN",
+    description: "Viajá por todo el país",
+    text: "Las visitas a empresas son una excelente oportunidad para conocer la realidad del <strong>mundo laboral y establecer contactos con profesionales de la industria.</strong> A lo largo del año se gestionan viajes desde nuestra regional para conocer empresas, otras regionales o infraestructuras donde pueden tener un acercamiento a lo que será su carrera en el ámbito laboral.<br/><br/> La secretaría, en conjunto con diferentes cátedras de la facultad, organiza visitas en diversos sectores de la economía, brindando a los estudiantes la oportunidad de explorar diferentes industrias y <strong>conocer de primera mano las oportunidades laborales disponibles,</strong> siendo una parte importante de la experiencia universitaria, ya que permiten a los estudiantes conectar su formación académica con el mundo real y prepararse para su futura carrera profesional.",
+    image: `${baseUrl}images/jpa/journey/visita-tecnica.jpg`,
+    alt: "Visita guiada a la bodega La Abeja en San Rafael",
   },
   {
     icon: <CampaignIcon />,
     title: "Eventos",
     subtitle: "Congresos y charlas",
-    description:
-      "Participás en congresos, competencias y actividades académicas.",
-    text: "Nuestra facultad organiza y participa en diversos congresos y eventos académicos a lo largo del año, brindando a los estudiantes la oportunidad de <strong>presentar sus trabajos, aprender de expertos en el campo y establecer contactos con profesionales de la industria.</strong> Estos eventos son una excelente oportunidad para ampliar tus conocimientos, compartir tus investigaciones y conectarte con la comunidad académica. Un ejemplo de esto es el <strong>CNEISI</strong> que se realiza anualmente e incluye otras regionales del país con eje en la ingeniería en sistemas.",
-    image: `${baseUrl}images/infoSection/congresoFRC.webp`,
-    alt: "Audtiorio de la UTN",
+    description: "Indagá en nuevos mundos",
+    text: "En nuestra universidad conviven un montón de comunidades e instituciones que se hacen presentes durante el año para mostrar nuevos mundos. Algunos de nuestros eventos concurrentes son muestras de las invenciones de Leonardo da Vinci <a href='https://muestraleonardodavinci.com/' target='_blank' style='color: #2b6cb0; text-decoration: none; font-weight: 500; border-bottom: 2px solid #90cdf4; padding-bottom: 2px;'>Futuros Presentes</a>, ciencia ficción traída a nosotros con <a href='https://cba.portico.net.ar/' target='_blank' style='color: #2b6cb0; text-decoration: none; font-weight: 500; border-bottom: 2px solid #90cdf4; padding-bottom: 2px;'>Pórtico</a>, congresos como el <a href='https://cneisi.sanfrancisco.utn.edu.ar/' target='_blank' style='color: #2b6cb0; text-decoration: none; font-weight: 500; border-bottom: 2px solid #90cdf4; padding-bottom: 2px;'>CNEISI</a> o <a href='https://tedxcordoba.com.ar/' target='_blank' style='color: #2b6cb0; text-decoration: none; font-weight: 500; border-bottom: 2px solid #90cdf4; padding-bottom: 2px;'>TEDxCórdoba</a>, charlas de todos los ámbitos como <a href='https://aveit.frc.utn.edu.ar/cuna-de-emprendedores/' target='_blank' style='color: #2b6cb0; text-decoration: none; font-weight: 500; border-bottom: 2px solid #90cdf4; padding-bottom: 2px;'>Cuna de Emprendedores</a> o <a href='https://www.frc.utn.edu.ar/novedades/2026/la-utn-cordoba-celebro-la-cultura-con-tres-conciertos-que-convocaron-a-cientos-de-personas/' target='_blank' style='color: #2b6cb0; text-decoration: none; font-weight: 500; border-bottom: 2px solid #90cdf4; padding-bottom: 2px;'>conciertos dentro de nuestra institución.</a> <br/><br/> No te pierdas la posibilidad de ser parte de esos eventos y muchos más; podés enterarte más siguiéndonos en Instagram <strong>@sae.utn.frc</strong>, entrando a novedades en la página institucional o echándole un ojo a nuestros eventos al final de la página.<br/><br/><strong>¡No te olvides de participar en lo que más te guste!</strong>",
+    image: `${baseUrl}images/jpa/journey/futuros-presentes.webp`,
+    alt: "Presentación Futuros Presentes en la Universidad Tecnológica Nacional Regional Córdoba.",
   },
   {
     icon: <WorkIcon />,
     title: "Pasantías",
     subtitle: "Becas y prácticas",
-    description:
-      "Aplicás tus conocimientos en proyectos y prácticas profesionales.",
-    text: "En el área de becas de la secretaría se realiza la gestión de becas propias de la universidad y te ayudamos a aplicar a becas de carácter nacional. La secretaría ofrece las siguientes becas: <strong>Beca de servicio, beca de ayuda económica y beca de investigación. </strong> Que lo económico no sea un impedimento para que puedas estudiar: desde el área nos interesa que puedas acceder a las mejores oportunidades para finalizar tus estudios de grado. Si estás interesado en aplicar a alguna de nuestras becas o en pedir/mantener otras becas estatales, podés acercarte a la <strong>S</strong>ecretaría de <strong>A</strong>suntos <strong>E</strong>studiantiles para obtener más información.",
-    image: `${baseUrl}images/navbar/inchaUTN.png`,
-    alt: "Edificio de la UTN",
+    description: "Nuestras Becas",
+    text: "La Secretaría posee un programa de becas propias de nuestra universidad en la cual se ofrecen variedad de actividades para que lo económico no sea un impedimento en tu ciclo formativo. Se cuenta con becas de <strong>servicio</strong> orientadas a ser parte de las áreas de nuestra facultad, de <strong>investigación</strong> orientadas a mantener proyectos de investigación en cada especialidad o <strong>económicas</strong> que se centran en tener un seguimiento de tu situación académica/social para mejorar tus oportunidades en finalizar tus estudios de grado.<br/><br/> Por otro lado la <strong>SAE</strong> mantiene una base de conocimiento para poder ayudar a gestionar becas estatales como son las <strong>PROGRESAR</strong> o <strong>Manuel Belgrano.</strong><br/><br/>En ambas situaciones, si estás interesado en informarte más de las becas universitarias o estatales, no dudes en consultarnos.",
+    image: `${baseUrl}images/jpa/journey/oficina-sae.jpg`,
+    alt: "Oficina de la Secretaría de Asuntos Estudiantiles (SAE) en Córdoba.",
   },
   {
     icon: <EmojiEventsIcon />,
     title: "Graduación",
     subtitle: "Meta cumplida",
-    description: "Obtenés tu título y celebrás el esfuerzo realizado.",
-    text: "Después de años de dedicación y esfuerzo, llega el momento de la graduación, un hito significativo en tu vida universitaria. Es el momento en el que obtenés tu título y celebrás todo lo que lograste durante tu carrera. La graduación no solo marca el final de una etapa, sino también el comienzo de nuevas oportunidades y desafíos en tu vida profesional. Es un momento para reflexionar sobre tu viaje académico, agradecer a quienes te apoyaron y mirar hacia el futuro con entusiasmo y confianza.<br/><br/> <strong>¡Felicitamos a todos nuestros ingenieros formados en esta casa de altos estudios pública, de calidad y gratuita!</strong>",
-    image: `${baseUrl}images/journeyJPA/aulaMagnaFRC.jpg`,
-    alt: "Aula Magna de la UTN",
+    description: "No pierdas de vista el objetivo",
+    text: "Desde la <strong>SAE</strong> queremos acompañarte durante todo tu trayecto académico en nuestra universidad. Nos interesa que te sientas parte de algo más grande, que no dejes atrás tus sueños y que puedas conseguir el objetivo de recibirte con nosotros. No te olvides de que podés acercarte a nuestra oficina o comunicarte con nosotros en cualquier momento de tu camino educativo y te brindaremos una mano para lo que necesites.<br/><br/>Nos llena de orgullo que tantos profesionales elijan nuestra regional para formarse educativamente, participen en nuestros eventos, sean parte de nuestra comunidad y nos ayuden a mejorar constantemente. <br/><br/> <strong>¡Felicitamos a todos nuestros ingenieros formados en esta casa de altos estudios pública, de calidad y gratuita!</strong>",
+    image: `${baseUrl}images/jpa/journey/colacion.jpg`,
+    alt: "Aula Magna Agustín Tosco de la Universidad Tecnológica Nacional Regional Córdoba.",
   },
 ];
 const carreras = [
   {
-    title: "Ing. Sistemas de Información",
-    img: `${baseUrl}images/degreesJPA/ingenieriaSistemas.jpeg`,
+    title: "Ing. en Sistemas",
+    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-sistemas.jpg`,
+    alt:"Primer plano de código de programación colorido mostrado en un monitor de computadora con fondo oscuro. El autor es Nemuel Sereti subido a Pexels.",
     route: "/JPA/sistemas",
     duracion: "5 años",
     intereses: ["Software", "IA", "Datos"],
   },
   {
     title: "Ing. Eléctrica",
-    img: `${baseUrl}images/degreesJPA/ingenieriaElectrica.jpg`,
+    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-electrica.jpg`,
+    alt:"Foto de una via electrica, el autor es Efe Burak Baydar subido a Pexels.",
     route: "/JPA/electrica",
     duracion: "6 años",
     intereses: ["Centrales", "Tecnologías Renovables", "Red Eléctrica"],
   },
   {
     title: "Ing. Química",
-    img: `${baseUrl}images/degreesJPA/ingenieriaQuimica.jpg`,
+    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-quimica.jpg`,
+    alt:"Primer plano de tuberías y válvulas de acero inoxidable en un entorno de la industria química. El autor es Yuri Shkoda subido a Pexels.",
     route: "/JPA/quimica",
     duracion: "5 años",
-    intereses: ["Cerveza", "Centrales Eléctricas", "Seguridad"],
+    intereses: ["Destiladores", "Centrales Eléctricas", "Seguridad"],
   },
 
   {
     title: "Ing. Metalúrgica",
-    img: `${baseUrl}images/degreesJPA/ingenieriaMetalurgica.jpg`,
+    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-metalurgica.jpg`,
+    alt:"Plano de una persona viendo una fundicion, el autor es Emre Ezer subido a Pexels.",
     route: "/JPA/metalurgica",
     duracion: "5 años",
     intereses: ["Materiales", "Construcción", "Espadas"],
@@ -216,22 +213,25 @@ const carreras = [
 
   {
     title: "Ing. Electrónica",
-    img: `${baseUrl}images/degreesJPA/ingenieriaElectronica.jpg`,
+    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-electronica.jpg`,
     route: "/JPA/electronica",
+    alt:"Primer plano de circuitos y microprocesador en una placa base, el autor es Mikhail Nilov subido a Pexels.",
     duracion: "6 años",
     intereses: ["Robótica", "IoT", "Automatización"],
   },
   {
     title: "Ing. Civil",
-    img: `${baseUrl}images/degreesJPA/ingenieriaCivil.jpg`,
+    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-civil.jpg`,
     route: "/JPA/civil",
+    alt:"Alto puente en construcción con grúas contra un cielo azul. el autor es Cesal Keser subido a Pexels.",
     duracion: "5 años",
     intereses: ["Construcción", "Reconocimiento", "Progreso Edilicio"],
   },
   {
     title: "Ing. Industrial",
-    img: `${baseUrl}images/degreesJPA/ingenieriaIndustrial.jpg`,
+    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-industrial.jpg`,
     route: "/JPA/industrial",
+    alt:"Vista de ángulo alto de la línea de producción de botellas de vidrio en una fábrica con botellas brillantes. El autor es Keegan Checks subido a Pexels.",
     duracion: "5 años",
     intereses: [
       "Mejoras de Proceso",
@@ -241,18 +241,18 @@ const carreras = [
   },
   {
     title: "Ing. Mecánica",
-    img: `${baseUrl}images/degreesJPA/ingenieriaMecanica2.jpg`,
+    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-mecanica.jpg`,
+    alt:"Primer plano del proceso de ensamblaje del motor que resalta la precisión industrial. El autor es Auto Tech subido a Pexels.",
     route: "/JPA/mecanica",
     duracion: "5 años",
     intereses: ["Producción", "Autopartes", "Nuevas Piezas"],
   },
 ];
 const heroCarrousel = [
-  `${baseUrl}images/carrousel/AuditorioUTN.jpeg`,
-  `${baseUrl}images/carrousel/EntradaUTN.jpg`,
-  `${baseUrl}images/carrousel/estacionamientoUTN.jpg`,
-  `${baseUrl}images/carrousel/FedeOlivos.jpeg`,
-  `${baseUrl}images/degreesJPA/ingenieriaSistemas.jpeg`,
+  `${baseUrl}images/jpa/main-hero/patio-seco.jpg`,
+  `${baseUrl}images/jpa/main-hero/institucional-portada.jpg`,
+  `${baseUrl}images/jpa/main-hero/estacionamiento.jpg`,
+  `${baseUrl}images/jpa/main-hero/auditorio.webp`,
 ];
 
 function ParticipeButton() {
@@ -336,7 +336,7 @@ function HeroSection() {
               <Box
                 sx={{
                   position: "relative",
-                  height: { xs: "55vh", lg: "75vh" },
+                  height: { xs: "85vh",sm:"50vh",lg:"75vh" },
                   backgroundImage: `url(${image})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
@@ -363,10 +363,10 @@ function HeroSection() {
                       label={C.universityChip}
                       sx={{
                         width: "fit-content",
-                        bgcolor: "var(--chipBackground)",
+                        bgcolor: "var(--secondary)",
                         color: "white",
                         backdropFilter: "blur(10px)",
-                        fontWeight: 600,
+                        fontWeight: 700,
                       }}
                     />
 
@@ -382,7 +382,7 @@ function HeroSection() {
                       {" que una carrera"}
                     </SAETypography>
 
-                    <SAETypography variant="subtitle1" color="white">
+                    <SAETypography variant="subtitle1" color="white" width={{xs:"100%",md:"50%"}}>
                       {C.heroSubtitle}
                     </SAETypography>
                     <Stack direction="row" spacing={{ xs: 1, md: 2 }}>
@@ -403,7 +403,7 @@ function HeroSection() {
                             fontSize: "1rem",
                             bgcolor: "#FFD54F",
                             color: "#123666",
-
+                            minHeight:{xs:"75px",md:"50px"},
                             "&:hover": {
                               bgcolor: "#FFCA28",
                             },
@@ -425,6 +425,7 @@ function HeroSection() {
                           size="large"
                           sx={{
                             fontWeight: 700,
+                            minHeight:{xs:"75px",md:"50px"},
                             color: "white",
                             borderColor: "white",
                             bgcolor: "none",
@@ -446,12 +447,12 @@ function HeroSection() {
         </Slider>
       </Box>
       <Container
-        maxWidth="lg"
+        maxWidth="xl"
         sx={{
-          mt: { xs: 2, sm: -3 },
+          mt: { xs: 2,sm:-8, xl: -10 },
           position: "relative",
           zIndex: 5,
-          px: { xs: 2, sm: 3 },
+          px: { xs: 2,sm:4 },
         }}
       >
         <Paper
@@ -579,7 +580,8 @@ function DegreesCarrousel() {
                 <Box
                   component="img"
                   src={carrera.img}
-                  alt={carrera.title}
+                  alt={carrera.alt}
+                  title={carrera.title}
                   sx={{
                     width: "100%",
                     height: "100%",
@@ -760,7 +762,7 @@ function StatCard({ value, label, prefix, suffix }) {
 }
 
 function EventSection() {
-  const { eventosJPA, loadingEventos } = useJPA();
+  
   return (
     <section key={"eventos"} id={"eventos"} style={{ scrollMarginTop: "20px" }}>
       <Box
@@ -783,15 +785,7 @@ function EventSection() {
             {C.eventsDescription}
           </Typography>
         </Box>
-
-        {loadingEventos && (
-          <Stack alignItems="center" width={"100%"} gap={1}>
-            <SAESpinner size="S" />
-          </Stack>
-        )}
-        {!loadingEventos && eventosJPA && (
-          <CalendarEvent eventos={eventosJPA} />
-        )}
+        <CalendarEvent/>
       </Box>
     </section>
   );
@@ -951,20 +945,21 @@ function JourneySection() {
         />
       </Box>
 
-      <Stack spacing={3} sx={{ display: { xs: "flex", md: "none" }, mt: 3 }}>
-        {studentJourney.map((step, index) => (
-          <Box
-            key={step.title}
-            ref={(element) => {
-              stepRefs.current[index] = element;
-            }}
-            data-journey-index={index}
-            sx={{ scrollMarginTop: "175px" }}
-          >
-            <JourneyDetailCard step={step} mobile />
-          </Box>
-        ))}
-      </Stack>
+        <Stack spacing={3} sx={{ display: { xs: "flex", md: "none" }, mt: 3 }}>
+          {studentJourney.map((step, index) => (
+            <Box
+              key={step.title}
+              ref={(element) => {
+                stepRefs.current[index] = element;
+              }}
+              data-journey-index={index}
+              sx={{ scrollMarginTop: "175px" }}
+            >
+              <JourneyDetailCard step={step} mobile />
+            </Box>
+          ))}
+        </Stack>
+
 
       {/* Desktop: selector por clic y una única tarjeta activa */}
       <Box sx={{ display: { xs: "none", md: "block" }, mt: 8, mb: 8 }}>
@@ -1053,7 +1048,7 @@ function JourneyDetailCard({ step, mobile = false }) {
               fontSize={mobile ? "1.65rem" : "2.125rem"}
               textAlign={mobile ? "left" : "center"}
             >
-              {step.title}
+              {step.description}
             </Typography>
             <Box
               sx={{

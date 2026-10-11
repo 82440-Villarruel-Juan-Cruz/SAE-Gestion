@@ -617,11 +617,10 @@ export const CONSULTATION_FAQS = [
     id: "becas",
     category: "Becas",
     question: "¿Cómo solicito una beca?",
-    answer:
-      "Completá todos los datos de tu perfil, cargá la documentación requerida y elegí el tipo de beca desde Mis Becas.",
+    answer: "Completá todos los datos de tu perfil, cargá la documentación requerida y elegí el tipo de beca desde Mis Becas.",
     link: "/Mis-Becas",
     linkLabel: "Ir a Mis Becas",
-    image: "images/infoSection/becasFRC.jpg",
+    image: "images/consultations/entrada-utn.jfif",
   },
   {
     id: "deportes",
@@ -631,7 +630,7 @@ export const CONSULTATION_FAQS = [
       "En Mis Deportes podés consultar las disciplinas disponibles, horarios e inscripciones activas.",
     link: "/Mis-Deportes",
     linkLabel: "Ir a Mis Deportes",
-    image: "images/infoSection/deportesFRC.webp",
+    image: "images/consultations/decano-vicedecano.jpg",
   },
   {
     id: "salud",
@@ -641,7 +640,7 @@ export const CONSULTATION_FAQS = [
       "Ingresá a Mi Salud para consultar especialidades, profesionales, horarios y gestionar tus turnos.",
     link: "/Mi-Salud",
     linkLabel: "Ir a Mi Salud",
-    image: "images/infoSection/saludFRC.jpg",
+    image: "images/consultations/auditorio.jfif",
   },
   {
     id: "perfil",
@@ -651,7 +650,7 @@ export const CONSULTATION_FAQS = [
       "Los datos completos y actualizados son necesarios para solicitar becas y utilizar otros servicios de SAE.",
     link: "/Mi-Perfil",
     linkLabel: "Completar mi perfil",
-    image: "images/infoSection/tramitesFRC.jpg",
+    image: "images/consultations/utn-toma-aerea.jpg",
   },
 ];
 
