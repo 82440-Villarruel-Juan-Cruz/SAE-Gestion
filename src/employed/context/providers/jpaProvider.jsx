@@ -585,7 +585,7 @@ export function JPAProvider({ children }) {
       },
       {
         icon: DeleteIcon,
-        color: "primary",
+        color: "error",
         title: "Eliminar Evento",
         onClick: handleDeleteEvento,
       },
@@ -626,7 +626,7 @@ export function JPAProvider({ children }) {
       },
       {
         icon: DeleteIcon,
-        color: "primary",
+        color: "error",
         title: "Eliminar Evento",
         onClick: handleDeleteEventoSAE,
       },
@@ -667,7 +667,7 @@ export function JPAProvider({ children }) {
       },
       {
         icon: DeleteIcon,
-        color: "primary",
+        color: "error",
         title: "Eliminar Stands",
         onClick: handleDeleteStands,
       },
@@ -704,7 +704,7 @@ export function JPAProvider({ children }) {
       },
       {
         icon: DeleteIcon,
-        color: "primary",
+        color: "error",
         title: "Eliminar Stands",
         onClick: handleDeleteInteresados,
       },

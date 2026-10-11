@@ -464,7 +464,6 @@ export const HealthUsersProvider = ({ children }) => {
 
         // 4. PETICIÓN A LA API
         try {
-          
           await ModificarTurno(id_turno, body);
           showNotification("Turno Actualizado!", "success");
         } catch {
@@ -629,7 +628,9 @@ export const HealthUsersProvider = ({ children }) => {
       setDialogOpen(false);
       setDialogData(getEmptyTurnForm());
       showNotification(
-        dialogMode === "create" ? "Turno Solicitado - Pendiante de Aprobacion!" : "Turno Actualizado!",
+        dialogMode === "create"
+          ? "Turno Solicitado - Pendiante de Aprobacion!"
+          : "Turno Actualizado!",
       );
     } catch (err) {
       setDialogError(err.message || "Ocurrió un error al guardar");
@@ -834,10 +835,10 @@ export const HealthUsersProvider = ({ children }) => {
         };
 
         if (dialogMode === "create") {
-        // Guardamos en la base y recargamos todos los turnos desde la API.
-        await CrearTurnosEmpleado(body);
-        await fetchTurnosMedicos();
-      } else if (dialogMode === "edit") {
+          // Guardamos en la base y recargamos todos los turnos desde la API.
+          await CrearTurnosEmpleado(body);
+          await fetchTurnosMedicos();
+        } else if (dialogMode === "edit") {
           await ModificarPersonal(dialogData.cuil, body);
         }
         setDialogOpen(false);
@@ -1229,7 +1230,7 @@ export const HealthUsersProvider = ({ children }) => {
       },
       {
         icon: DeleteIcon,
-        color: "primary",
+        color: "error",
         title: "Eliminar Curso",
         onClick: handleDeleteCurso,
       },
@@ -1411,4 +1412,3 @@ export const HealthUsersProvider = ({ children }) => {
     </HealthContext.Provider>
   );
 };
-

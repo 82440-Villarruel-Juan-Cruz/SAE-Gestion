@@ -21,11 +21,13 @@ export default function SAEDeleteDialog({
   entityLabel = "elemento",
   itemName,
   itemId,
+  itemIdLabel = "ID",
   onConfirm,
   onClose,
   loading = false,
   error = "",
   onClearError,
+  message,
 }) {
   const handleClose = () => {
     if (!loading) onClose();
@@ -80,8 +82,8 @@ export default function SAEDeleteDialog({
           )}
 
           <Typography id="delete-dialog-description">
-            Vas a eliminar este {entityLabel.toLowerCase()}. Esta accion no se
-            puede deshacer.
+            {message ??
+              `Vas a eliminar este ${entityLabel.toLowerCase()}. Esta accion no se puede deshacer.`}
           </Typography>
 
           <Box
@@ -107,7 +109,7 @@ export default function SAEDeleteDialog({
             </Typography>
             {itemId !== undefined && itemId !== null && itemId !== "" && (
               <Typography variant="body2" color="text.secondary">
-                ID: {itemId}
+                {itemIdLabel}: {itemId}
               </Typography>
             )}
           </Box>

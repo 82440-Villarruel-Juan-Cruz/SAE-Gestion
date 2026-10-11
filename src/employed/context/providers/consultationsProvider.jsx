@@ -11,8 +11,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 import { LINK_FRECUENTE_ICONS } from "../../../utils/util.jsx";
-import { isValidHyperlink } from "../../../utils/validation.utils.js"; 
-import { generateColumns,generateRows} from "../../../utils/datagrid.utils.jsx";
+import { isValidHyperlink } from "../../../utils/validation.utils.js";
+import {
+  generateColumns,
+  generateRows,
+} from "../../../utils/datagrid.utils.jsx";
 
 import { useNotification } from "../../../shared/context/sharedContext";
 import { EMPTY_LINKFRECUENTE } from "../../../utils/common/common.config.js";
@@ -60,52 +63,69 @@ export const ConsultationProvider = ({ children }) => {
   }, [fetchLinksFrecuentes]);
 
   const openCreatelinksFrecuentes = useCallback(() => {
-    openDialog("linkFrecuentes","create",EMPTY_LINKFRECUENTE);
+    openDialog("linkFrecuentes", "create", EMPTY_LINKFRECUENTE);
   }, [openDialog]);
 
-  const openDeleteLinksFrecuentes = useCallback((row) => {
-    openDialog("linkFrecuentes","delete",row);
-  }, [openDialog]);
+  const openDeleteLinksFrecuentes = useCallback(
+    (row) => {
+      openDialog("linkFrecuentes", "delete", row);
+    },
+    [openDialog],
+  );
 
-  const handleCopyLinkFrecuente = useCallback(async (hipervinculo) => {
-    if (!hipervinculo) {
-      showNotification(C.errorNoLink, "warning", 2000);
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(hipervinculo);
-      showNotification(C.copyLinkMsg, "success", 2000);
-    } catch {
-      showNotification(C.errorCopyLink, "error", 2000);
-    } finally {
-      // setSnackbarOpen(true);
-    }
-  }, [showNotification]);
+  const handleCopyLinkFrecuente = useCallback(
+    async (hipervinculo) => {
+      if (!hipervinculo) {
+        showNotification(C.errorNoLink, "warning", 2000);
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(hipervinculo);
+        showNotification(C.copyLinkMsg, "success", 2000);
+      } catch {
+        showNotification(C.errorCopyLink, "error", 2000);
+      } finally {
+        // setSnackbarOpen(true);
+      }
+    },
+    [showNotification],
+  );
 
-    const handleCopyLink = useCallback((link) => {
+  const handleCopyLink = useCallback(
+    (link) => {
       handleCopyLinkFrecuente(link.hipervinculo);
-    }, [handleCopyLinkFrecuente]);
+    },
+    [handleCopyLinkFrecuente],
+  );
 
-    const handleDeleteLink = useCallback((row) => {
-        openDeleteLinksFrecuentes(row);
-    }, [openDeleteLinksFrecuentes]);
+  const handleDeleteLink = useCallback(
+    (row) => {
+      openDeleteLinksFrecuentes(row);
+    },
+    [openDeleteLinksFrecuentes],
+  );
 
-    const consultationActions = useMemo(() => [{
+  const consultationActions = useMemo(
+    () => [
+      {
         icon: ContentCopyIcon,
         color: "primary",
         title: "Copiar Link",
-        onClick: handleCopyLink, 
-    },{
+        onClick: handleCopyLink,
+      },
+      {
         icon: DeleteIcon,
-        color: "primary",
+        color: "error",
         title: "Eliminar Link",
-        onClick: handleDeleteLink, 
-    }
-  ], [handleDeleteLink,handleCopyLink]);
+        onClick: handleDeleteLink,
+      },
+    ],
+    [handleDeleteLink, handleCopyLink],
+  );
 
-    const linksFrecuentesColumns = useMemo(() => {
-      return generateColumns(EMPTY_LINKFRECUENTE, consultationActions);
-    }, [consultationActions]); 
+  const linksFrecuentesColumns = useMemo(() => {
+    return generateColumns(EMPTY_LINKFRECUENTE, consultationActions);
+  }, [consultationActions]);
 
   const handleLinksFrecuentesSave = async () => {
     setDialogSaving(true);
@@ -114,9 +134,8 @@ export const ConsultationProvider = ({ children }) => {
       if (!isValidHyperlink(dialogData.hipervinculo)) {
         throw new Error(C.errorLink);
       }
-      if(isEmpty(dialogData.titulo)){
-         throw new Error(C.errorName);
-         
+      if (isEmpty(dialogData.titulo)) {
+        throw new Error(C.errorName);
       }
       const { id } = dialogData;
       let id_nuevo = id === "" ? 0 : id;
@@ -132,20 +151,16 @@ export const ConsultationProvider = ({ children }) => {
       if (dialogMode === "create") {
         await CrearLinkFrecuentes(body);
       } else if (dialogMode === "edit") {
-        throw new Error(
-          C.errorNoUpdate,
-        );
+        throw new Error(C.errorNoUpdate);
       }
       setDialogOpen(false);
       setDialogData(EMPTY_LINKFRECUENTE);
       fetchLinksFrecuentes();
       showNotification(
-        dialogMode === "create"
-          ? C.creationMsg
-          :C.updateMSg,"success"
+        dialogMode === "create" ? C.creationMsg : C.updateMSg,
+        "success",
       );
     } catch (err) {
-
       setDialogError(err.message || C.errorMsg);
       //showNotification(C.errorMsg, "error", 2000);
     } finally {
