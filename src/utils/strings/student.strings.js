@@ -3,8 +3,8 @@ export const MAIN_STRINGS = {
   headerDescription: "Bienvenido ",
   panelTitle: "Tú Gestión",
   panelDescription: "Administra tu vida estudiantil desde un solo lugar",
-  eventTitle:"Eventos",
-  eventDescription:"No te pierdas estas oportunidades!"
+  eventTitle: "Eventos",
+  eventDescription: "No te pierdas estas oportunidades!",
 };
 
 export const SCHOLARSHIP_STRINGS = {
@@ -234,19 +234,21 @@ export const HEALTH_STRINGS = {
   solicitudDate: "Fecha de Solicitud",
   availability: "Disponibilidad",
   selectedSpecialty: "Especialidad seleccionada",
-  specialtySchedules: "Horarios de la especialidad",
+  specialtySchedules: "Seleccioná un horario de la especialidad",
   availabilityHint:
-    "Agregá uno o más días y horarios en los que podrías asistir.",
+    "Seleccioná un horario de la especialidad o ajustá el rango horario que desees dentro de esa disponibilidad.",
   addAvailability: "Agregar disponibilidad",
   selectedAvailability: "Disponibilidad cargada",
   noAvailability: "Todavía no agregaste disponibilidad",
   availabilityRequired: "Agregá al menos una disponibilidad.",
   day: "Día",
   subject: "Asunto:",
-  availabilityInvalidRange:
-    "La hora desde debe ser anterior a la hora hasta.",
+  availabilityInvalidRange: "La hora desde debe ser anterior a la hora hasta.",
   availabilityOutOfRange:
     "La disponibilidad debe estar dentro del horario del especialista.",
+  availabilityAlreadyAdded:
+    "Ya agregaste una disponibilidad para ese horario del especialista.",
+
   availabilityFrom: "Horario desde",
   availabilityTo: "Horario hasta",
   estimateSchedule: "Hora Aproximada",

@@ -629,7 +629,7 @@ export const HealthUsersProvider = ({ children }) => {
       setDialogOpen(false);
       setDialogData(getEmptyTurnForm());
       showNotification(
-        dialogMode === "create" ? "Turno Creado!" : "Turno Actualizado!",
+        dialogMode === "create" ? "Turno Solicitado - Pendiante de Aprobacion!" : "Turno Actualizado!",
       );
     } catch (err) {
       setDialogError(err.message || "Ocurrió un error al guardar");

@@ -87,13 +87,9 @@ function ScholarshipsContent() {
     misBecas,
     documentos,
     documentosEconomica,
-    cbu,
-    cbuGuardado,
     openPopup,
     documentoAEliminar,
     handleArchivoChange,
-    handleCbuChange,
-    handleGuardarCbu,
     hasEconomica,
     handleAgregarBeca,
     handleDelete,
@@ -107,7 +103,7 @@ function ScholarshipsContent() {
       <HeaderPageStudent
         title={C.bigTitle}
         description={C.bigSubtitle}
-        backgroundImage="images/carrousel/EntradaUTN.jpg"
+        backgroundImage="images/headers/initial.jpg"
         icon={Diversity3Icon}
       />
 

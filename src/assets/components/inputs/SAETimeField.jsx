@@ -4,6 +4,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import { timeToMinutes } from "../../../utils/schedule.utils";
 
 dayjs.extend(customParseFormat);
 
@@ -28,8 +29,43 @@ export default function SAETimeField({
   helperText = "",
   timeStepsMinutes = 15, //Minutos
   required = false,
+  readOnly = false,
 }) {
   const textFieldSize = size === "big" ? "medium" : size;
+  const minMinutes = timeToMinutes(minTime);
+  const maxMinutes = timeToMinutes(maxTime);
+
+  const isSelectableTime = (time) => {
+    const parsedTime = parseTime(time);
+
+    if (!parsedTime?.isValid()) return false;
+
+    const minutes = timeToMinutes(parsedTime.format("HH:mm"));
+
+    return (
+      minutes !== null &&
+      (minMinutes === null || minutes >= minMinutes) &&
+      (maxMinutes === null || minutes <= maxMinutes) &&
+      parsedTime.minute() % timeStepsMinutes === 0
+    );
+  };
+
+  const preventTextEdition = (event) => {
+    if (!readOnly) return;
+
+    const allowedKeys = [
+      "ArrowDown",
+      "ArrowLeft",
+      "ArrowRight",
+      "ArrowUp",
+      "Escape",
+      "Tab",
+    ];
+
+    if (!allowedKeys.includes(event.key)) {
+      event.preventDefault();
+    }
+  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -40,14 +76,20 @@ export default function SAETimeField({
         value={parseTime(value)}
         onChange={(nuevoValor) => {
           const horaFormateada =
-            nuevoValor && nuevoValor.isValid()
-              ? nuevoValor.format("HH:mm")
-              : "";
+            nuevoValor && nuevoValor.isValid() ? nuevoValor.format("HH:mm") : "";
+
+          if (horaFormateada && !isSelectableTime(horaFormateada)) return;
+
           onChange?.(horaFormateada);
         }}
         timeSteps={{ minutes: timeStepsMinutes }}
         minTime={parseTime(minTime)}
         maxTime={parseTime(maxTime)}
+        shouldDisableTime={(timeValue, view) => {
+          if (view !== "minutes") return false;
+
+          return Number(timeValue) % timeStepsMinutes !== 0;
+        }}
         disabled={disabled}
         localeText={{
           cancelButtonLabel: "Volver",
@@ -60,6 +102,11 @@ export default function SAETimeField({
             required,
             error,
             helperText,
+            inputProps: {
+              readOnly,
+            },
+            onKeyDown: preventTextEdition,
+            onPaste: readOnly ? (event) => event.preventDefault() : undefined,
             sx: fullWidth ? undefined : { width },
           },
           // Forzar la barra de botones en entornos de escritorio si es necesario

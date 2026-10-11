@@ -72,7 +72,7 @@ function StudentSportsContent() {
       <StudentHeaderPage
         title={C.bigTitle}
         description={C.bigSubtitle}
-        backgroundImage="images/carrousel/EntradaUTN.jpg"
+        backgroundImage="images/headers/deportes.webp"
         icon={SportsHandballIcon}
       />
       <TitleBox
