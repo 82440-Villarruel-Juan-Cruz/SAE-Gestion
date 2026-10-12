@@ -161,7 +161,7 @@ export function DegreeSection({ title, icon: Icon, children, contentSx }) {
             {title}
           </Typography>
           <Box
-            aria-hidden="true"
+
             sx={{
               width: 42,
               height: 3,
@@ -199,7 +199,6 @@ function ExpandableBulletItem({ item, index, numbered, collapsible }) {
       }}
     >
       <Box
-        aria-hidden="true"
         sx={{
           mt: 0.15,
           width: numbered ? 28 : 24,

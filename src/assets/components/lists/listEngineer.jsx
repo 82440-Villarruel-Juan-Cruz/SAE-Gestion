@@ -122,7 +122,6 @@ export default function ListEngineer({
               >
                 {value}
                 <OpenInNewRoundedIcon
-                  aria-hidden="true"
                   sx={{ fontSize: 17, flexShrink: 0, opacity: 0.7 }}
                 />
               </Link>

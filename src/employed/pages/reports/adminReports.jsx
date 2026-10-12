@@ -543,7 +543,7 @@ const bottomLegendProps = {
     direction: "row",
     position: { vertical: "bottom", horizontal: "center" },
     padding: 0,
-    labelStyle: { fontSize: 12 },
+
   },
 };
 

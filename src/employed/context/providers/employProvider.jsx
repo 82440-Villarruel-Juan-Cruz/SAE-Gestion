@@ -1,5 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from "react";
-import { Box, IconButton, Chip } from "@mui/material";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 
 import {
@@ -36,23 +35,20 @@ import {
 import {
   EMPTY_FORM,
   EMPTY_EMPLEADO,
-  EMPTY_USUARIO,
 } from "../../../utils/common/common.config.js";
 import { USER_STRINGS } from "../../../utils/strings/employed.strings.js";
 import { isEmpty } from "../../../utils/text.utils.js";
 import {
+  isNumberN0,
+  isPositiveNumber,
   isTimeAfter,
+  isValidNumber,
+  validarSolapamiento,
   validateNombreApellido,
 } from "../../../utils/validation.utils.js";
+import { buildEmployeeLegajo, normalizeCareerValue } from "../../../utils/formatters.utils.js";
 
 const C = USER_STRINGS;
-
-const normalizeCareerValue = (value = "") =>
-  String(value)
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
 
 const mapCareerWithLoginCareer = (backendCareer) => {
   const backendCareerName = normalizeCareerValue(backendCareer?.nombre);
@@ -66,16 +62,6 @@ const mapCareerWithLoginCareer = (backendCareer) => {
   };
 };
 
-const isPositiveNumber = (value) =>
-  !isEmpty(value) && Number.isFinite(Number(value)) && Number(value) > 0;
-
-const isValidNumber = (value) =>
-  !isEmpty(value) && Number.isFinite(Number(value));
-
-const buildEmployeeLegajo = (legajo) => {
-  const legajoBase = String(legajo ?? "").trim();
-  return legajoBase.includes("@") ? legajoBase : `${legajoBase}@${C.dominio}`;
-};
 
 export const AdminUsersProvider = ({ children }) => {
   // Estados globales de Diálogo compartidos por ambas secciones
@@ -102,7 +88,7 @@ export const AdminUsersProvider = ({ children }) => {
     switch (true) {
       case field === "id":
         return dialogMode === "edit" && isEmpty(value) ? C.validationID : "";
-      case field === "legajo":
+      case field.includes("legajo"):
         return isEmpty(value) ? C.validationStudentID : "";
       case field === "nombre_carrera":
         return isEmpty(value) ? C.validationDegree : "";
@@ -111,7 +97,7 @@ export const AdminUsersProvider = ({ children }) => {
       case field === "apellidos":
         return validateNombreApellido(String(value ?? ""), "El apellido") ?? "";
       case field.includes("nombre") || field.includes("apellido"):
-        return isEmpty(value) ? C.validationNames : "";
+        return validateNombreApellido(String(value ?? ""), "El apellido") ?? "";
       case field === "activo":
         return isEmpty(value) ? C.validationActive : "";
       case field === "id_perfil":
@@ -131,7 +117,7 @@ export const AdminUsersProvider = ({ children }) => {
       case field === "dia":
         return isValidNumber(value) ? "" : C.validationDay;
       case field === "id_empleado":
-        return isPositiveNumber(value) ? "" : C.validationEmploy;
+        return isNumberN0(value) ? "" : C.validationEmploy;
       default:
         return "";
     }
@@ -141,14 +127,14 @@ export const AdminUsersProvider = ({ children }) => {
       if (dialogType === "empleados") {
         return dialogMode === "create"
           ? [
-              "legajo",
+              "legajo_empleado",
               "nombre_usuario",
               "nombres",
               "apellidos",
               "activo",
               "id_perfil",
             ]
-          : ["id", "legajo", "nombre_empleado", "activo", "id_perfil"];
+          : ["id", "legajo_empleado", "nombre_empleado", "activo", "id_perfil"];
       }
 
       return [
@@ -177,21 +163,33 @@ export const AdminUsersProvider = ({ children }) => {
   //Lo tengo que pedir lo se...
   const validateSchedule = ({ includeId = false } = {}) => {
     const fields = includeId
-      ? ["id", "hora_inicio", "hora_fin", "dia"]
-      : ["hora_inicio", "hora_fin", "dia"];
-
+      ? ["id", "hora_inicio", "hora_fin", "dia","id_empleado"]
+      : ["hora_inicio", "hora_fin", "dia","id_empleado"];
+    
     const errors = fields.reduce((result, field) => {
-      // CORRECCIÓN 1: Buscamos el valor en 'form', que es el que tiene los datos reales
-      const valorActual = form[field];
-
-      // CORRECCIÓN 2: Le pasamos 'form' como tercer parámetro para que actúe como "data"
-      const message = validateField(field, valorActual, form);
-
+    const valorActual = form[field];
+      
+    const message = validateField(field, valorActual, form);
       return message ? { ...result, [field]: message } : result;
     }, {});
 
-    if (!selectedEmploy?.id) {
-      errors.id_empleado = C.validationEmploy;
+    if (!errors.hora_inicio && !errors.hora_fin && !errors.dia) {
+    // Si estamos editando, form.id tiene el id actual; si es creación, es null/0
+    const idEnEdicion = includeId ? form.id : null;
+
+      const solapado = validarSolapamiento(
+        form.hora_inicio, 
+        form.hora_fin, 
+        form.dia, 
+        selectedHorarios, //Formato de dia, hora_inicio y hora_fin
+        idEnEdicion
+      );
+
+      if (solapado) {
+        const mensajeError = "El horario se superpone con otra franja existente en el mismo día.";
+        errors.hora_inicio = mensajeError;
+        errors.hora_fin = mensajeError;
+      }
     }
 
     setFieldErrors(errors);
@@ -266,7 +264,7 @@ export const AdminUsersProvider = ({ children }) => {
     resetValidation();
     openDialog("empleados", "create", {
       id: "",
-      legajo: "",
+      legajo_empleado: "",
       nombre_empleado: "",
       nombre_usuario: "",
       nombres: "",
@@ -282,7 +280,7 @@ export const AdminUsersProvider = ({ children }) => {
       resetValidation();
       openDialog("empleados", "edit", {
         id: row.id,
-        legajo: row.legajo,
+        legajo_empleado: row.legajo,
         nombre_empleado: row.nombre_empleado,
         nombres: row.nombres,
         apellidos: row.apellidos,
@@ -303,7 +301,7 @@ export const AdminUsersProvider = ({ children }) => {
       let id_nuevo = id === "" ? 0 : id;
       const body = {
         id: id_nuevo,
-        legajo: buildEmployeeLegajo(dialogData.legajo),
+        legajo: buildEmployeeLegajo(dialogData.legajo_empleado),
         nombre_usuario: dialogData.nombre_usuario || dialogData.nombre_empleado,
         id_perfil: dialogData.id_perfil,
         activo: dialogMode === "create" ? true : dialogData.activo,
@@ -551,8 +549,20 @@ export const AdminUsersProvider = ({ children }) => {
     setShowNuevoForm(false);
     setHorariosDialogOpen(false);
   };
-
+  const handleOpenNuevoForm = (val) => {
+    setShowNuevoForm(val);
+    if (val) {
+      setEditingId(null); // Si abrimos el alta, cerramos cualquier edición activa
+      setForm({
+        dia: "",
+        hora_inicio: "",
+        hora_fin: "",
+        id_empleado: selectedEmploy?.id || "",
+      }); // Limpiamos el formulario para que empiece en blanco
+    }
+  };
   const handleCreateHorario = async () => {
+    
     if (!validateSchedule()) return;
     setSavingHorario(true);
     setErrorHorario("");
@@ -570,7 +580,6 @@ export const AdminUsersProvider = ({ children }) => {
       fetchHorarios();
       setShowNuevoForm(false);
       fetchHorariosXEmpleado(selectedEmploy.id);
-      setHorariosDialogOpen(false);
     } catch (err) {
       setErrorHorario(err.message || C.userErrorMsg);
     } finally {
@@ -579,6 +588,7 @@ export const AdminUsersProvider = ({ children }) => {
     }
   };
   const handleEditHorario = async () => {
+
     if (!validateSchedule({ includeId: true })) return;
     //Son todas cosas que queremos mostrar antes de ejecutar una query asincrona
     setSavingHorario(true);
@@ -609,6 +619,7 @@ export const AdminUsersProvider = ({ children }) => {
   const handleDeleteHorario = async () => {
     if (isPositiveNumber(deleteId)) {
       try {
+        setSavingHorario(true);
         await EliminarHorario(deleteId);
         setForm(null);
         setDeleteId(null);
@@ -619,8 +630,11 @@ export const AdminUsersProvider = ({ children }) => {
         setConfirmDelete(false);
         setErrorHorario(err.message || C.userErrorMsg);
       }
+      finally{
+        setSavingHorario(false);
+      }
     } else {
-      showNotification("No se encuentra el ID para eliminar", "error");
+      showNotification(C.userNotFound, "error");
     }
   };
   const handleCancelHorario = () => {
@@ -695,6 +709,7 @@ export const AdminUsersProvider = ({ children }) => {
         savingHorario,
         errorHorario,
         setErrorHorario,
+        handleOpenNuevoForm,
         handleCreateHorario,
         handleEditHorario,
         handleDeleteHorario,

@@ -30,7 +30,23 @@ export default function SAETimeField({
   required = false,
 }) {
   const textFieldSize = size === "big" ? "medium" : size;
+  const redondearMinutos = (dayjsObj) => {
+      if (!dayjsObj || !dayjsObj.isValid()) return dayjsObj;
 
+      const minutosActuales = dayjsObj.minute();
+      const resto = minutosActuales % timeStepsMinutes;
+
+      // Si no coincide exactamente con el intervalo, redondeamos
+      if (resto !== 0) {
+        const minutosRedondeados = 
+          resto >= timeStepsMinutes / 2
+            ? minutosActuales + (timeStepsMinutes - resto) // Redondea hacia arriba
+            : minutosActuales - resto;                     // Redondea hacia abajo
+            
+        return dayjsObj.minute(minutosRedondeados).second(0);
+      }
+      return dayjsObj.second(0);
+    };
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <TimePicker
@@ -39,12 +55,16 @@ export default function SAETimeField({
         // Usamos el formato estricto 'HH:mm' para evitar errores de parseo
         value={parseTime(value)}
         onChange={(nuevoValor) => {
+
+          const valorRedondeado = redondearMinutos(nuevoValor);
           const horaFormateada =
-            nuevoValor && nuevoValor.isValid()
-              ? nuevoValor.format("HH:mm")
+            valorRedondeado && valorRedondeado.isValid()
+              ? valorRedondeado.format("HH:mm")
               : "";
+
           onChange?.(horaFormateada);
         }}
+
         timeSteps={{ minutes: timeStepsMinutes }}
         minTime={parseTime(minTime)}
         maxTime={parseTime(maxTime)}

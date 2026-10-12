@@ -12,14 +12,12 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
-  FormControlLabel,
   FormHelperText,
   IconButton,
   InputLabel,
   MenuItem,
   Select,
   Stack,
-  Switch,
   TextField,
   Typography,
 } from "@mui/material";
@@ -32,12 +30,10 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import SAEButton from "../../../assets/components/buttons/SAEButton";
-import SAETextField from "../../../assets/components/inputs/SAETextField";
 import SAETimeField from "../../../assets/components/inputs/SAETimeField";
 import { toTimeInput } from "../../../utils/date.utils";
 
 import { useEmploy } from "../../context/employedContext";
-import { AdminUsersProvider } from "../../context/providers/employProvider";
 import { USER_STRINGS } from "../../../utils/strings/employed.strings";
 import { calendarDays } from "../../../utils/common/constants";
 
@@ -75,7 +71,7 @@ function HorarioFormFields() {
             <InputLabel>{C.day}</InputLabel>
             <Select
               label={C.day}
-              value={form.dia}
+              value={form.dia|| ""}
               onChange={(e) =>
                 handleChangeForm("dia", e.target.value, {
                   setTouched: setTouchedFields,
@@ -99,7 +95,7 @@ function HorarioFormFields() {
         <Grid size={{ xs: 12, sm: 4 }}>
           <SAETimeField
             label={C.startTime}
-            value={form.hora_inicio}
+            value={form.hora_inicio|| ""}
             onChange={(value) =>
               handleChangeForm("hora_inicio", value, {
                 setTouched: setTouchedFields,
@@ -108,7 +104,7 @@ function HorarioFormFields() {
               })
             }
             minTime="08:00"
-            maxTime="24:00"
+            maxTime="22:00"
             size="big"
             fullWidth
             error={Boolean(fieldErrors.hora_inicio)}
@@ -118,7 +114,7 @@ function HorarioFormFields() {
         <Grid size={{ xs: 12, sm: 4 }}>
           <SAETimeField
             label={C.endTime}
-            value={form.hora_fin}
+            value={form.hora_fin|| ""}
             onChange={(value) =>
               handleChangeForm("hora_fin", value, {
                 setTouched: setTouchedFields,
@@ -126,8 +122,9 @@ function HorarioFormFields() {
                 validateFn: validateField,
               })
             }
+            timeStepsMinutes={30}
             minTime="08:00"
-            maxTime="24:00"
+            maxTime="22:00"
             size="big"
             fullWidth
             error={Boolean(fieldErrors.hora_fin)}
@@ -246,7 +243,7 @@ function HorarioCard({ horario }) {
     savingHorario,
     errorHorario,
     setErrorHorario,
-    DAYS,
+    setShowNuevoForm
   } = useEmploy();
 
   const isEditing = editingId === horario.id;
@@ -438,14 +435,17 @@ function HorarioCard({ horario }) {
             >
               <IconButton
                 size="small"
-                onClick={() => {
-                  setForm({
-                    ...horario,
-                    hora_inicio: toTimeInput(horario.hora_inicio),
-                    hora_fin: toTimeInput(horario.hora_fin),
-                  });
-                  setEditingId(horario.id);
-                }}
+                  onClick={() => {
+                    setForm({
+                      id: horario.id,
+                      dia: horario.dia,
+                      hora_inicio: toTimeInput(horario.hora_inicio),
+                      hora_fin: toTimeInput(horario.hora_fin),
+                      id_empleado: horario.id_empleado,
+                    });
+                    setEditingId(horario.id);
+                    setShowNuevoForm(false); // Si abrimos edición, cerramos el alta de nuevo horario para que no convivan
+                  }}
                 sx={{
                   color: "primary.main",
                   bgcolor: "rgba(21,101,192,0.08)",
@@ -588,7 +588,7 @@ export default function GestionarHorariosDialog({ open }) {
     handleEmployChange,
     handleClose,
     showNuevoForm,
-    setShowNuevoForm,
+    handleOpenNuevoForm,
     dialogError,
   } = useEmploy();
   return (
@@ -657,7 +657,7 @@ export default function GestionarHorariosDialog({ open }) {
                     {C.scheduleMsg} {selectedEmploy.nombre_empleado}
                   </Typography>
                   <IconButton
-                    onClick={() => setShowNuevoForm(true)}
+                    onClick={handleOpenNuevoForm}
                     disabled={showNuevoForm}
                     sx={{
                       bgcolor: "primary.main",

@@ -225,7 +225,7 @@ function SAEHero() {
                   component="img"
                   src={`${baseUrl}logoUTN.svg`}
                   alt="UTN Logo"
-                  aria-hidden="true"
+                  
                   sx={{
                     width: 22,
                     height: 24,

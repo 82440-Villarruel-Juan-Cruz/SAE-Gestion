@@ -6,38 +6,23 @@ import {
   Stack,
   Card,
   CardContent,
-  CircularProgress,
   Alert,
   Tooltip
 } from "@mui/material";
 import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
-
 import SAESpinner from "../../../assets/components/spinner/SAESpinner";
-
 import { useEmploy } from '../../context/employedContext'; 
-import { AdminUsersProvider } from '../../context/providers/employProvider';
+import { calendarDays } from "../../../utils/common/constants";
 
 const HOUR_HEIGHT = 36; // px per hour
-const START_HOUR = 8; //AM
+const START_HOUR = 7; //AM
 const END_HOUR = 22; //PM
 const TOTAL_HOURS = END_HOUR - START_HOUR; // 16
 const TOTAL_HEIGHT = TOTAL_HOURS * HOUR_HEIGHT;
 const TIME_COL_WIDTH = 40; // px
 
-const DAYS = [
-  { label: "Lunes", value: 1 },
-  { label: "Martes", value: 2 },
-  { label: "Miércoles", value: 3 },
-  { label: "Jueves", value: 4 },
-  { label: "Viernes", value: 5 },
-];
-const EMPTY_FORM = {
-  id_empleado: "",
-  dia: 1,
-  hora_inicio: "",
-  hora_fin: "",
-  activo: true,
-};
+const DAYS = calendarDays;
+
 const PALETTE = [
   "#1565C0",
   "#2E7D32",

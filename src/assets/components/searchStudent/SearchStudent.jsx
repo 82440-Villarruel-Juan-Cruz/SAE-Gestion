@@ -5,10 +5,8 @@ import {
   CircularProgress,
   IconButton,
   Grid,
-  Stack,
   Typography,
   useMediaQuery,
-  Button,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import SAEButton from "../buttons/SAEButton";
@@ -75,12 +73,10 @@ export default function SearchStudent({
       onError?.("");
       return;
     }
-
     try {
       onError?.("");
       setStudentSearchLoading(true);
       setStudentSelected(null);
-
       const searchLegajo = hasFullLegajo
         ? rawLegajo
         : validateCareer

@@ -551,7 +551,7 @@ function DialogJpa() {
                         {...fieldProps("horario_inicio")}
                         required
                         minTime="08:00"
-                        maxTime="24:00"
+                        maxTime="22:00"
                         size="big"
                         fullWidth
                       />

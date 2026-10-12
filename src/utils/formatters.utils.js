@@ -12,6 +12,17 @@ const format11DigitDocument = (value = "") => {
     .join("-");
 };
 
+export const buildEmployeeLegajo = (legajo) => {
+  const legajoBase = String(legajo ?? "").trim();
+  return legajoBase.includes("@") ? legajoBase : `${legajoBase}@${"utn.frc.edu.ar"}`;
+};
+
+export const normalizeCareerValue = (value = "") =>
+  String(value)
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 /**
  * DNI
  * 12345678 -> 12.345.678

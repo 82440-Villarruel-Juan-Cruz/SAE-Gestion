@@ -374,6 +374,7 @@ export const USER_STRINGS = {
   userErrorMsg: "Ocurrió un error al guardar",
   userErrorUpdateMsg: "Ocurrió un error al actualizar el usuario...",
   scheduleGetError: "Ocurrió un error recuperando los horarios",
+  userNotFound: "No se encuentra el ID para eliminar",
 };
 
 export const TRAVEL_STRINGS = {
