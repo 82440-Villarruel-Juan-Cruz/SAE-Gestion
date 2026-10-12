@@ -1,4 +1,11 @@
-import { Box, CardContent, Typography, Card, CardActions } from "@mui/material";
+import {
+  Box,
+  CardContent,
+  Typography,
+  Card,
+  CardActions,
+  Stack,
+} from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import Masonry from "@mui/lab/Masonry";
 import Grid from "@mui/material/Grid";
@@ -6,11 +13,11 @@ import Link from "@mui/material/Link";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 import CancelIcon from "@mui/icons-material/Cancel";
+import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
 import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
@@ -605,22 +612,108 @@ export default function DeportesMasonry({ deportes, onInscribirClick }) {
                 </SAEButton>
                 <Dialog
                   open={openDialogIndex === index}
-                  onClose={() => handleClose()}
-                  sx={{ borderRadius: 6 }}
+                  onClose={handleClose}
+                  maxWidth="sm"
+                  fullWidth
+                  aria-labelledby={`sport-dialog-title-${card.id_deporte}`}
                 >
-                  <DialogTitle>{card.deporte}</DialogTitle>
-                  <DialogContent>
-                    <DialogContentText>
-                      Estas seguro que te vas a{" "}
+                  <DialogTitle
+                    id={`sport-dialog-title-${card.id_deporte}`}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.5,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "grid",
+                        placeItems: "center",
+                        width: 40,
+                        height: 40,
+                        borderRadius: "50%",
+                        color:
+                          card.esta_inscripto === false
+                            ? "primary.main"
+                            : "error.main",
+                        bgcolor:
+                          card.esta_inscripto === false
+                            ? "rgba(21, 101, 192, 0.1)"
+                            : "#ffebee",
+                      }}
+                    >
+                      {card.esta_inscripto === false ? (
+                        <CheckIcon />
+                      ) : (
+                        <WarningAmberRoundedIcon />
+                      )}
+                    </Box>
+                    <Typography
+                      variant="h6"
+                      component="span"
+                      sx={{ fontWeight: 700 }}
+                    >
                       {card.esta_inscripto === false
-                        ? "Inscribir"
-                        : "Desinscribirte"}{" "}
-                      de {card.deporte}?
-                    </DialogContentText>
+                        ? "Inscribirte"
+                        : "Desinscribirte"}
+                    </Typography>
+                  </DialogTitle>
+                  <DialogContent dividers>
+                    <Stack spacing={2}>
+                      <Typography>
+                        {card.esta_inscripto === false
+                          ? "Vas a inscribirte a este deporte."
+                          : "Vas a desinscribirte de este deporte."}
+                      </Typography>
+                      <Box
+                        sx={{
+                          p: 2,
+                          borderRadius: 1,
+                          border: 1,
+                          borderColor:
+                            card.esta_inscripto === false
+                              ? "primary.light"
+                              : "error.light",
+                          bgcolor:
+                            card.esta_inscripto === false
+                              ? "rgba(21, 101, 192, 0.06)"
+                              : "#fff5f5",
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          color={
+                            card.esta_inscripto === false
+                              ? "primary.main"
+                              : "error.main"
+                          }
+                        >
+                          Deporte
+                        </Typography>
+                        <Typography
+                          sx={{
+                            color:
+                              card.esta_inscripto === false
+                                ? "primary.dark"
+                                : "error.dark",
+                            fontWeight: 700,
+                            overflowWrap: "anywhere",
+                          }}
+                        >
+                          {card.deporte}
+                        </Typography>
+                      </Box>
+                    </Stack>
                   </DialogContent>
-                  <DialogActions>
+                  <DialogActions sx={{ px: 3, py: 2 }}>
                     <SAEButton
-                      fullWidth
+                      variant="outlined"
+                      onClick={handleClose}
+                      startIcon={<CancelIcon />}
+                    >
+                      Cancelar
+                    </SAEButton>
+                    <SAEButton
                       onClick={() => handleInscripcion(card.id_deporte)}
                       variant="contained"
                       color={
@@ -637,7 +730,7 @@ export default function DeportesMasonry({ deportes, onInscribirClick }) {
                     >
                       {card.esta_inscripto === false
                         ? "Inscribirse"
-                        : "Desincribirse"}
+                        : "Desinscribirse"}
                     </SAEButton>
                   </DialogActions>
                 </Dialog>

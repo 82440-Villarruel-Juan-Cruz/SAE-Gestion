@@ -20,6 +20,8 @@ const getStudentName = (student = {}) =>
   student.Nombre ??
   "";
 
+const onlyDigits = (value) => String(value ?? "").replace(/\D/g, "");
+
 export default function SearchStudent({
   legajo = "",
   disabled = false,
@@ -57,7 +59,7 @@ export default function SearchStudent({
   const searchStudent = async ({ validateCareer = true } = {}) => {
     const rawLegajo = String(legajo ?? "").trim();
     const hasFullLegajo = rawLegajo.includes("@");
-    const studentId = rawLegajo.split("@")[0];
+    const studentId = onlyDigits(rawLegajo.split("@")[0]);
     const errors = {};
 
     if (!studentId) {
@@ -78,7 +80,7 @@ export default function SearchStudent({
       setStudentSearchLoading(true);
       setStudentSelected(null);
       const searchLegajo = hasFullLegajo
-        ? rawLegajo
+        ? `${studentId}@${rawLegajo.split("@")[1] ?? ""}`
         : validateCareer
           ? `${studentId}@${careerSearch}.frc.utn.edu.ar`
           : studentId;
@@ -177,7 +179,7 @@ export default function SearchStudent({
           onChange={(event) => {
             setFieldErrors((previous) => ({ ...previous, legajo: "" }));
             onError?.("");
-            onLegajoChange?.(event.target.value);
+            onLegajoChange?.(onlyDigits(event.target.value));
           }}
           onKeyDown={(event) => {
             if (event.key === "Enter") handleStudentSearch();
@@ -186,6 +188,12 @@ export default function SearchStudent({
           disabled={disabled || studentSearchLoading}
           error={Boolean(legajoFieldError)}
           helperText={legajoFieldError}
+          slotProps={{
+            htmlInput: {
+              inputMode: "numeric",
+              pattern: "[0-9]*",
+            },
+          }}
           fullWidth
         />
       </Grid>

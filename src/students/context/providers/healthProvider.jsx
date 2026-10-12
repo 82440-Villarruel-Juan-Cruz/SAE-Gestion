@@ -43,9 +43,12 @@ import {
 } from "../../../api/formatters/SaludFormatters";
 
 import { ObtenerUsuariosXLegajo } from "../../../api/EmpleadoService";
-import { generateColumns,generateRows} from "../../../utils/datagrid.utils.jsx";
+import {
+  generateColumns,
+  generateRows,
+} from "../../../utils/datagrid.utils.jsx";
 import { useNotification } from "../../../shared/context/sharedContext";
-import { calendarDays} from "../../../utils/common/constants";
+import { calendarDays } from "../../../utils/common/constants";
 import { EMPTY_TURNO_PACIENTE } from "../../../utils/common/common.config.js";
 import { toApiDateTime, toTimeInput } from "../../../utils/date.utils.js";
 import { formatTimeRange } from "../../../utils/schedule.utils.js";
@@ -128,6 +131,11 @@ export const HealthUsersProvider = ({ children }) => {
           dia_selecionado: diasYHorarios[0].dia,
           horario_disponible_desde: diasYHorarios[0].hora_inicio,
           horario_disponible_hasta: diasYHorarios[0].hora_fin,
+          horario_seleccionado: [
+            Number(diasYHorarios[0].dia),
+            diasYHorarios[0].hora_inicio?.slice(0, 5),
+            diasYHorarios[0].hora_fin?.slice(0, 5),
+          ].join("-"),
           disponibilidades: [],
         });
       }
@@ -227,7 +235,8 @@ export const HealthUsersProvider = ({ children }) => {
       }
       if (
         dialogMode === "create" &&
-        (!dialogData.disponibilidades || dialogData.disponibilidades.length === 0)
+        (!dialogData.disponibilidades ||
+          dialogData.disponibilidades.length === 0)
       ) {
         setDialogError("Agregá al menos una disponibilidad");
         setDialogSaving(false);
@@ -248,9 +257,8 @@ export const HealthUsersProvider = ({ children }) => {
       const disponibilidades =
         dialogData.disponibilidades?.map((disponibilidad) => {
           const dia =
-            calendarDays?.find(
-              (di) => di.value === Number(disponibilidad.dia),
-            )?.label ?? "Dia no asignado";
+            calendarDays?.find((di) => di.value === Number(disponibilidad.dia))
+              ?.label ?? "Dia no asignado";
 
           if (disponibilidad.hora_desde && disponibilidad.hora_hasta) {
             return `${dia} ${formatTimeRange(
@@ -291,7 +299,10 @@ export const HealthUsersProvider = ({ children }) => {
         fecha_solicitud:
           dialogMode === "create"
             ? toApiDateTime(new Date())
-            : toApiDateTime(dialogData.fecha_solicitud, new Date().toISOString()),
+            : toApiDateTime(
+                dialogData.fecha_solicitud,
+                new Date().toISOString(),
+              ),
         fecha_atencion: toApiDateTime(dialogData.fecha_atencion),
         hora_atencion: horario_atencion,
         asunto: asunto,
@@ -311,7 +322,9 @@ export const HealthUsersProvider = ({ children }) => {
       fetchTurnosEstudiante(dialogData.legajo ?? usuarioSelected);
       closeDialog();
       showNotification(
-        dialogMode === "create" ? "Turno Creado!" : "Turno Actualizado!",
+        dialogMode === "create"
+          ? "Turno Solicitado - Pendiante de Aprobacion!"
+          : "Turno Actualizado!",
         "success",
       );
     } catch (err) {

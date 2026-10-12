@@ -21,8 +21,7 @@ import {
   CONSULTATION_FAQS,
   QUICK_CONSULTATION_FAQS,
   SAE_EMAIL,
-} from "../../../utils/common/common.config.js"
-
+} from "../../../utils/common/common.config.js";
 
 import HeaderPageStudent from "../../../assets/components/headerPage/headerPageStudent.jsx";
 import TitleBox from "../../../assets/components/titleBox.jsx";
@@ -32,9 +31,9 @@ import SAESpinner from "../../../assets/components/spinner/SAESpinner";
 import SAEPage from "../../../assets/components/page/SAEPage";
 import { SAETypography } from "../../../assets/components/typography/SAETypography";
 
-import { CONSULTATIONS_STRINGS } from "../../../utils/strings/student.strings.js"; 
+import { CONSULTATIONS_STRINGS } from "../../../utils/strings/student.strings.js";
 
-import { getLinkFrecuenteIconByIndex } from "../../../utils/util.jsx"; 
+import { getLinkFrecuenteIconByIndex } from "../../../utils/util.jsx";
 import { ConsultationAlumnoProvider } from "../../../students/context/providers/consultationsProvider";
 import { useConsultationContext } from "../../context/studentContext";
 
@@ -59,13 +58,10 @@ export function StudentContent() {
       <HeaderPageStudent
         title={C.headerTitle}
         description={C.headerDescription}
-        backgroundImage="images/buildings/inchaurrondo/FrenteVidriado.jpg"
+        backgroundImage="images/consultations/entrada-utn.jfif"
         icon={ContactSupportIcon}
       />
-      <TitleBox
-        title={C.linktreeTitle}
-        description={C.linktreeDescription}
-      />
+      <TitleBox title={C.linktreeTitle} description={C.linktreeDescription} />
 
       {loadingLinksFrecuentes ? (
         <Stack alignItems="center" sx={{ mt: 3, mb: 5 }}>
@@ -124,11 +120,7 @@ export function StudentContent() {
                     <Icon fontSize="small" />
                   </Box>
                   <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <SAETypography
-                      variant="subtitle1"
-                      fontWeight={600}
-                      noWrap
-                    >
+                    <SAETypography variant="subtitle1" fontWeight={600} noWrap>
                       {link.titulo}
                     </SAETypography>
                     <SAETypography
@@ -145,18 +137,13 @@ export function StudentContent() {
           })}
           {linksFrecuentes.length === 0 && (
             <Grid size={{ xs: 12 }}>
-              <Alert severity="info">
-                {C.linktreeNoData}
-              </Alert>
+              <Alert severity="info">{C.linktreeNoData}</Alert>
             </Grid>
           )}
         </Grid>
       )}
 
-      <TitleBox
-        title={C.faqsTitle}
-        description={C.faqsDescription}
-      />
+      <TitleBox title={C.faqsTitle} description={C.faqsDescription} />
 
       <Grid container spacing={2.5} alignItems="flex-start" sx={{ mt: 1 }}>
         {CONSULTATION_FAQS.map((faq) => (
@@ -198,10 +185,7 @@ export function StudentContent() {
       </Grid>
 
       <Box>
-        <TitleBox
-          title={C.moreFaqsTitle}
-          description={C.moreFaqsDescription}
-        />
+        <TitleBox title={C.moreFaqsTitle} description={C.moreFaqsDescription} />
 
         {QUICK_CONSULTATION_FAQS.map((faq) => (
           <Accordion
@@ -240,7 +224,8 @@ export function StudentContent() {
             {C.sendMailTitle}
           </SAETypography>
           <SAETypography color="var(--textSecondary)" sx={{ mt: 1, mb: 3 }}>
-            {C.emailClaration}{SAE_EMAIL}.
+            {C.emailClaration}
+            {SAE_EMAIL}.
           </SAETypography>
           <Box component="form" onSubmit={handleSubmit}>
             <Grid container spacing={2}>

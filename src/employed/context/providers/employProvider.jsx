@@ -63,6 +63,15 @@ const mapCareerWithLoginCareer = (backendCareer) => {
 };
 
 
+const ALLOWED_EMPLOYEE_PROFILE_NAMES = ["empleado sae", "administrador"];
+
+const normalizeProfileName = (value = "") =>
+  String(value)
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
 export const AdminUsersProvider = ({ children }) => {
   // Estados globales de Diálogo compartidos por ambas secciones
   const {
@@ -101,6 +110,19 @@ export const AdminUsersProvider = ({ children }) => {
       case field === "activo":
         return isEmpty(value) ? C.validationActive : "";
       case field === "id_perfil":
+        if (
+          dialogType === "empleados" &&
+          dialogMode === "create" &&
+          !perfiles.some(
+            (perfil) =>
+              Number(perfil.id) === Number(value) &&
+              ALLOWED_EMPLOYEE_PROFILE_NAMES.includes(
+                normalizeProfileName(perfil.nombre),
+              ),
+          )
+        ) {
+          return C.validationProfile;
+        }
         return isPositiveNumber(value) ? "" : C.validationProfile;
       case field === "id_especialidad":
         return isPositiveNumber(value) ? "" : C.validationDegree;

@@ -118,7 +118,10 @@ export const TravelProvider = ({ children }) => {
     fetchDocumentos();
   }, [fetchDocumentos]);
 
-  const closeDeleteDialog = () => setOpenPopup(false);
+  const closeDeleteDialog = () => {
+    setOpenPopup(false);
+    setDocumentoAEliminar(null);
+  };
 
   const [travelsLegajo, setTravelsLegajo] = useState([]);
   const [loadingTravel, setLoadingTravel] = useState(false);
@@ -232,6 +235,8 @@ export const TravelProvider = ({ children }) => {
   };
 
   const handleDelete = async (item) => {
+    if (!item?.id_archivo) return;
+
     try {
       setOpenPopup(false);
       setLoadingDocuments(true);
@@ -244,6 +249,7 @@ export const TravelProvider = ({ children }) => {
       showNotification(C.docEliminadoError, "error");
     } finally {
       setLoadingDocuments(false);
+      setDocumentoAEliminar(null);
     }
   };
   return (

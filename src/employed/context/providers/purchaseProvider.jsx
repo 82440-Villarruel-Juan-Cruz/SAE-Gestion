@@ -656,6 +656,7 @@ export function PurchaseProvider({ children }) {
       {
         icon: DeleteIcon,
         title: C.actionDeletePurchase,
+        color: "error",
         onClick: openDeletePurchase,
       },
     ],

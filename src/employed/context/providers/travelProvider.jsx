@@ -935,6 +935,7 @@ export function TravelProvider({ children }) {
         handleDeleteInscript,
         handleUpdateInscriptos,
         handleClickRemove,
+        inscriptToDelete,
 
         docsInscript,
         loadingInscriptDocs,

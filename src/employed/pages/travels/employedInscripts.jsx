@@ -22,6 +22,7 @@ import {
 } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
 import FolderIcon from "@mui/icons-material/Folder";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -40,6 +41,7 @@ import SAEPage from "../../../assets/components/page/SAEPage";
 import TitleBox from "../../../assets/components/titleBox";
 import HeaderPageEmployed from "../../../assets/components/headerPage/headerPageEmployed.jsx";
 import DocumentPreviewDialog from "../../../assets/components/documents/DocumentPreviewDialog";
+import SAEDeleteDialog from "../../../assets/components/popUp/SAEDeleteDialog";
 
 import { formatDate } from "../../../utils/date.utils.js";
 import { carreras } from "../../../utils/common/constants.js";
@@ -107,8 +109,8 @@ function EmployedIncriptsContent() {
           <HeaderPageEmployed
             header={C.inscriptsManagement}
             title={travelData.nombre}
-            description={`Del ${formatDate(travelData.fecha_inicio,"short")} hasta ${formatDate(travelData.fecha_fin,"short")}`}
-            backgroundImage="images/varias/campus.jpg"
+            description={`Del ${formatDate(travelData.fecha_inicio, "short")} hasta ${formatDate(travelData.fecha_fin, "short")}`}
+            backgroundImage="images/headers/consultations.jpg"
             backTo="/Gestion-Viajes"
             chips={headerChips}
             showUserChips={false}
@@ -116,7 +118,7 @@ function EmployedIncriptsContent() {
           <Grid container spacing={1}>
             <Grid size={{ xs: 12 }} mt={2}>
               <StudentSearchCard />
-              <TitleBox title={C.inscriptsList}/>
+              <TitleBox title={C.inscriptsList} />
 
               <Card
                 sx={{
@@ -225,7 +227,7 @@ function StudentSearchCard() {
             opacity: 0.98,
           }}
         >
-         {C.inscriptsSearch}
+          {C.inscriptsSearch}
         </Typography>
 
         {dialogError && !usuarioSelected && (
@@ -360,7 +362,7 @@ function StudentSearchCard() {
                 size="small"
                 onClick={handleClear}
               >
-               {C.studentSearchAgain}
+                {C.studentSearchAgain}
               </SAEButton>
             </Stack>
           </Box>
@@ -370,92 +372,30 @@ function StudentSearchCard() {
   );
 }
 function InscriptDeleteDialog() {
-  const { handleDeleteInscript } = useTravel();
-  const {
-    dialogOpen,
-    dialogMode,
-    dialogSaving,
-    dialogError,
-    setDialogError,
-    closeDialog,
-  } = useNotification();
+  const { handleDeleteInscript, inscriptToDelete } = useTravel();
+  const { dialogOpen, dialogSaving, dialogError, setDialogError, closeDialog } =
+    useNotification();
+
+  const itemName =
+    inscriptToDelete?.nombre_estudiante ||
+    inscriptToDelete?.nombre_usuario ||
+    inscriptToDelete?.legajo_estudiante ||
+    inscriptToDelete?.legajo;
 
   return (
-    <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
-      <DialogTitle
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h6" component="span" sx={{ fontWeight: "bold" }}>
-          {dialogMode === "documentacion"
-            ? C.studentDocs
-            : C.studentsDelete}
-        </Typography>
-        <IconButton onClick={closeDialog} size="small">
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent dividers>
-        <Stack spacing={2} sx={{ pt: 1 }}>
-          {dialogError && (
-            <Alert severity="error" onClose={() => setDialogError("")}>
-              {dialogError}
-            </Alert>
-          )}
-          {dialogMode === "delete" && (
-            <>
-              <Typography
-                variant="subtitle2"
-                color="textPrimary"
-                fontWeight={600}
-              >
-                {C.inscriptsWarningTitle}
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                {C.inscriptsWarningBody}
-              </Typography>
-              <Typography
-                mt={2}
-                variant="body2"
-                color="textSecondary"
-                textAlign="center"
-                fontWeight="bold"
-              >
-                {C.inscriptsWarningConfirm}
-              </Typography>
-            </>
-          )}
-        </Stack>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2 }}>
-        <SAEButton
-          variant="outlined"
-          onClick={closeDialog}
-          disabled={dialogSaving}
-          startIcon={<CloseIcon />}
-        >
-          {C.cancel}
-        </SAEButton>
-        {dialogMode === "delete" && (
-          <SAEButton
-            variant="contained"
-            color="error"
-            onClick={handleDeleteInscript}
-            disabled={dialogSaving}
-            startIcon={
-              dialogSaving ? (
-                <CircularProgress size={16} color="inherit" />
-              ) : null
-            }
-          >
-            {C.delete}
-          </SAEButton>
-        )}
-      </DialogActions>
-    </Dialog>
+    <SAEDeleteDialog
+      open={dialogOpen}
+      entityLabel="Inscripcion"
+      itemName={itemName}
+      itemId={inscriptToDelete?.legajo_estudiante ?? inscriptToDelete?.legajo}
+      itemIdLabel="Legajo"
+      onConfirm={handleDeleteInscript}
+      onClose={closeDialog}
+      loading={dialogSaving}
+      error={dialogError}
+      onClearError={() => setDialogError("")}
+      message={C.inscriptsWarningBody}
+    />
   );
 }
 
@@ -613,7 +553,7 @@ function DocumentsDialog() {
             onClick={handleClose}
             startIcon={<CloseIcon />}
           >
-           {C.travelClose}
+            {C.travelClose}
           </SAEButton>
         </DialogActions>
       </Dialog>
@@ -769,8 +709,7 @@ function InscriptosCard({ datosEstudiante }) {
                   >
                     {estudiante.documentacion_presentada
                       ? C.inscriptsReviewed
-                      : C.inscriptsNoReviewed
-                    }
+                      : C.inscriptsNoReviewed}
                   </Box>
                 </>
               }
@@ -785,7 +724,7 @@ function InscriptosCard({ datosEstudiante }) {
                 onClick={() => handleClickRemove(estudiante)}
                 color="error"
               >
-                <CloseIcon />
+                <DeleteIcon />
               </IconButton>
             </Tooltip>
           </Stack>

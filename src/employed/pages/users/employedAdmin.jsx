@@ -44,6 +44,17 @@ import SAESpinner from "../../../assets/components/spinner/SAESpinner.jsx";
 import { onlyDigits } from "../../../utils/text.utils.js";
 
 const C = USER_STRINGS;
+const ALLOWED_EMPLOYEE_PROFILE_NAMES = ["empleado sae", "administrador"];
+
+const normalizeProfileName = (value = "") =>
+  String(value)
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const isAllowedEmployeeProfile = (perfil) =>
+  ALLOWED_EMPLOYEE_PROFILE_NAMES.includes(normalizeProfileName(perfil?.nombre));
 
 const formatProfileList = (perfiles = []) => {
   const profileNames = perfiles.map((perfil) => perfil?.nombre).filter(Boolean);
@@ -235,7 +246,7 @@ function EmpleadosDialog() {
     closeDialog,
   } = useNotification();
   const employWarningEnd = useMemo(
-    () => formatProfileList(perfiles),
+    () => formatProfileList(perfiles.filter(isAllowedEmployeeProfile)),
     [perfiles],
   );
 
@@ -407,8 +418,9 @@ function EmpleadosDialog() {
             }}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             value={
-              perfiles.find((perfil) => perfil.id === dialogData.id_perfil) ||
-              null
+              perfilesDisponibles.find(
+                (perfil) => perfil.id === dialogData.id_perfil,
+              ) || null
             }
             renderInput={(params) => (
               <TextField

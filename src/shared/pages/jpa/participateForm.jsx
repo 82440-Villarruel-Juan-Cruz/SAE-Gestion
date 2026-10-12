@@ -6,7 +6,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Grid,
   MenuItem,
@@ -25,6 +24,7 @@ import HowToRegIcon from "@mui/icons-material/HowToReg";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import DirectionsBusOutlinedIcon from "@mui/icons-material/DirectionsBusOutlined";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 
 import { sendJPAEmailForm } from "../../../api/EmailService";
 import { JPA_STRINGS } from "../../../utils/strings/shared.strings";
@@ -806,39 +806,47 @@ export default function SharedJPAParticipar() {
         open={dialogOpen}
         key="alert-dialog-inscripcion"
         onClose={handleClose}
+        maxWidth="sm"
+        fullWidth
+        aria-labelledby="email-sent-dialog-title"
+        aria-describedby="email-sent-dialog-description"
       >
         <DialogTitle
-          id="alert-dialog-title"
-          textAlign="center"
-          fontWeight={700}
+          id="email-sent-dialog-title"
+          sx={{ display: "flex", alignItems: "center", gap: 1.5, pr: 1 }}
         >
-          {C.emailSended}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description-1">
-            {C.emailAclaration}
-          </DialogContentText>
-          <br />
-          <Box display="flex" justifyContent="center">
-            <Box
-              component="img"
-              src={checkImage}
-              alt=""
-              sx={{ width: 50, height: 50 }}
-            />
+          <Box
+            sx={{
+              display: "grid",
+              placeItems: "center",
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              color: "success.main",
+              bgcolor: "rgba(46, 125, 50, 0.12)",
+            }}
+          >
+            <CheckCircleRoundedIcon />
           </Box>
+          <Typography variant="h6" component="span" sx={{ fontWeight: 700 }}>
+            {C.emailSended}
+          </Typography>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography id="email-sent-dialog-description">
+            {C.emailAclaration}
+          </Typography>
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ px: 3, py: 2 }}>
           <SAEButton
             variant="contained"
             color="primary"
             onClick={handleClose}
-            style={{ color: "white" }}
+            sx={{ color: "white" }}
           >
             {C.close}
           </SAEButton>
         </DialogActions>
-      </Dialog>        
-    </Box>
+      </Dialog></Box>
     );
 }

@@ -14,11 +14,6 @@ import {
   Grid,
   IconButton,
   useMediaQuery,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
 } from "@mui/material";
 
 import LocalAirportIcon from "@mui/icons-material/LocalAirport";
@@ -43,11 +38,12 @@ import SAESpinner from "../../../assets/components/spinner/SAESpinner";
 import SAEButton from "../../../assets/components/buttons/SAEButton";
 import DocumentCard from "../../../assets/components/documents/DocumentCard";
 import DocumentPreviewDialog from "../../../assets/components/documents/DocumentPreviewDialog";
+import SAEDeleteDialog from "../../../assets/components/popUp/SAEDeleteDialog";
 import TitleBox from "../../../assets/components/titleBox";
 import StudentHeaderPage from "../../../assets/components/headerPage/headerPageStudent.jsx";
 
-import { TRIPS_STRINGS } from "../../../utils/strings/student.strings"; 
-import { TRAVEL_REQUIRED_DOCUMENTS } from "../../../utils/common/common.config"; 
+import { TRIPS_STRINGS } from "../../../utils/strings/student.strings";
+import { TRAVEL_REQUIRED_DOCUMENTS } from "../../../utils/common/common.config";
 //import { useNavigate } from "react-router-dom";
 
 const baseUrl = import.meta.env.BASE_URL;
@@ -83,42 +79,42 @@ const TRAVELS_INFORMATION = [
   },
 ];
 const tarjetas = [
-    {
-      id: 1,
-      titulo: "Viaje a Jujuy",
-      desc: "El Cerro de los Siete Colores es un espectacular accidente geográfico ubicado en Purmamarca, provincia de Jujuy, Argentina. Su singular paleta tonal se formó hace millones de años por la sedimentación de minerales. Es el gran atractivo del noroeste argentino y se puede recorrer a pie todo el año.",
-      color: "#1a73e8",
-      image: `${baseUrl}images/travels/CerroColores.jpeg`,
-    },
-    {
-      id: 2,
-      titulo: "Viaje a Perito Moreno",
-      desc: "El Glaciar Perito Moreno es una de las maravillas naturales más imponentes del mundo. Ubicado dentro del Parque Nacional Los Glaciares (provincia de Santa Cruz, Argentina), destaca por su fácil acceso, sus impresionantes paredes de hielo de hasta 70 metros de altura y sus constantes desprendimientos.",
-      color: "#f4b400",
-      image: `${baseUrl}images/travels/peritoMoreno.jpg`,
-    },
-    {
-      id: 3,
-      titulo: "Viaje a las Cataratas",
-      desc: "Las Cataratas del Iguazú son una de las Siete Maravillas Naturales del Mundo. Conformadas por 275 saltos de agua, el 80% se encuentra del lado argentino y el 20% en el lado brasileño. Su mayor atractivo es la imponente Garganta del Diablo, con una caída de 82 metros",
-      color: "#0f9d58",
-      image: `${baseUrl}images/travels/cataratas.jpeg`,
-    },
-    {
-      id: 4,
-      titulo: "Viaje a Bariloche",
-      desc: "Bariloche es conocida por su arquitectura al estilo alpino de Suiza y su chocolate, que se vende en tiendas de la calle Mitre, la avenida principal. También es una base popular para el excursionismo y el esquí en las montañas cercanas, y para explorar los alrededores del Distrito de los Lagos.",
-      color: "#212121",
-      image: `${baseUrl}images/travels/bariloche.jpg`,
-    },
-    {
-      id: 6,
-      titulo: "Viaje a los Reyunos",
-      desc: "Los Reyunos es un imponente embalse artificial ubicado en San Rafael, Mendoza, a unos 35 km (40 minutos en auto) de la ciudad homónima. Destaca por sus aguas turquesas rodeadas de cerros y es famoso por su oferta de deportes acuáticos, aventura y complejos turísticos.",
-      color: "#CF6ED1",
-      image: `${baseUrl}images/travels/losreyunos.jpeg`,
-    },
-  ];
+  {
+    id: 1,
+    titulo: "Viaje a Jujuy",
+    desc: "El Cerro de los Siete Colores es un espectacular accidente geográfico ubicado en Purmamarca, provincia de Jujuy, Argentina. Su singular paleta tonal se formó hace millones de años por la sedimentación de minerales. Es el gran atractivo del noroeste argentino y se puede recorrer a pie todo el año.",
+    color: "#1a73e8",
+    image: `${baseUrl}images/travels/CerroColores.jpeg`,
+  },
+  {
+    id: 2,
+    titulo: "Viaje a Perito Moreno",
+    desc: "El Glaciar Perito Moreno es una de las maravillas naturales más imponentes del mundo. Ubicado dentro del Parque Nacional Los Glaciares (provincia de Santa Cruz, Argentina), destaca por su fácil acceso, sus impresionantes paredes de hielo de hasta 70 metros de altura y sus constantes desprendimientos.",
+    color: "#f4b400",
+    image: `${baseUrl}images/travels/peritoMoreno.jpg`,
+  },
+  {
+    id: 3,
+    titulo: "Viaje a las Cataratas",
+    desc: "Las Cataratas del Iguazú son una de las Siete Maravillas Naturales del Mundo. Conformadas por 275 saltos de agua, el 80% se encuentra del lado argentino y el 20% en el lado brasileño. Su mayor atractivo es la imponente Garganta del Diablo, con una caída de 82 metros",
+    color: "#0f9d58",
+    image: `${baseUrl}images/travels/cataratas.jpeg`,
+  },
+  {
+    id: 4,
+    titulo: "Viaje a Bariloche",
+    desc: "Bariloche es conocida por su arquitectura al estilo alpino de Suiza y su chocolate, que se vende en tiendas de la calle Mitre, la avenida principal. También es una base popular para el excursionismo y el esquí en las montañas cercanas, y para explorar los alrededores del Distrito de los Lagos.",
+    color: "#212121",
+    image: `${baseUrl}images/travels/bariloche.jpg`,
+  },
+  {
+    id: 6,
+    titulo: "Viaje a los Reyunos",
+    desc: "Los Reyunos es un imponente embalse artificial ubicado en San Rafael, Mendoza, a unos 35 km (40 minutos en auto) de la ciudad homónima. Destaca por sus aguas turquesas rodeadas de cerros y es famoso por su oferta de deportes acuáticos, aventura y complejos turísticos.",
+    color: "#CF6ED1",
+    image: `${baseUrl}images/travels/losreyunos.jpeg`,
+  },
+];
 export default function StudentTravels() {
   return (
     <TravelProvider>
@@ -149,15 +145,13 @@ function StudentTravelContent() {
       <StudentHeaderPage
         title={C.headerTitle}
         description={C.headerDescription}
-        backgroundImage="images/carrousel/EntradaUTN.jpg"
+        backgroundImage="images/headers/initial.jpg"
         icon={LocalAirportIcon}
       />
       {!loadingTravel &&
         !loadingDocumentos &&
         travelsLegajo?.length > 0 &&
-        hasPendingRequiredDocuments && (
-        <NotificacionEstudiante />
-      )}
+        hasPendingRequiredDocuments && <NotificacionEstudiante />}
       <CarrouselVertical />
       <TravelDocumentsSection />
       <InformationSection />
@@ -244,7 +238,7 @@ function CarrouselVertical() {
   const isTablet = useMediaQuery("(max-width:1024px)");
   const sliderRef = useRef(null);
 
-  const ALTURA_TARJETA = isMobile ? 400 : isTablet? 350: 500;
+  const ALTURA_TARJETA = isMobile ? 400 : isTablet ? 350 : 500;
 
   const settings = {
     dots: false,
@@ -284,7 +278,7 @@ function CarrouselVertical() {
       <Box
         sx={{
           height: { xs: ALTURA_TARJETA, sm: ALTURA_TARJETA + 80 },
-          
+
           position: "relative",
           "& .slick-list": {
             overflow: "hidden",
@@ -300,7 +294,7 @@ function CarrouselVertical() {
             let desplazamientoY = 0;
             let escala = 1;
             let zIndex = tarjetas.length;
-            let MX = isMobile? 2:0;
+            let MX = isMobile ? 2 : 0;
             if (yaPaso) {
               const lugaresMovidos = indiceActivo - index;
               desplazamientoY =
@@ -444,7 +438,7 @@ function CarrouselVertical() {
           zIndex: 20,
           backgroundColor: "transparent",
           borderRadius: 2,
-          mt:{xs:4,md:-2},
+          mt: { xs: 4, md: -2 },
           position: "relative",
         }}
         direction="row"
@@ -537,19 +531,17 @@ function TravelDocumentsSection() {
           )}
         </section>
       )}
-      <Dialog open={openPopup} onClose={closeDeleteDialog}>
-        <DialogTitle>{C.deleteDocTitle}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            {C.deleteDocMessage(documentoAEliminar?.archivoNombre)}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <SAEButton onClick={() => handleDelete(documentoAEliminar)} autoFocus>
-            {C.deleteDocButton}
-          </SAEButton>
-        </DialogActions>
-      </Dialog>
+      <SAEDeleteDialog
+        open={openPopup}
+        entityLabel="Documento"
+        itemName={
+          documentoAEliminar?.nombre_documento ??
+          documentoAEliminar?.archivoNombre ??
+          documentoAEliminar?.nombre
+        }
+        onConfirm={() => handleDelete(documentoAEliminar)}
+        onClose={closeDeleteDialog}
+      />
       <DocumentPreviewDialog
         open={preview.open}
         onClose={closePreview}
@@ -565,10 +557,7 @@ function TravelDocumentsSection() {
 function InformationSection() {
   return (
     <Box>
-      <TitleBox
-        title={C.faqsTitle}
-        description={C.faqsDescription}
-      />
+      <TitleBox title={C.faqsTitle} description={C.faqsDescription} />
 
       {TRAVELS_INFORMATION.map((faq) => (
         <Accordion

@@ -89,7 +89,9 @@ const getTurnStatusTextColor = (statusId) =>
   [3, 4, 5].includes(Number(statusId)) ? "#153b6f" : "white";
 
 const formatTurnStatusTitle = (status) => {
-  const normalizedStatus = String(status ?? "").trim().toLowerCase();
+  const normalizedStatus = String(status ?? "")
+    .trim()
+    .toLowerCase();
 
   if (!normalizedStatus) return C.realizedTurnsTitle;
 
@@ -246,6 +248,33 @@ const formatAvailability = (availability) =>
 const formatSchedule = (schedule) =>
   formatScheduleRange(schedule, getCalendarDayLabel);
 
+const getScheduleKey = (schedule) =>
+  [
+    Number(schedule?.dia),
+    normalizeTimeValue(schedule?.hora_inicio),
+    normalizeTimeValue(schedule?.hora_fin),
+  ].join("-");
+
+const findScheduleForRange = (schedules, day, startTime, endTime) => {
+  const startMinutes = timeToMinutes(startTime);
+  const endMinutes = timeToMinutes(endTime);
+
+  if (startMinutes === null || endMinutes === null) return null;
+
+  return schedules.find((schedule) => {
+    const scheduleStart = timeToMinutes(schedule.hora_inicio);
+    const scheduleEnd = timeToMinutes(schedule.hora_fin);
+
+    return (
+      Number(schedule.dia) === Number(day) &&
+      scheduleStart !== null &&
+      scheduleEnd !== null &&
+      startMinutes >= scheduleStart &&
+      endMinutes <= scheduleEnd
+    );
+  });
+};
+
 export function EmployedStudentContent() {
   const { user } = useAuth();
   const isDesktopServices = useMediaQuery("(min-width:1200px)", {
@@ -335,7 +364,7 @@ export function EmployedStudentContent() {
       <HeaderPageStudent
         title={C.headerTitle}
         description={C.headerDescription}
-        backgroundImage="images/varias/campus.jpg"
+        backgroundImage="images/headers/initial.jpg"
         icon={HealingIcon}
       />
 
@@ -617,6 +646,7 @@ export function EmployedStudentContent() {
                           {/* SECCIÓN EN EL FONDO: EL BOTÓN (Queda alineado abajo siempre igual) */}
                           <SAEButton
                             variant="contained"
+                            startIcon={<CalendarMonthIcon />}
                             onClick={() =>
                               openCreateTurnos(user.legajo, especialidad)
                             }
@@ -1303,8 +1333,14 @@ function DialogHealth() {
     closeDialog,
   } = useNotification();
   const { handleTurnosSave } = useHealth();
-  const disponibilidades = dialogData.disponibilidades ?? [];
-  const horariosDisponibles = dialogData.horarios_disponibles ?? [];
+  const disponibilidades = useMemo(
+    () => dialogData.disponibilidades ?? [],
+    [dialogData.disponibilidades],
+  );
+  const horariosDisponibles = useMemo(
+    () => dialogData.horarios_disponibles ?? [],
+    [dialogData.horarios_disponibles],
+  );
   const [availabilityError, setAvailabilityError] = useState("");
   const availableDays = useMemo(
     () => new Set(horariosDisponibles.map((horario) => Number(horario.dia))),
@@ -1316,9 +1352,27 @@ function DialogHealth() {
       C.availabilityRequired,
       C.availabilityInvalidRange,
       C.availabilityOutOfRange,
+      C.availabilityAlreadyAdded,
     ].includes(dialogError);
+  const selectedSchedule = horariosDisponibles.find(
+    (schedule) => getScheduleKey(schedule) === dialogData.horario_seleccionado,
+  );
   const { minTime: selectedDayMinTime, maxTime: selectedDayMaxTime } =
-    getDayScheduleBounds(horariosDisponibles, dialogData.dia_selecionado);
+    selectedSchedule
+      ? {
+          minTime: normalizeTimeValue(selectedSchedule.hora_inicio),
+          maxTime: normalizeTimeValue(selectedSchedule.hora_fin),
+        }
+      : getDayScheduleBounds(horariosDisponibles, dialogData.dia_selecionado);
+  const usedScheduleKeys = useMemo(
+    () =>
+      new Set(
+        disponibilidades
+          .map((availability) => availability.horario_seleccionado)
+          .filter(Boolean),
+      ),
+    [disponibilidades],
+  );
   const dialogStatusId = Number(dialogData.id_estado_turno);
   const dialogTitleColor =
     dialogMode === "show"
@@ -1368,10 +1422,38 @@ function DialogHealth() {
       return;
     }
 
+    const scheduleForRange =
+      horariosDisponibles.find(
+        (schedule) =>
+          getScheduleKey(schedule) === dialogData.horario_seleccionado,
+      ) ??
+      findScheduleForRange(
+        horariosDisponibles,
+        dialogData.dia_selecionado,
+        horaDesdeValue,
+        horaHastaValue,
+      );
+    const scheduleKey = scheduleForRange
+      ? getScheduleKey(scheduleForRange)
+      : "";
+
+    if (!scheduleKey) {
+      setAvailabilityError(C.availabilityOutOfRange);
+      setDialogError(C.availabilityOutOfRange);
+      return;
+    }
+
+    if (usedScheduleKeys.has(scheduleKey)) {
+      setAvailabilityError(C.availabilityAlreadyAdded);
+      setDialogError(C.availabilityAlreadyAdded);
+      return;
+    }
+
     const nuevaDisponibilidad = {
       dia: Number(dialogData.dia_selecionado),
       hora_desde: horaDesdeValue,
       hora_hasta: horaHastaValue,
+      horario_seleccionado: scheduleKey,
     };
 
     setDialogError("");
@@ -1379,12 +1461,7 @@ function DialogHealth() {
     setDialogData((previous) => {
       const currentAvailability = previous.disponibilidades ?? [];
       const alreadyExists = currentAvailability.some(
-        (item) =>
-          Number(item.dia) === nuevaDisponibilidad.dia &&
-          normalizeTimeValue(item.hora_desde) ===
-            nuevaDisponibilidad.hora_desde &&
-          normalizeTimeValue(item.hora_hasta) ===
-            nuevaDisponibilidad.hora_hasta,
+        (item) => item.horario_seleccionado === scheduleKey,
       );
 
       if (alreadyExists) return previous;
@@ -1429,7 +1506,11 @@ function DialogHealth() {
                   ? C.cancelTurnTitle
                   : formatTurnStatusTitle(dialogData.estado)}
             </SAETypography>
-            <IconButton onClick={closeDialog} size="small" sx={{ color: "inherit" }}>
+            <IconButton
+              onClick={closeDialog}
+              size="small"
+              sx={{ color: "inherit" }}
+            >
               <CloseIcon />
             </IconButton>
           </DialogTitle>
@@ -1551,6 +1632,35 @@ function DialogHealth() {
                                       key={`${horario.dia}-${horario.hora_inicio}-${index}`}
                                       icon={<AccessTimeIcon />}
                                       label={formatSchedule(horario)}
+                                      clickable
+                                      disabled={usedScheduleKeys.has(
+                                        getScheduleKey(horario),
+                                      )}
+                                      onClick={() => {
+                                        const scheduleKey =
+                                          getScheduleKey(horario);
+
+                                        setAvailabilityError("");
+                                        setDialogError("");
+                                        handleDataChange(
+                                          "dia_selecionado",
+                                          horario.dia,
+                                        );
+                                        handleDataChange(
+                                          "horario_disponible_desde",
+                                          normalizeTimeValue(
+                                            horario.hora_inicio,
+                                          ),
+                                        );
+                                        handleDataChange(
+                                          "horario_disponible_hasta",
+                                          normalizeTimeValue(horario.hora_fin),
+                                        );
+                                        handleDataChange(
+                                          "horario_seleccionado",
+                                          scheduleKey,
+                                        );
+                                      }}
                                       sx={{
                                         bgcolor: "#E7F1FF",
                                         color: "#153b6f",
@@ -1601,6 +1711,10 @@ function DialogHealth() {
 
                                 if (nextDaySchedule) {
                                   handleDataChange(
+                                    "horario_seleccionado",
+                                    getScheduleKey(nextDaySchedule),
+                                  );
+                                  handleDataChange(
                                     "horario_disponible_desde",
                                     normalizeTimeValue(
                                       nextDaySchedule.hora_inicio,
@@ -1608,7 +1722,9 @@ function DialogHealth() {
                                   );
                                   handleDataChange(
                                     "horario_disponible_hasta",
-                                    normalizeTimeValue(nextDaySchedule.hora_fin),
+                                    normalizeTimeValue(
+                                      nextDaySchedule.hora_fin,
+                                    ),
                                   );
                                 }
                               }}
@@ -1641,6 +1757,7 @@ function DialogHealth() {
                               timeStepsMinutes={15}
                               size="big"
                               fullWidth
+                              readOnly
                             />
                           </Box>
                           <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -1660,6 +1777,7 @@ function DialogHealth() {
                               timeStepsMinutes={15}
                               size="big"
                               fullWidth
+                              readOnly
                             />
                           </Box>
                           <SAEButton
@@ -2082,92 +2200,93 @@ function DialogHealth() {
                         </Card>
                       </Grid>
                       <Box sx={{ display: "none" }}>
-                      <Grid size={{ xs: 12, md: 3 }} m={0}>
-                        <SAETextField
-                          label={C.dialogIdTurn}
-                          type="number"
-                          fullWidth
-                          value={dialogData.id}
-                          onChange={(e) =>
-                            handleDataChange("id", e.target.value)
-                          }
-                          disabled={true}
-                        />
-                      </Grid>
-                      <Grid size={{ xs: 12, md: 9 }} m={0}>
-                        <SAETextField
-                          label={C.dialogStudentId}
-                          value={dialogData.legajo}
-                          onChange={(e) =>
-                            handleDataChange("legajo", e.target.value)
-                          }
-                          fullWidth
-                          disabled={true}
-                        />
-                      </Grid>
-                      <Grid size={{ xs: 12, md: 6 }} m={0}>
-                        <SAETextField
-                          label={C.turnsCardPacient}
-                          value={dialogData.paciente}
-                          onChange={(e) =>
-                            handleDataChange("paciente", e.target.value)
-                          }
-                          fullWidth
-                          disabled={true}
-                        />
-                      </Grid>
-                      <Grid size={{ xs: 12, md: 6 }} m={0}>
-                        <SAETextField
-                          label={C.turnsCardMedic}
-                          value={dialogData.especialista || C.noMedic}
-                          onChange={(e) =>
-                            handleDataChange("especialista", e.target.value)
-                          }
-                          fullWidth
-                          disabled={true}
-                        />
-                      </Grid>
-                      <Grid size={{ xs: 12, md: 6 }}>
-                        <SAETextField
-                          label={C.dialogDate}
-                          type="date"
-                          value={dialogData?.fecha_atencion || ""}
-                          onChange={(e) =>
-                            handleDataChange("fecha_atencion", e.target.value)
-                          }
-                          fullWidth
-                          disabled={true}
-                          InputLabelProps={{ shrink: true }}
-                        />
-                      </Grid>
-                      <Grid size={{ xs: 12, md: 6 }}>
-                        <SAETextField
-                          label={C.dialogSchedule}
-                          type="time"
-                          value={
-                            dialogData?.hora_atencion?.split?.("hs")?.[0] || ""
-                          }
-                          onChange={(e) =>
-                            handleDataChange("hora_atencion", e.target.value)
-                          }
-                          slotProps={{ inputLabel: { shrink: true } }}
-                          fullWidth
-                          disabled={true}
-                        />
-                      </Grid>
-                      <Grid size={{ xs: 12 }}>
-                        <SAETextField
-                          label={C.subject}
-                          value={dialogData.asunto}
-                          onChange={(e) =>
-                            handleDataChange("asunto", e.target.value)
-                          }
-                          multiline
-                          fullWidth
-                          rows={4} // Número inicial de filas
-                          disabled={true}
-                        />
-                      </Grid>
+                        <Grid size={{ xs: 12, md: 3 }} m={0}>
+                          <SAETextField
+                            label={C.dialogIdTurn}
+                            type="number"
+                            fullWidth
+                            value={dialogData.id}
+                            onChange={(e) =>
+                              handleDataChange("id", e.target.value)
+                            }
+                            disabled={true}
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 9 }} m={0}>
+                          <SAETextField
+                            label={C.dialogStudentId}
+                            value={dialogData.legajo}
+                            onChange={(e) =>
+                              handleDataChange("legajo", e.target.value)
+                            }
+                            fullWidth
+                            disabled={true}
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 6 }} m={0}>
+                          <SAETextField
+                            label={C.turnsCardPacient}
+                            value={dialogData.paciente}
+                            onChange={(e) =>
+                              handleDataChange("paciente", e.target.value)
+                            }
+                            fullWidth
+                            disabled={true}
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 6 }} m={0}>
+                          <SAETextField
+                            label={C.turnsCardMedic}
+                            value={dialogData.especialista || C.noMedic}
+                            onChange={(e) =>
+                              handleDataChange("especialista", e.target.value)
+                            }
+                            fullWidth
+                            disabled={true}
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 6 }}>
+                          <SAETextField
+                            label={C.dialogDate}
+                            type="date"
+                            value={dialogData?.fecha_atencion || ""}
+                            onChange={(e) =>
+                              handleDataChange("fecha_atencion", e.target.value)
+                            }
+                            fullWidth
+                            disabled={true}
+                            InputLabelProps={{ shrink: true }}
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 6 }}>
+                          <SAETextField
+                            label={C.dialogSchedule}
+                            type="time"
+                            value={
+                              dialogData?.hora_atencion?.split?.("hs")?.[0] ||
+                              ""
+                            }
+                            onChange={(e) =>
+                              handleDataChange("hora_atencion", e.target.value)
+                            }
+                            slotProps={{ inputLabel: { shrink: true } }}
+                            fullWidth
+                            disabled={true}
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12 }}>
+                          <SAETextField
+                            label={C.subject}
+                            value={dialogData.asunto}
+                            onChange={(e) =>
+                              handleDataChange("asunto", e.target.value)
+                            }
+                            multiline
+                            fullWidth
+                            rows={4} // Número inicial de filas
+                            disabled={true}
+                          />
+                        </Grid>
                       </Box>
                     </>
                   )}

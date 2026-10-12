@@ -1,11 +1,6 @@
 import {
   Card,
   Grid,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  DialogContentText,
   Stack,
 } from "@mui/material";
 import { useMemo } from "react";
@@ -14,7 +9,7 @@ import SportsHandballIcon from "@mui/icons-material/SportsHandball";
 import DeportesMasonry from "./deportesMasonery";
 import DocumentPreviewDialog from "../../../assets/components/documents/DocumentPreviewDialog";
 import DocumentCard from "../../../assets/components/documents/DocumentCard";
-import SAEButton from "../../../assets/components/buttons/SAEButton";
+import SAEDeleteDialog from "../../../assets/components/popUp/SAEDeleteDialog";
 import SAESpinner from "../../../assets/components/spinner/SAESpinner";
 import SAEPage from "../../../assets/components/page/SAEPage";
 import StudentHeaderPage from "../../../assets/components/headerPage/headerPageStudent.jsx";
@@ -72,7 +67,7 @@ function StudentSportsContent() {
       <StudentHeaderPage
         title={C.bigTitle}
         description={C.bigSubtitle}
-        backgroundImage="images/carrousel/EntradaUTN.jpg"
+        backgroundImage="images/headers/deportes.webp"
         icon={SportsHandballIcon}
       />
       <TitleBox
@@ -148,22 +143,13 @@ function StudentSportsContent() {
           </EmployedSportsProvider>
         </>
       )}
-      {/*Dialog para Borrar Documento*/}
-      <Dialog open={openPopup} onClose={closeDeleteDialog}>
-        <DialogTitle>{C.deleteDocTitle}</DialogTitle>
-
-        <DialogContent>
-          <DialogContentText>
-            {C.deleteDocMessage(documentoAEliminar?.archivoNombre)}
-          </DialogContentText>
-        </DialogContent>
-
-        <DialogActions>
-          <SAEButton onClick={() => handleDelete(documentoAEliminar)} autoFocus>
-            {C.deleteDocButton}
-          </SAEButton>
-        </DialogActions>
-      </Dialog>
+      <SAEDeleteDialog
+        open={openPopup}
+        entityLabel="Documento"
+        itemName={documentoAEliminar?.archivoNombre}
+        onConfirm={() => handleDelete(documentoAEliminar)}
+        onClose={closeDeleteDialog}
+      />
       <DocumentPreviewDialog
         open={preview.open}
         onClose={closePreview}

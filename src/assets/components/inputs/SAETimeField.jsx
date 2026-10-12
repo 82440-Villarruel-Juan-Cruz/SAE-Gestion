@@ -4,6 +4,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import { timeToMinutes } from "../../../utils/schedule.utils";
 
 dayjs.extend(customParseFormat);
 
@@ -28,6 +29,7 @@ export default function SAETimeField({
   helperText = "",
   timeStepsMinutes = 15, //Minutos
   required = false,
+  readOnly = false,
 }) {
   const textFieldSize = size === "big" ? "medium" : size;
   const redondearMinutos = (dayjsObj) => {
@@ -68,6 +70,11 @@ export default function SAETimeField({
         timeSteps={{ minutes: timeStepsMinutes }}
         minTime={parseTime(minTime)}
         maxTime={parseTime(maxTime)}
+        shouldDisableTime={(timeValue, view) => {
+          if (view !== "minutes") return false;
+
+          return Number(timeValue) % timeStepsMinutes !== 0;
+        }}
         disabled={disabled}
         localeText={{
           cancelButtonLabel: "Volver",
@@ -80,6 +87,11 @@ export default function SAETimeField({
             required,
             error,
             helperText,
+            inputProps: {
+              readOnly,
+            },
+            onKeyDown: preventTextEdition,
+            onPaste: readOnly ? (event) => event.preventDefault() : undefined,
             sx: fullWidth ? undefined : { width },
           },
           // Forzar la barra de botones en entornos de escritorio si es necesario
