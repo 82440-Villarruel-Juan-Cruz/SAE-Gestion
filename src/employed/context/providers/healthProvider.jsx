@@ -64,6 +64,7 @@ import {
   isPositiveNumber,
   validateCuil,
 } from "../../../utils/validation.utils.js";
+import { timeToMinutes } from "../../../utils/schedule.utils.js";
 
 // #endregion
 
@@ -74,15 +75,6 @@ const getEmptyHorarioForm = () => ({
   dia: 1,
   activo: true,
 });
-const parseHorarioMinutes = (time) => {
-  const [hours, minutes] = String(time ?? "")
-    .slice(0, 5)
-    .split(":")
-    .map(Number);
-  if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
-  return hours * 60 + minutes;
-};
-
 const validateHorarioRange = ({ dia, hora_inicio, hora_fin } = {}) => {
   if (dia === null || dia === undefined || dia === "") {
     return "Seleccioná un día.";
@@ -90,8 +82,8 @@ const validateHorarioRange = ({ dia, hora_inicio, hora_fin } = {}) => {
   if (!hora_inicio) return "Ingresá la hora de inicio.";
   if (!hora_fin) return "Ingresá la hora de fin.";
 
-  const startMinutes = parseHorarioMinutes(hora_inicio);
-  const endMinutes = parseHorarioMinutes(hora_fin);
+  const startMinutes = timeToMinutes(hora_inicio);
+  const endMinutes = timeToMinutes(hora_fin);
 
   if (
     startMinutes !== null &&

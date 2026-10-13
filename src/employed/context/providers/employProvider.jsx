@@ -39,25 +39,22 @@ import {
   EMPTY_USUARIO,
 } from "../../../utils/common/common.config.js";
 import { USER_STRINGS } from "../../../utils/strings/employed.strings.js";
-import { isEmpty } from "../../../utils/text.utils.js";
 import {
   isTimeAfter,
   validateNombreApellido,
+  isPositiveNumber,isValidNumber
 } from "../../../utils/validation.utils.js";
+import {
+  isEmpty,
+  normalizeText,
+} from "../../../utils/text.utils.js";
 
 const C = USER_STRINGS;
 
-const normalizeCareerValue = (value = "") =>
-  String(value)
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-
 const mapCareerWithLoginCareer = (backendCareer) => {
-  const backendCareerName = normalizeCareerValue(backendCareer?.nombre);
+  const backendCareerName = normalizeText(backendCareer?.nombre);
   const loginCareer = loginCarreras.find((career) =>
-    backendCareerName.includes(normalizeCareerValue(career.value)),
+    backendCareerName.includes(normalizeText(career.value)),
   );
 
   return {
@@ -66,25 +63,12 @@ const mapCareerWithLoginCareer = (backendCareer) => {
   };
 };
 
-const isPositiveNumber = (value) =>
-  !isEmpty(value) && Number.isFinite(Number(value)) && Number(value) > 0;
-
-const isValidNumber = (value) =>
-  !isEmpty(value) && Number.isFinite(Number(value));
-
 const buildEmployeeLegajo = (legajo) => {
   const legajoBase = String(legajo ?? "").trim();
   return legajoBase.includes("@") ? legajoBase : `${legajoBase}@${C.dominio}`;
 };
 
 const ALLOWED_EMPLOYEE_PROFILE_NAMES = ["empleado sae", "administrador"];
-
-const normalizeProfileName = (value = "") =>
-  String(value)
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
 
 export const AdminUsersProvider = ({ children }) => {
   // Estados globales de Diálogo compartidos por ambas secciones
@@ -131,7 +115,7 @@ export const AdminUsersProvider = ({ children }) => {
             (perfil) =>
               Number(perfil.id) === Number(value) &&
               ALLOWED_EMPLOYEE_PROFILE_NAMES.includes(
-                normalizeProfileName(perfil.nombre),
+                normalizeText(perfil.nombre),
               ),
           )
         ) {

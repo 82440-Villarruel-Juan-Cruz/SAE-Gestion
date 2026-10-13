@@ -44,16 +44,10 @@ import SAESpinner from "../../../assets/components/spinner/SAESpinner.jsx";
 
 const C = USER_STRINGS;
 const ALLOWED_EMPLOYEE_PROFILE_NAMES = ["empleado sae", "administrador"];
-
-const normalizeProfileName = (value = "") =>
-  String(value)
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+import { normalizeText } from "../../../utils/text.utils.js";
 
 const isAllowedEmployeeProfile = (perfil) =>
-  ALLOWED_EMPLOYEE_PROFILE_NAMES.includes(normalizeProfileName(perfil?.nombre));
+  ALLOWED_EMPLOYEE_PROFILE_NAMES.includes(normalizeText(perfil?.nombre));
 
 const formatProfileList = (perfiles = []) => {
   const profileNames = perfiles.map((perfil) => perfil?.nombre).filter(Boolean);
@@ -650,8 +644,7 @@ function UsuariosDialog() {
                 value={
                   carreras?.find(
                     (carrera) =>
-                      Number(carrera.id) ===
-                      Number(dialogData.id_especialidad),
+                      Number(carrera.id) === Number(dialogData.id_especialidad),
                   ) ?? null // Use ?? to strictly catch null/undefined
                 }
                 renderInput={(params) => (

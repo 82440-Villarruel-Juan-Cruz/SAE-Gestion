@@ -13,6 +13,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import SAEButton from "../buttons/SAEButton";
 import SAETextField from "../inputs/SAETextField";
+import { onlyDigits } from "../../../utils/text.utils";
 import { CAREERS } from "../../../utils/common/constants";
 
 const getStudentName = (student = {}) =>
@@ -21,8 +22,6 @@ const getStudentName = (student = {}) =>
   student.nombre ??
   student.Nombre ??
   "";
-
-const onlyDigits = (value) => String(value ?? "").replace(/\D/g, "");
 
 export default function SearchStudent({
   legajo = "",

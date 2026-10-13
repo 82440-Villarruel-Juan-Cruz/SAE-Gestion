@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   CircularProgress,
   Dialog,
@@ -20,14 +19,7 @@ import { useScholarships } from "../../context/employedContext";
 import { useNotification } from "../../../shared/context/sharedContext";
 import { getDialogTitle } from "../../../utils/util";
 import { BECAS_STRINGS } from "../../../utils/strings/employed.strings";
-import {
-  isTimeAfter,
-  isValidEmail,
-  isValidMinLengthPhone,
-  isValidPhone,
-  isValidText,
-} from "../../../utils/validation.utils";
-import { isEmpty, onlyDigits } from "../../../utils/text.utils";
+import { onlyDigits } from "../../../utils/text.utils";
 
 const BS = BECAS_STRINGS.serviceDialog;
 
@@ -38,96 +30,18 @@ export default function DialogServicios() {
     dialogType,
     dialogMode,
     dialogSaving,
-    handleDataChange,
     closeDialog,
   } = useNotification();
-  const { handleSaveServicios } = useScholarships();
-  const [fieldErrors, setFieldErrors] = useState({});
-  const [touchedFields, setTouchedFields] = useState({});
+  const {
+    fieldErrors,
+    handleDialogChange,
+    handleSaveServicios,
+    resetValidation,
+  } = useScholarships();
 
   const open = dialogOpen && dialogType === "servicio";
 
-  const resetValidation = () => {
-    setFieldErrors({});
-    setTouchedFields({});
-  };
-
-  const validateField = (field, value, data = dialogData) => {
-    switch (field) {
-      case "nombre":
-        if (isEmpty(value)) return BS.validationName;
-        return isValidText(value) ? "" : BS.validationNameFormat;
-      case "nro_telefono":
-        if (isEmpty(value)) return BS.validationPhoneRequired;
-        return isValidPhone(value) ? "" : BS.validationPhoneFormat;
-      case "nro_interno_telefono":
-        return !isEmpty(value) && !isValidMinLengthPhone(value, 2)
-          ? BS.validationInternalPhone
-          : "";
-      case "email_institucional":
-        if (isEmpty(value)) return BS.validationEmailRequired;
-        return isValidEmail(value) ? "" : BS.validationEmailFormat;
-      case "horario_atencion":
-        return isEmpty(value) ? BS.validationOpeningTime : "";
-      case "horario_atencion_final":
-        if (isEmpty(value)) return BS.validationClosingTime;
-        return isTimeAfter(value, data.horario_atencion)
-          ? ""
-          : BS.validationClosingTimeAfterOpening;
-      default:
-        return "";
-    }
-  };
-
-  const handleFieldChange = (field, value) => {
-    const previousValue = dialogData[field];
-    const emptyEquivalent = isEmpty(previousValue) && isEmpty(value);
-
-    if (previousValue === value || emptyEquivalent) return;
-
-    const nextData = { ...dialogData, [field]: value };
-    handleDataChange(field, value);
-    setTouchedFields((previous) => ({ ...previous, [field]: true }));
-
-    setFieldErrors((previous) => ({
-      ...previous,
-      [field]: validateField(field, value, nextData),
-      ...(field === "horario_atencion" &&
-        (touchedFields.horario_atencion_final ||
-          !isEmpty(nextData.horario_atencion_final)) && {
-          horario_atencion_final: validateField(
-            "horario_atencion_final",
-            nextData.horario_atencion_final,
-            nextData,
-          ),
-        }),
-    }));
-  };
-
-  const validate = () => {
-    const fields = [
-      "nombre",
-      "nro_telefono",
-      "nro_interno_telefono",
-      "email_institucional",
-      "horario_atencion",
-      "horario_atencion_final",
-    ];
-    const errors = fields.reduce((result, field) => {
-      const message = validateField(field, dialogData[field]);
-      return message ? { ...result, [field]: message } : result;
-    }, {});
-
-    setFieldErrors(errors);
-    setTouchedFields(
-      fields.reduce((result, field) => ({ ...result, [field]: true }), {}),
-    );
-    return Object.keys(errors).length === 0;
-  };
-
   const handleSave = () => {
-    if (!validate()) return;
-    resetValidation();
     handleSaveServicios();
   };
 
@@ -175,7 +89,7 @@ export default function DialogServicios() {
                 label={BS.fieldName}
                 value={dialogData.nombre ?? ""}
                 onChange={(event) =>
-                  handleFieldChange("nombre", event.target.value)
+                  handleDialogChange("nombre", event.target.value)
                 }
                 error={Boolean(fieldErrors.nombre)}
                 helperText={fieldErrors.nombre ?? ""}
@@ -187,7 +101,7 @@ export default function DialogServicios() {
                 label={BS.fieldPhone}
                 value={dialogData.nro_telefono ?? ""}
                 onChange={(event) =>
-                  handleFieldChange(
+                  handleDialogChange(
                     "nro_telefono",
                     onlyDigits(event.target.value),
                   )
@@ -202,7 +116,7 @@ export default function DialogServicios() {
                 label={BS.fieldInternalPhone}
                 value={dialogData.nro_interno_telefono ?? ""}
                 onChange={(event) =>
-                  handleFieldChange(
+                  handleDialogChange(
                     "nro_interno_telefono",
                     onlyDigits(event.target.value),
                   )
@@ -217,7 +131,7 @@ export default function DialogServicios() {
                 label={BS.fieldInstitutionalEmail}
                 value={dialogData.email_institucional ?? ""}
                 onChange={(event) =>
-                  handleFieldChange("email_institucional", event.target.value)
+                  handleDialogChange("email_institucional", event.target.value)
                 }
                 error={Boolean(fieldErrors.email_institucional)}
                 helperText={fieldErrors.email_institucional ?? ""}
@@ -229,7 +143,7 @@ export default function DialogServicios() {
                 label={BS.fieldOpeningTime}
                 value={dialogData.horario_atencion}
                 onChange={(value) =>
-                  handleFieldChange("horario_atencion", value)
+                  handleDialogChange("horario_atencion", value)
                 }
                 minTime="00:00"
                 maxTime="23:59"
@@ -244,7 +158,7 @@ export default function DialogServicios() {
                 label={BS.fieldClosingTime}
                 value={dialogData.horario_atencion_final}
                 onChange={(value) =>
-                  handleFieldChange("horario_atencion_final", value)
+                  handleDialogChange("horario_atencion_final", value)
                 }
                 minTime={dialogData.horario_atencion || "00:00"}
                 maxTime="23:59"

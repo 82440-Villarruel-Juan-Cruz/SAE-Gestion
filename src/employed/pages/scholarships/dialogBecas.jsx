@@ -66,10 +66,13 @@ export default function DialogBecas() {
     handleBuscarBecario,
     handleBuscarDocumentacionBecario,
     handleDescargarDocumentacionBecario,
+    fieldErrors,
+    setFieldErrors,
+    validateDialog,
+    resetValidation,
     proyectosRows,
     serviciosRows,
   } = useScholarships();
-  const [fieldErrors, setFieldErrors] = useState({});
   const [becasAlumno, setBecasAlumno] = useState([]);
   const [activeBecaTab, setActiveBecaTab] = useState(0);
   const [loadingBecasAlumno, setLoadingBecasAlumno] = useState(false);
@@ -122,6 +125,12 @@ export default function DialogBecas() {
     "";
   const activeBecaServiceId =
     activeBeca?.datos?.["servicio.id"] ?? activeBeca?.datos?.servicio?.id ?? "";
+  const activeBecaProjectError =
+    fieldErrors[`becas.${activeBecaTab}.proyecto_investigacion.id`];
+  const activeBecaServiceError =
+    fieldErrors[`becas.${activeBecaTab}.servicio.id`];
+  const activeBecaModulesError =
+    fieldErrors[`becas.${activeBecaTab}.modulos_asignados`];
 
   const fetchBecasAlumno = async (idBecario) => {
     if (!idBecario) {
@@ -233,7 +242,13 @@ export default function DialogBecas() {
   };
 
   const handleScholarshipTypeChange = (option) => {
-    setFieldErrors((prev) => ({ ...prev, beca: "" }));
+    setFieldErrors((prev) => ({
+      ...prev,
+      beca: "",
+      "proyecto_investigacion.id": "",
+      "servicio.id": "",
+      modulos_asignados: "",
+    }));
     handleDataChange(
       "beca",
       option ? { tipo: option.tipo, modulos_asignados: "" } : null,
@@ -241,7 +256,7 @@ export default function DialogBecas() {
   };
 
   const handleScholarshipTargetChange = (field, option) => {
-    setFieldErrors((prev) => ({ ...prev, beca: "" }));
+    setFieldErrors((prev) => ({ ...prev, [field]: "" }));
     handleDataChange("beca", {
       ...(dialogData.beca ?? {}),
       [field]: option?.id ?? "",
@@ -263,6 +278,10 @@ export default function DialogBecas() {
     const numberValue =
       value === "" ? "" : Math.min(Math.max(Number(value), 0), 3);
 
+    setFieldErrors((prev) => ({
+      ...prev,
+      [`becas.${activeBecaTab}.modulos_asignados`]: "",
+    }));
     updateActiveBecaData({
       modulos_asignados: Number.isNaN(numberValue) ? "" : String(numberValue),
     });
@@ -271,6 +290,10 @@ export default function DialogBecas() {
   const handleActiveBecaTargetChange = (field, option) => {
     const relationField = field.split(".")[0];
 
+    setFieldErrors((prev) => ({
+      ...prev,
+      [`becas.${activeBecaTab}.${field}`]: "",
+    }));
     updateActiveBecaData({
       [field]: option?.id ?? "",
       [relationField]: option
@@ -396,64 +419,22 @@ export default function DialogBecas() {
     </Grid>
   );
 
-  const validateBecarioData = () => {
-    const errors = {};
-
-    if (dialogMode === "create" && !dialogData.nombre_becario) {
-      errors.student = BS.validationStudentRequired;
-      setFieldErrors(errors);
-      return false;
-    }
-
-    if (!dialogData.anio_beca) {
-      errors.anio_beca = BS.validationYearRequired;
-    } else if (!/^\d{4}$/.test(String(dialogData.anio_beca))) {
-      errors.anio_beca = BS.validationYear;
-    }
-
-    if (!dialogData.fecha_solicitud) {
-      errors.fecha_solicitud = BS.validationRequestDateRequired;
-    } else if (String(dialogData.fecha_solicitud) > todayInputDate) {
-      errors.fecha_solicitud = BS.validationFutureDate;
-    }
-
-    if (dialogMode === "create" || dialogData.beca?.tipo) {
-      if (!dialogData.beca?.tipo) {
-        errors.beca = BS.validationScholarshipType;
-      } else if (existingScholarshipTypes.includes(dialogData.beca.tipo)) {
-        errors.beca = BS.validationDuplicateScholarship;
-      } else if (
-        dialogData.beca.modulos_asignados === "" ||
-        dialogData.beca.modulos_asignados === undefined ||
-        Number(dialogData.beca.modulos_asignados) > 3
-      ) {
-        errors.modulos_asignados = BS.validationModules;
-      } else if (
-        dialogData.beca.tipo === SCHOLARSHIP_TYPES.INVESTIGACION &&
-        !dialogData.beca["proyecto_investigacion.id"]
-      ) {
-        errors.beca = BS.validationResearchProject;
-      } else if (
-        dialogData.beca.tipo === SCHOLARSHIP_TYPES.SERVICIO &&
-        !dialogData.beca["servicio.id"]
-      ) {
-        errors.beca = BS.validationInternalService;
-      }
-    }
-
-    setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
   const handleSaveBecarioDialog = async () => {
-    if (!validateBecarioData()) return;
+    if (!validateDialog("becario", { ...dialogData, becas: becasAlumno })) {
+      return;
+    }
 
     await handleSaveBecario();
   };
 
+  const handleClose = () => {
+    resetValidation();
+    closeDialog();
+  };
+
   return (
     <>
-      <Dialog open={open} onClose={closeDialog} maxWidth="md" fullWidth>
+      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogTitle
           sx={{
             display: "flex",
@@ -464,7 +445,7 @@ export default function DialogBecas() {
           <Typography variant="h6" component="span" fontWeight="bold">
             {getDialogTitle(BS.entityTitle, dialogMode)}
           </Typography>
-          <IconButton onClick={closeDialog} size="small">
+          <IconButton onClick={handleClose} size="small">
             <CloseIcon />
           </IconButton>
         </DialogTitle>
@@ -504,12 +485,10 @@ export default function DialogBecas() {
               )}
               {(dialogMode === "edit") && (
                 <SAETextField
-                  label={BS.studenName}
+                  label={BS.fieldScholarshipHolderName}
                   value={dialogData?.nombre_becario ?? ""}
                   disabled={true}
-                  
                   fullWidth
-                  
                 />
               )}
               
@@ -523,7 +502,9 @@ export default function DialogBecas() {
                     onSearchStudent={handleBuscarBecarioPorLegajo}
                     onError={setDialogError}
                     showValidationErrors={Boolean(fieldErrors.student)}
-                    legajoError={BS.validationStudentRequired}
+                    legajoError={
+                      fieldErrors.student ?? BS.validationStudentRequired
+                    }
                     careerError={BS.validationCareerRequired}
                     autoSearch={dialogMode === "edit"}
                   />
@@ -696,6 +677,8 @@ export default function DialogBecas() {
                                   <SAETextField
                                     {...params}
                                     label={BS.fieldProjectName}
+                                    error={Boolean(activeBecaProjectError)}
+                                    helperText={activeBecaProjectError ?? ""}
                                   />
                                 )}
                               />
@@ -729,6 +712,8 @@ export default function DialogBecas() {
                                   <SAETextField
                                     {...params}
                                     label={BS.fieldServiceName}
+                                    error={Boolean(activeBecaServiceError)}
+                                    helperText={activeBecaServiceError ?? ""}
                                   />
                                 )}
                               />
@@ -745,6 +730,8 @@ export default function DialogBecas() {
                                   event.target.value,
                                 )
                               }
+                              error={Boolean(activeBecaModulesError)}
+                              helperText={activeBecaModulesError ?? ""}
                               fullWidth
                               slotProps={{
                                 htmlInput: {
@@ -848,8 +835,12 @@ export default function DialogBecas() {
                           <SAETextField
                             {...params}
                             label={BS.fieldProjectName}
-                            error={Boolean(fieldErrors.beca)}
-                            helperText={fieldErrors.beca ?? ""}
+                            error={Boolean(
+                              fieldErrors["proyecto_investigacion.id"],
+                            )}
+                            helperText={
+                              fieldErrors["proyecto_investigacion.id"] ?? ""
+                            }
                           />
                         )}
                       />
@@ -878,8 +869,8 @@ export default function DialogBecas() {
                           <SAETextField
                             {...params}
                             label={BS.fieldServiceName}
-                            error={Boolean(fieldErrors.beca)}
-                            helperText={fieldErrors.beca ?? ""}
+                            error={Boolean(fieldErrors["servicio.id"])}
+                            helperText={fieldErrors["servicio.id"] ?? ""}
                           />
                         )}
                       />
@@ -915,7 +906,7 @@ export default function DialogBecas() {
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <SAEButton
             variant="outlined"
-            onClick={closeDialog}
+            onClick={handleClose}
             disabled={dialogSaving}
             startIcon={<CloseIcon />}
           >

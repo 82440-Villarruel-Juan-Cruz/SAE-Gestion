@@ -51,7 +51,10 @@ import {
   EMPTY_BUSSINESS,
 } from "../../../utils/common/common.config.js";
 import { formatDate, toApiDateTime } from "../../../utils/date.utils.js";
-import { buildDownloadFileName } from "../../../utils/documents.utils.js";
+import {
+  buildDownloadFileName,
+  getDownloadedDocumentName,
+} from "../../../utils/documents.utils.js";
 import {
   isEndDateBeforeStartDate,
   isPositiveNumber,
@@ -65,15 +68,6 @@ import {
 const C = TRAVEL_STRINGS;
 const checkAndCleanDialogData = (data) => cleanObjectFields(data);
 const formatTravelCost = (value) => formatCurrency(value).replace(/\s/g, "");
-const getDownloadedDocumentName = (downloadedName, listName) => {
-  const normalizedDownloadedName = String(downloadedName ?? "").trim();
-  const normalizedListName = String(listName ?? "").trim();
-
-  return normalizedDownloadedName &&
-    normalizedDownloadedName.toLowerCase() !== "documento"
-    ? normalizedDownloadedName
-    : normalizedListName;
-};
 
 const isValidTravelPlace = (value = "") => {
   const parts = String(value).split(/\s+-\s+/);
@@ -90,6 +84,7 @@ export function TravelProvider({ children }) {
     dialogMode,
     setDialogMode,
     dialogData,
+    handleDataChange,
     setDialogSaving,
     setDialogError,
     openDialog,
@@ -103,70 +98,125 @@ export function TravelProvider({ children }) {
     setFieldErrors({});
     setTouchedFields({});
   }, []);
-  const validateField = (field, value, data = dialogData) => {
-    switch (true) {
-      case field === "id":
-        return dialogMode === "edit" && isEmpty(value) ? C.validationID : "";
-      case field === "nombre":
-        if (isEmpty(value)) {
-          return dialogType === "travels"
-            ? C.validationTravelName
-            : C.validationName;
+  const validateField = useCallback(
+    (field, value, data = dialogData) => {
+      switch (true) {
+        case field === "id":
+          return dialogMode === "edit" && isEmpty(value) ? C.validationID : "";
+        case field === "nombre":
+          if (isEmpty(value)) {
+            return dialogType === "travels"
+              ? C.validationTravelName
+              : C.validationName;
+          }
+          return isValidText(value)
+            ? ""
+            : dialogType === "travels"
+              ? C.validationTravelNameFormat
+              : C.validationNameFormat;
+        case field === "contacto":
+          return isEmpty(value) || !isValidPhone(value)
+            ? C.validationPhone
+            : "";
+        case field === "activo":
+          return isEmpty(value) ? C.validationActive : "";
+        case field === "email":
+          return !isValidEmail(value) ? C.validationEmail : "";
+        case field === "cuit":
+          return !isValidCuit(value) ? C.validationCuil : "";
+        case field === "cbu":
+          return !isValidCbu(value) ? C.validationCBU : "";
+
+        //Valores exclusivos de viaje
+        case field === "fecha_inicio":
+          return isEmpty(value) ? C.validationDate : "";
+        case field === "fecha_fin":
+          if (isEmpty(value)) return C.validationDate;
+          return isEndDateBeforeStartDate(data.fecha_inicio, value)
+            ? C.validationTravelEndAfterStart
+            : "";
+        case field === "seguro":
+          return typeof value === "boolean" ? "" : C.validationActive;
+        case field === "origen":
+          return isEmpty(value) || !isValidTravelPlace(value)
+            ? C.validationPlace
+            : "";
+        case field === "destino":
+          return isEmpty(value) || !isValidTravelPlace(value)
+            ? C.validationPlace
+            : "";
+        case field === "cantidad_personas":
+          return isEmpty(value) || !isPositiveNumber(value)
+            ? C.validationQuant
+            : "";
+
+        case field === "id_empresa_viaje":
+          return isEmpty(value) || !isPositiveNumber(value)
+            ? C.validationBuss
+            : "";
+        case field === "costo_aproximado":
+          return isEmpty(value) || !isPositiveNumber(value)
+            ? C.validationCost
+            : "";
+        case field === "motivo":
+          return isEmpty(value) ? C.validationMotive : "";
+
+        default:
+          return data ? C.validationActive : "";
+      }
+    },
+    [dialogData, dialogMode, dialogType],
+  );
+  const handleDialogChange = useCallback(
+    (field, value) => {
+      const nextData = { ...dialogData, [field]: value };
+      const message = validateField(field, value, nextData);
+      const shouldValidateEndDate =
+        dialogType === "travels" &&
+        ["fecha_inicio", "fecha_fin"].includes(field) &&
+        (field === "fecha_fin" ||
+          touchedFields.fecha_fin ||
+          Boolean(fieldErrors.fecha_fin));
+
+      handleDataChange(field, value);
+      setTouchedFields((previous) => ({ ...previous, [field]: true }));
+      setFieldErrors((previous) => {
+        const nextErrors = { ...previous };
+
+        if (message) {
+          nextErrors[field] = message;
+        } else {
+          delete nextErrors[field];
+          setDialogError("");
         }
-        return isValidText(value)
-          ? ""
-          : dialogType === "travels"
-            ? C.validationTravelNameFormat
-            : C.validationNameFormat;
-      case field === "contacto":
-        return isEmpty(value) || !isValidPhone(value) ? C.validationPhone : "";
-      case field === "activo":
-        return isEmpty(value) ? C.validationActive : "";
-      case field === "email":
-        return !isValidEmail(value) ? C.validationEmail : "";
-      case field === "cuit":
-        return !isValidCuit(value) ? C.validationCuil : "";
-      case field === "cbu":
-        return !isValidCbu(value) ? C.validationCBU : "";
 
-      //Valores exclusivos de viaje
-      case field === "fecha_inicio":
-        return isEmpty(value) ? C.validationDate : "";
-      case field === "fecha_fin":
-        if (isEmpty(value)) return C.validationDate;
-        return isEndDateBeforeStartDate(data.fecha_inicio, value)
-          ? C.validationTravelEndAfterStart
-          : "";
-      case field === "seguro":
-        return typeof value === "boolean" ? "" : C.validationActive;
-      case field === "origen":
-        return isEmpty(value) || !isValidTravelPlace(value)
-          ? C.validationPlace
-          : "";
-      case field === "destino":
-        return isEmpty(value) || !isValidTravelPlace(value)
-          ? C.validationPlace
-          : "";
-      case field === "cantidad_personas":
-        return isEmpty(value) || !isPositiveNumber(value)
-          ? C.validationQuant
-          : "";
+        if (shouldValidateEndDate) {
+          const fechaFinMessage = validateField(
+            "fecha_fin",
+            nextData.fecha_fin,
+            nextData,
+          );
 
-      case field === "id_empresa_viaje":
-        return isEmpty(value) || !isPositiveNumber(value)
-          ? C.validationBuss
-          : "";
-      case field === "costo_aproximado":
-        return isEmpty(value) || !isPositiveNumber(value)
-          ? C.validationCost
-          : "";
-      case field === "motivo":
-        return isEmpty(value) ? C.validationMotive : "";
+          if (fechaFinMessage) {
+            nextErrors.fecha_fin = fechaFinMessage;
+          } else {
+            delete nextErrors.fecha_fin;
+          }
+        }
 
-      default:
-        return data ? C.validationActive : "";
-    }
-  };
+        return nextErrors;
+      });
+    },
+    [
+      dialogData,
+      dialogType,
+      fieldErrors.fecha_fin,
+      handleDataChange,
+      setDialogError,
+      touchedFields.fecha_fin,
+      validateField,
+    ],
+  );
   const validate = () => {
     const fields =
       dialogType === "bussiness"
@@ -993,6 +1043,7 @@ export function TravelProvider({ children }) {
         resetValidation,
         validate,
         validateField,
+        handleDialogChange,
       }}
     >
       {children}

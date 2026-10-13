@@ -39,6 +39,7 @@ import {
   isValidText,
   isValidMinLengthPhone,
   validateNombreApellido,
+  isValidHyperlink,
 } from "../../../utils/validation.utils.js";
 
 import { useNotification } from "../../../shared/context/sharedContext";
@@ -54,61 +55,58 @@ export function JPAProvider({ children }) {
     dialogMode,
     setDialogError,
     setDialogSaving,
-    handleDataChange,
   } = useNotification();
 
   const [fieldErrors, setFieldErrors] = useState({});
-  const [touchedFields, setTouchedFields] = useState({});
 
   const clearValidation = useCallback(() => {
     setFieldErrors({});
-    setTouchedFields({});
   }, []);
 
   const validateField = useCallback(
     (field, value, data = dialogData) => {
-      const requiredMessage = "Este campo es obligatorio.";
-
       switch (field) {
         case "encargado":
-          if (isEmpty(value)) return requiredMessage;
+          if (isEmpty(value)) return C.requiredField;
           return validateNombreApellido(value, C.eventManager) ?? "";
         case "nombre_evento":
-          if (isEmpty(value)) return requiredMessage;
+          if (isEmpty(value)) return C.requiredField;
           return isValidText(value) ? "" : C.eventNameFormat;
-        case "lugar":
         case "fecha_evento":
+          return isEmpty(value) ? C.requiredField : "";
         case "nombre_stand":
-          if (isEmpty(value)) return requiredMessage;
+          if (isEmpty(value)) return C.requiredField;
           return isValidText(value) ? "" : C.standNameFormat;
         case "expositor":
-          if (isEmpty(value)) return requiredMessage;
+          if (isEmpty(value)) return C.requiredField;
           return isValidText(value) ? "" : C.standExpoFormat;
+        case "lugar":
+          if (isEmpty(value)) return C.requiredField;
+          return isValidHyperlink(value) ? "" : C.eventUrlCheck;
         case "ubicacion":
-          if (isEmpty(value)) return requiredMessage;
+          if (isEmpty(value)) return C.requiredField;
           return isValidText(value) ? "" : C.standUbiFormat;
+
         case "nombre_interesado":
-          if (isEmpty(value)) return requiredMessage;
+          if (isEmpty(value)) return C.requiredField;
           return validateNombreApellido(value, C.interestName) ?? "";
 
         case "horario_inicio":
-          return isEmpty(value) ? "Ingresá la hora de inicio." : "";
+          return isEmpty(value) ? C.inputStarHour : "";
 
         case "horario_fin":
-          if (isEmpty(value)) return "Ingresá la hora de fin.";
+          if (isEmpty(value)) return C.inputEndHour;
           return isTimeAfter(value, data.horario_inicio)
             ? ""
-            : "La hora de fin debe ser posterior a la de inicio.";
+            : C.inputEndHourAfterStart;
 
         case "email":
-          if (isEmpty(value)) return "Ingresá un email.";
+          if (isEmpty(value)) return C.inputEmail;
           return isValidEmail(value) ? "" : C.interestEmailHelp;
 
         case "contacto":
-          if (isEmpty(value)) return "Ingresá un contacto.";
-          return isValidMinLengthPhone(value, 8)
-            ? ""
-            : "Ingresá un teléfono válido.";
+          if (isEmpty(value)) return C.inputContact;
+          return isValidMinLengthPhone(value, 8) ? "" : C.inputValidPhone;
 
         default:
           return "";
@@ -156,12 +154,6 @@ export function JPAProvider({ children }) {
         return nextErrors;
       }, {});
 
-      setTouchedFields(
-        fields.reduce(
-          (nextTouched, field) => ({ ...nextTouched, [field]: true }),
-          {},
-        ),
-      );
       setFieldErrors(errors);
 
       if (Object.keys(errors).length > 0) {
@@ -173,31 +165,6 @@ export function JPAProvider({ children }) {
       return true;
     },
     [dialogData, getRequiredFields, setDialogError, validateField],
-  );
-
-  const handleValidatedDataChange = useCallback(
-    (field, value) => {
-      handleDataChange(field, value);
-      setTouchedFields((previous) => ({ ...previous, [field]: true }));
-      setFieldErrors((previous) => {
-        const nextData = { ...dialogData, [field]: value };
-        const nextErrors = {
-          ...previous,
-          [field]: validateField(field, value, nextData),
-        };
-
-        if (field === "horario_inicio" && touchedFields.horario_fin) {
-          nextErrors.horario_fin = validateField(
-            "horario_fin",
-            nextData.horario_fin,
-            nextData,
-          );
-        }
-
-        return nextErrors;
-      });
-    },
-    [dialogData, handleDataChange, touchedFields.horario_fin, validateField],
   );
 
   {
@@ -754,7 +721,9 @@ export function JPAProvider({ children }) {
         openDeleteInteresados,
         handleInteresadoSave,
         fieldErrors,
-        handleValidatedDataChange,
+        setFieldErrors,
+        validateField,
+        resetValidation: clearValidation,
       }}
     >
       {children}

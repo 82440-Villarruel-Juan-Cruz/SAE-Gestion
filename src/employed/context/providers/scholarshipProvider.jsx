@@ -43,6 +43,14 @@ import { SCHOLARSHIP_TYPES } from "../../../utils/common/constants";
 import { buildDocumentsFromConfig } from "../../../utils/documents.utils";
 import { generateColumns } from "../../../utils/datagrid.utils.jsx";
 import { getTodayInputDate } from "../../../utils/date.utils.js";
+import { isEmpty } from "../../../utils/text.utils.js";
+import {
+  isTimeAfter,
+  isValidEmail,
+  isValidMinLengthPhone,
+  isValidPhone,
+  isValidText,
+} from "../../../utils/validation.utils.js";
 
 const BS = BECAS_STRINGS;
 
@@ -51,11 +59,338 @@ export function ScholarshipProvider({ children }) {
     showNotification,
     openDialog,
     closeDialog,
+    dialogType,
     dialogData,
     dialogMode,
+    handleDataChange,
     setDialogError,
     setDialogSaving,
   } = useNotification();
+
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [touchedFields, setTouchedFields] = useState({});
+
+  const resetValidation = useCallback(() => {
+    setFieldErrors({});
+    setTouchedFields({});
+  }, []);
+
+  const validateField = useCallback(
+    (field, value, data = dialogData) => {
+      switch (field) {
+        case "nombre_proyecto_investigacion":
+          if (isEmpty(value)) return BS.projectDialog.validationName;
+          return isValidText(value)
+            ? ""
+            : BS.projectDialog.validationNameFormat;
+
+        case "centro_investigacion":
+          if (isEmpty(value)) return BS.projectDialog.validationResearchCenter;
+          return isValidText(value)
+            ? ""
+            : BS.projectDialog.validationResearchCenterFormat;
+
+        case "nombre":
+          if (isEmpty(value)) return BS.serviceDialog.validationName;
+          return isValidText(value)
+            ? ""
+            : BS.serviceDialog.validationNameFormat;
+
+        case "nro_telefono":
+          if (isEmpty(value)) return BS.serviceDialog.validationPhoneRequired;
+          return isValidPhone(value)
+            ? ""
+            : BS.serviceDialog.validationPhoneFormat;
+
+        case "nro_interno_telefono":
+          return !isEmpty(value) && !isValidMinLengthPhone(value, 2)
+            ? BS.serviceDialog.validationInternalPhone
+            : "";
+
+        case "email_institucional":
+          if (isEmpty(value)) return BS.serviceDialog.validationEmailRequired;
+          return isValidEmail(value)
+            ? ""
+            : BS.serviceDialog.validationEmailFormat;
+
+        case "horario_atencion":
+          return isEmpty(value) ? BS.serviceDialog.validationOpeningTime : "";
+
+        case "horario_atencion_final":
+          if (isEmpty(value)) return BS.serviceDialog.validationClosingTime;
+          return isTimeAfter(value, data.horario_atencion)
+            ? ""
+            : BS.serviceDialog.validationClosingTimeAfterOpening;
+
+        case "student":
+          return dialogMode === "create" && !data.nombre_becario
+            ? BS.becarioDialog.validationStudentRequired
+            : "";
+
+        case "anio_beca":
+          if (!value) return BS.becarioDialog.validationYearRequired;
+          return /^\d{4}$/.test(String(value))
+            ? ""
+            : BS.becarioDialog.validationYear;
+
+        case "fecha_solicitud":
+          if (!value) return BS.becarioDialog.validationRequestDateRequired;
+          return String(value) > getTodayInputDate()
+            ? BS.becarioDialog.validationFutureDate
+            : "";
+
+        case "beca": {
+          if (dialogMode !== "create" && !data.beca?.tipo) return "";
+          if (!data.beca?.tipo) {
+            return BS.becarioDialog.validationScholarshipType;
+          }
+
+          const existingScholarshipTypes = (data.becas ?? []).map(
+            (beca) => beca.tipo,
+          );
+
+          return existingScholarshipTypes.includes(data.beca.tipo)
+            ? BS.becarioDialog.validationDuplicateScholarship
+            : "";
+        }
+
+        case "modulos_asignados": {
+          if (dialogMode !== "create" && !data.beca?.tipo) return "";
+
+          const modules = data.beca?.modulos_asignados;
+
+          return modules === "" ||
+            modules === undefined ||
+            Number(modules) > 3
+            ? BS.becarioDialog.validationModules
+            : "";
+        }
+
+        case "proyecto_investigacion.id":
+          return data.beca?.tipo === SCHOLARSHIP_TYPES.INVESTIGACION &&
+            !data.beca?.["proyecto_investigacion.id"]
+            ? BS.becarioDialog.validationResearchProject
+            : "";
+
+        case "servicio.id":
+          return data.beca?.tipo === SCHOLARSHIP_TYPES.SERVICIO &&
+            !data.beca?.["servicio.id"]
+            ? BS.becarioDialog.validationInternalService
+            : "";
+
+        default:
+          return "";
+      }
+    },
+    [dialogData, dialogMode],
+  );
+
+  const getRequiredFields = useCallback((type = dialogType) => {
+    const fieldsByType = {
+      proyectos: [
+        "nombre_proyecto_investigacion",
+        "centro_investigacion",
+      ],
+      servicio: [
+        "nombre",
+        "nro_telefono",
+        "nro_interno_telefono",
+        "email_institucional",
+        "horario_atencion",
+        "horario_atencion_final",
+      ],
+      becario: [
+        "student",
+        "anio_beca",
+        "fecha_solicitud",
+        "beca",
+        "proyecto_investigacion.id",
+        "servicio.id",
+        "modulos_asignados",
+      ],
+    };
+
+    return fieldsByType[type] || [];
+  }, [dialogType]);
+
+  const getDialogFieldValue = useCallback((field, data = dialogData) => {
+    if (field === "student") return data.nombre_becario;
+    if (field === "beca") return data.beca?.tipo;
+    if (field === "modulos_asignados") return data.beca?.modulos_asignados;
+    if (field === "proyecto_investigacion.id") {
+      return data.beca?.["proyecto_investigacion.id"];
+    }
+    if (field === "servicio.id") return data.beca?.["servicio.id"];
+
+    return data[field];
+  }, [dialogData]);
+
+  const getBecarioDialogErrors = useCallback(
+    (data = dialogData) => {
+      const errors = {};
+      const scholarshipType = data.beca?.tipo;
+
+      if (dialogMode === "create" && !data.nombre_becario) {
+        errors.student = BS.becarioDialog.validationStudentRequired;
+      }
+
+      if (!data.anio_beca) {
+        errors.anio_beca = BS.becarioDialog.validationYearRequired;
+      } else if (!/^\d{4}$/.test(String(data.anio_beca))) {
+        errors.anio_beca = BS.becarioDialog.validationYear;
+      }
+
+      if (!data.fecha_solicitud) {
+        errors.fecha_solicitud =
+          BS.becarioDialog.validationRequestDateRequired;
+      } else if (String(data.fecha_solicitud) > getTodayInputDate()) {
+        errors.fecha_solicitud = BS.becarioDialog.validationFutureDate;
+      }
+
+      if (dialogMode === "create" || scholarshipType) {
+        if (!scholarshipType) {
+          errors.beca = BS.becarioDialog.validationScholarshipType;
+        } else {
+          const existingScholarshipTypes = (data.becas ?? []).map(
+            (beca) => beca.tipo,
+          );
+
+          if (existingScholarshipTypes.includes(scholarshipType)) {
+            errors.beca = BS.becarioDialog.validationDuplicateScholarship;
+          }
+
+          const modules = data.beca?.modulos_asignados;
+          if (
+            modules === "" ||
+            modules === undefined ||
+            Number(modules) > 3
+          ) {
+            errors.modulos_asignados = BS.becarioDialog.validationModules;
+          }
+
+          if (
+            scholarshipType === SCHOLARSHIP_TYPES.INVESTIGACION &&
+            !data.beca?.["proyecto_investigacion.id"]
+          ) {
+            errors["proyecto_investigacion.id"] =
+              BS.becarioDialog.validationResearchProject;
+          }
+
+          if (
+            scholarshipType === SCHOLARSHIP_TYPES.SERVICIO &&
+            !data.beca?.["servicio.id"]
+          ) {
+            errors["servicio.id"] = BS.becarioDialog.validationInternalService;
+          }
+        }
+      }
+
+      (data.becas ?? []).forEach((beca, index) => {
+        const baseKey = `becas.${index}`;
+        const datos = beca.datos ?? {};
+        const modules = datos.modulos_asignados;
+
+        if (
+          modules === "" ||
+          modules === undefined ||
+          Number(modules) > 3
+        ) {
+          errors[`${baseKey}.modulos_asignados`] =
+            BS.becarioDialog.validationModules;
+        }
+
+        if (
+          beca.tipo === SCHOLARSHIP_TYPES.INVESTIGACION &&
+          !(
+            datos["proyecto_investigacion.id"] ??
+            datos.proyecto_investigacion?.id
+          )
+        ) {
+          errors[`${baseKey}.proyecto_investigacion.id`] =
+            BS.becarioDialog.validationResearchProject;
+        }
+
+        if (
+          beca.tipo === SCHOLARSHIP_TYPES.SERVICIO &&
+          !(datos["servicio.id"] ?? datos.servicio?.id)
+        ) {
+          errors[`${baseKey}.servicio.id`] =
+            BS.becarioDialog.validationInternalService;
+        }
+      });
+
+      return errors;
+    },
+    [dialogData, dialogMode],
+  );
+
+  const validateDialog = useCallback(
+    (type = dialogType, data = dialogData) => {
+      const fields = getRequiredFields(type);
+      const errors =
+        type === "becario"
+          ? getBecarioDialogErrors(data)
+          : fields.reduce((result, field) => {
+              const message = validateField(
+                field,
+                getDialogFieldValue(field, data),
+                data,
+              );
+              return message ? { ...result, [field]: message } : result;
+            }, {});
+
+      setFieldErrors(errors);
+      setTouchedFields(
+        fields.reduce((result, field) => ({ ...result, [field]: true }), {}),
+      );
+
+      if (Object.keys(errors).length) {
+        setDialogError("Revisá los campos marcados antes de guardar.");
+        return false;
+      }
+
+      setDialogError("");
+      return true;
+    },
+    [
+      dialogData,
+      dialogType,
+      getBecarioDialogErrors,
+      getDialogFieldValue,
+      getRequiredFields,
+      setDialogError,
+      validateField,
+    ],
+  );
+
+  const handleDialogChange = useCallback(
+    (field, value) => {
+      const previousValue = dialogData[field];
+      const emptyEquivalent = isEmpty(previousValue) && isEmpty(value);
+
+      if (previousValue === value || emptyEquivalent) return;
+
+      const nextData = { ...dialogData, [field]: value };
+      const message = validateField(field, value, nextData);
+
+      handleDataChange(field, value);
+      setTouchedFields((previous) => ({ ...previous, [field]: true }));
+      setFieldErrors((previous) => ({
+        ...previous,
+        [field]: message,
+        ...(field === "horario_atencion" &&
+          (touchedFields.horario_atencion_final ||
+            !isEmpty(nextData.horario_atencion_final)) && {
+            horario_atencion_final: validateField(
+              "horario_atencion_final",
+              nextData.horario_atencion_final,
+              nextData,
+            ),
+          }),
+      }));
+    },
+    [dialogData, handleDataChange, touchedFields, validateField],
+  );
 
   //#region Helpers de becarios
 
@@ -451,12 +786,13 @@ export function ScholarshipProvider({ children }) {
 
   const openEditbecario = useCallback(
     (row) => {
+      resetValidation();
       openDialog("becario", "edit", {
         ...row,
         originalData: JSON.parse(JSON.stringify(row)),
       });
     },
-    [openDialog],
+    [openDialog, resetValidation],
   );
 
   const handleEditBecario = useCallback(
@@ -493,12 +829,13 @@ export function ScholarshipProvider({ children }) {
   );
 
   const openCreateBecario = useCallback(() => {
+    resetValidation();
     openDialog("becario", "create", {
       ...EMPTY_BECARIO,
       id_becario_previo: null,
       fecha_solicitud: getTodayInputDate(),
     });
-  }, [openDialog]);
+  }, [openDialog, resetValidation]);
 
   const handleSaveBecario = async () => {
     setDialogSaving(true);
@@ -558,6 +895,7 @@ export function ScholarshipProvider({ children }) {
       }
 
       showNotification(mensajeSnackbar, "success");
+      resetValidation();
       closeDialog();
     } catch (err) {
       showNotification(err.message || BS.saveError, "error");
@@ -574,9 +912,10 @@ export function ScholarshipProvider({ children }) {
 
   const openEditProyecto = useCallback(
     (row) => {
+      resetValidation();
       openDialog("proyectos", "edit", row);
     },
-    [openDialog],
+    [openDialog, resetValidation],
   );
 
   const handleEditProyecto = useCallback(
@@ -604,10 +943,13 @@ export function ScholarshipProvider({ children }) {
   );
 
   const openCreateProyecto = useCallback(() => {
+    resetValidation();
     openDialog("proyectos", "create", EMPTY_PROYECTS);
-  }, [openDialog]);
+  }, [openDialog, resetValidation]);
 
   const handleSaveProyecto = async () => {
+    if (!validateDialog("proyectos")) return;
+
     setDialogSaving(true);
     setDialogError("");
     try {
@@ -619,6 +961,7 @@ export function ScholarshipProvider({ children }) {
       }
       await fetchProyectosInvetigacion();
       showNotification(BS.saveGenericSuccess, "success");
+      resetValidation();
     } catch (err) {
       showNotification(err.message || BS.saveError, "error");
       throw err;
@@ -636,14 +979,16 @@ export function ScholarshipProvider({ children }) {
 
   const openEditServicio = useCallback(
     (row) => {
+      resetValidation();
       openDialog("servicio", "edit", row);
     },
-    [openDialog],
+    [openDialog, resetValidation],
   );
 
   const openCreateServicio = useCallback(() => {
+    resetValidation();
     openDialog("servicio", "create", EMPTY_SERVICES);
-  }, [openDialog]);
+  }, [openDialog, resetValidation]);
 
   const handleEditServicio = useCallback(
     (row) => {
@@ -670,6 +1015,8 @@ export function ScholarshipProvider({ children }) {
   );
 
   const handleSaveServicios = async () => {
+    if (!validateDialog("servicio")) return;
+
     setDialogSaving(true);
     setDialogError("");
     try {
@@ -681,6 +1028,7 @@ export function ScholarshipProvider({ children }) {
       }
       await fetchServiciosInternos();
       showNotification(BS.saveGenericSuccess, "success");
+      resetValidation();
     } catch (err) {
       showNotification(err.message || BS.saveError, "error");
       throw err;
@@ -695,6 +1043,13 @@ export function ScholarshipProvider({ children }) {
   return (
     <ScholarshipContext.Provider
       value={{
+        fieldErrors,
+        setFieldErrors,
+        validateField,
+        validateDialog,
+        handleDialogChange,
+        resetValidation,
+
         handleBuscarBecario,
         handleBuscarBecarioPorLegajo,
         handleBuscarUltimoBecarioPorLegajo,

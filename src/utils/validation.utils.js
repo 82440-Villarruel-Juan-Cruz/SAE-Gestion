@@ -37,6 +37,10 @@ export const isTimeAfter = (endTime = "", startTime = "") => {
   return endMinutes > startMinutes;
 };
 
+export const isValidNumber = (value) =>
+  !isEmpty(value) && Number.isFinite(Number(value));
+
+
 export const isValidAddress = (value = "") => {
   const parts = String(value).split(/\s+-\s+/);
 

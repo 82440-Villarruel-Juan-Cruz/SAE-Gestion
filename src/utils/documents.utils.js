@@ -349,3 +349,13 @@ export function getDocumentName(doc, fallback = "Archivo") {
 export function cloneDocuments(documents) {
   return documents.map((document) => ({ ...document }));
 }
+
+export const getDownloadedDocumentName = (downloadedName, listName) => {
+  const normalizedDownloadedName = String(downloadedName ?? "").trim();
+  const normalizedListName = String(listName ?? "").trim();
+
+  return normalizedDownloadedName &&
+    normalizedDownloadedName.toLowerCase() !== "documento"
+    ? normalizedDownloadedName
+    : normalizedListName;
+};
