@@ -4,7 +4,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-import { timeToMinutes } from "../../../utils/schedule.utils";
 
 dayjs.extend(customParseFormat);
 
@@ -90,7 +89,6 @@ export default function SAETimeField({
             inputProps: {
               readOnly,
             },
-            onKeyDown: preventTextEdition,
             onPaste: readOnly ? (event) => event.preventDefault() : undefined,
             sx: fullWidth ? undefined : { width },
           },

@@ -418,7 +418,7 @@ function EmpleadosDialog() {
             }}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             value={
-              perfilesDisponibles.find(
+              perfilesValidos.find(
                 (perfil) => perfil.id === dialogData.id_perfil,
               ) || null
             }

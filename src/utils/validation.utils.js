@@ -247,8 +247,15 @@ export const isBooleanValid = (value) => {
   return typeof value === "boolean";
 };
 
-export const isEndDateBeforeStartDate = (startDate, endDate) =>
-    !isEmpty(startDate) && !isEmpty(endDate) && String(endDate)< String(startDate);
+export const isEndDateBeforeStartDate = (startDate, endDate) => {
+  if (isEmpty(startDate) || isEmpty(endDate)) return false;
+
+  const start = new Date(startDate).getTime();
+  const end = new Date(endDate).getTime();
+
+  // Compara si la fecha final es estrictamente menor (anterior) a la inicial
+  return end < start;
+}   
 
 export const isPositiveNumber = (value) =>
   !isEmpty(value) && Number.isFinite(Number(value)) && Number(value) > 0;
