@@ -70,7 +70,28 @@ function StudentSportsContent() {
         backgroundImage="images/headers/deportes.webp"
         icon={SportsHandballIcon}
       />
-      <TitleBox
+      
+      <TitleBox title={C.sportsTitle} description={C.sportsSubTitle} />
+      {loadingSports ? (
+        <Stack alignItems="center" sx={{ py: 5 }}>
+          <SAESpinner size="S" />
+        </Stack>
+      ) : horariosDeportista.length > 0 ? (
+        <Card
+          sx={{
+            overflow: "hidden",
+            borderRadius: 6,
+            boxShadow: "0 18px 45px rgba(21, 61, 113, 0.08)",
+          }}
+        >
+          <DeportesMasonry
+            deportes={horariosDeportista}
+            onInscribirClick={handleInscribirClick}
+          />
+        </Card>
+      ) : null}
+
+<TitleBox
         title={C.documentationTitle}
         description={C.documentationSubtitle}
       />
@@ -101,25 +122,7 @@ function StudentSportsContent() {
           ))}
         </Grid>
       )}
-      <TitleBox title={C.sportsTitle} description={C.sportsSubTitle} />
-      {loadingSports ? (
-        <Stack alignItems="center" sx={{ py: 5 }}>
-          <SAESpinner size="S" />
-        </Stack>
-      ) : horariosDeportista.length > 0 ? (
-        <Card
-          sx={{
-            overflow: "hidden",
-            borderRadius: 6,
-            boxShadow: "0 18px 45px rgba(21, 61, 113, 0.08)",
-          }}
-        >
-          <DeportesMasonry
-            deportes={horariosDeportista}
-            onInscribirClick={handleInscribirClick}
-          />
-        </Card>
-      ) : null}
+
       <TitleBox
         title={C.tournamnetsTitle}
         description={C.tournamnetsSubTitle}
@@ -159,6 +162,7 @@ function StudentSportsContent() {
         loading={preview.loading}
         error={preview.error}
       />
+      
     </SAEPage>
   );
 }
