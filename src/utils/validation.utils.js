@@ -247,10 +247,54 @@ export const isBooleanValid = (value) => {
   return typeof value === "boolean";
 };
 
-export const isEndDateBeforeStartDate = (startDate, endDate) =>
-    !isEmpty(startDate) && !isEmpty(endDate) && String(endDate)< String(startDate);
+export const isEndDateBeforeStartDate = (startDate, endDate) => {
+  if (isEmpty(startDate) || isEmpty(endDate)) return false;
 
-export const isPositiveNumber = (value) => {
-    const numericValue = Number(value);
-    return Number.isFinite(numericValue) && numericValue > 0;
+  const start = new Date(startDate).getTime();
+  const end = new Date(endDate).getTime();
+
+  // Compara si la fecha final es estrictamente menor (anterior) a la inicial
+  return end < start;
+}   
+
+export const isPositiveNumber = (value) =>
+  !isEmpty(value) && Number.isFinite(Number(value)) && Number(value) > 0;
+
+export const isNumberN0 = (value) =>
+  !isEmpty(value) && Number.isFinite(Number(value)) && Number(value) >= 0;
+
+export const isValidNumber = (value) =>
+  !isEmpty(value) && Number.isFinite(Number(value));
+
+const timeToMinutes = (timeStr) => {
+  if (!timeStr) return 0;
+  const [hours, minutes] = timeStr.split(":").map(Number);
+  return hours * 60 + minutes;
+};
+
+export const validarSolapamiento = (nuevoInicio, nuevoFin, diaNuevo, horariosExistentes, idEnEdicion = null) => {
+  const inicioMin = timeToMinutes(nuevoInicio);
+  const finMin = timeToMinutes(nuevoFin);
+
+  return horariosExistentes.some((h) => {
+    // Si estamos editando, ignoramos el horario que tiene el mismo ID que estamos modificando
+    if (idEnEdicion && h.id === idEnEdicion) return false;
+
+    // Comparamos solo si es el mismo día 
+    // (Asegúrate de cómo guardas el día, ej: h.dia vs diaNuevo)
+    if (Number(h.dia) !== Number(diaNuevo)) return false;
+
+    const hInicioMin = timeToMinutes(h.hora_inicio);
+    const hFinMin = timeToMinutes(h.hora_fin);
+
+    // Lógica de solapamiento de intervalos:
+    // Un rango (inicioMin, finMin) se solapa con (hInicioMin, hFinMin) si:
+    // El inicio del nuevo está dentro del existente, O el fin del nuevo está dentro, O envuelve al existente.
+    const seSolapa = 
+      (inicioMin >= hInicioMin && inicioMin < hFinMin) || // Empieza dentro de otro
+      (finMin > hInicioMin && finMin <= hFinMin) ||       // Termina dentro de otro
+      (inicioMin <= hInicioMin && finMin >= hFinMin);     // Envuelve por completo a otro
+
+    return seSolapa;
+  });
 };

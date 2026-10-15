@@ -15,6 +15,7 @@ export const NotificationProvider = ({ children }) => {
   });
 
   const showNotification = useCallback((message, severity = 'info', duration = 4000) => {
+    if(message == "")return;
     setConfig({ open: true, message, severity, duration });
   }, []);
 

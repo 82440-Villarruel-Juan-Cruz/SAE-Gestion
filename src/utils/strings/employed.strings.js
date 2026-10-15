@@ -280,6 +280,12 @@ export const JPA_STRINGS = {
   interestCreateMsg: "Interesado creado!",
   interestEditMsg: "Interesado modificado correctamente",
   interestDeleteMsg: "Se eliminó el interesado correctamente",
+  validationDate:"La fecha debe ser mayor a hoy",
+  validationPlace: "Todos los campos son obligatorios",
+  validationQuant: "Cantidad no válida",
+  validationBuss: "Seleccione una empresa",
+  validationCost: "Ingrese un costo válido",
+  validationMotive: "Ingrese un motivo u objetivo del viaje",
 };
 
 export const USER_STRINGS = {
@@ -374,6 +380,7 @@ export const USER_STRINGS = {
   userErrorMsg: "Ocurrió un error al guardar",
   userErrorUpdateMsg: "Ocurrió un error al actualizar el usuario...",
   scheduleGetError: "Ocurrió un error recuperando los horarios",
+  userNotFound: "No se encuentra el ID para eliminar",
 };
 
 export const TRAVEL_STRINGS = {

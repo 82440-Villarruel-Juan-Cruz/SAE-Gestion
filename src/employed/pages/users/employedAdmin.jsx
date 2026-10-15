@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Autocomplete,
   Box,
@@ -41,6 +41,7 @@ import { AdminUsersProvider } from "../../context/providers/employProvider";
 import { useNotification } from "../../../shared/context/sharedContext";
 import { USER_STRINGS } from "../../../utils/strings/employed.strings";
 import SAESpinner from "../../../assets/components/spinner/SAESpinner.jsx";
+import { onlyDigits } from "../../../utils/text.utils.js";
 
 const C = USER_STRINGS;
 const ALLOWED_EMPLOYEE_PROFILE_NAMES = ["empleado sae", "administrador"];
@@ -248,14 +249,8 @@ function EmpleadosDialog() {
     () => formatProfileList(perfiles.filter(isAllowedEmployeeProfile)),
     [perfiles],
   );
-  const perfilesDisponibles = useMemo(
-    () =>
-      dialogMode === "create"
-        ? perfiles.filter(isAllowedEmployeeProfile)
-        : perfiles,
-    [dialogMode, perfiles],
-  );
 
+  const perfilesValidos = perfiles.filter(perfil => [2, 5].includes(perfil.id));
   return (
     <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
       <DialogTitle
@@ -281,14 +276,14 @@ function EmpleadosDialog() {
             </Alert>
           )}
 
-          {dialogMode === "edit" && (
+          {dialogMode === "edit" &&(
             <Grid container spacing={1}>
               <Grid size={{ xs: 12, md: 3 }} m={0}>
                 <SAETextField
-                  label={C.employID || ""}
+                  value={dialogData.id||"0"}
+                  label={C.employID }
                   type="number"
                   fullWidth
-                  value={dialogData.id}
                   onChange={(e) =>
                     handleDataChange("id", e.target.value, {
                       setTouched: setTouchedFields,
@@ -301,8 +296,8 @@ function EmpleadosDialog() {
               </Grid>
               <Grid size={{ xs: 12, md: 9 }} m={0}>
                 <SAETextField
-                  label={C.employCompleteName || ""}
-                  value={dialogData.nombre_empleado}
+                  label={C.employCompleteName}
+                  value={dialogData.nombre_empleado|| ""}
                   disabled
                   onChange={(e) =>
                     handleDataChange("nombre_empleado", e.target.value, {
@@ -346,8 +341,8 @@ function EmpleadosDialog() {
               </Card>
 
               <SAETextField
-                label={C.employNames || ""}
-                value={dialogData.nombres}
+                label={C.employNames }
+                value={dialogData.nombres|| ""}
                 onChange={(e) =>
                   handleDataChange("nombres", e.target.value, {
                     setTouched: setTouchedFields,
@@ -361,8 +356,8 @@ function EmpleadosDialog() {
                 required
               />
               <SAETextField
-                label={C.employLastName || ""}
-                value={dialogData.apellidos}
+                label={C.employLastName }
+                value={dialogData.apellidos|| ""}
                 onChange={(e) =>
                   handleDataChange("apellidos", e.target.value, {
                     setTouched: setTouchedFields,
@@ -376,8 +371,8 @@ function EmpleadosDialog() {
                 required
               />
               <SAETextField
-                label={C.employUserName || ""}
-                value={dialogData.nombre_usuario}
+                label={C.employUserName }
+                value={dialogData.nombre_usuario || ""}
                 onChange={(e) =>
                   handleDataChange("nombre_usuario", e.target.value, {
                     setTouched: setTouchedFields,
@@ -395,24 +390,24 @@ function EmpleadosDialog() {
 
           <SAETextField
             label={C.studentID}
-            value={dialogData.legajo}
+            value={dialogData.legajo_empleado||""}
             disabled={dialogMode !== "create"}
             onChange={(e) =>
-              handleDataChange("legajo", e.target.value, {
+              handleDataChange("legajo_empleado", e.target.value, {
                 setTouched: setTouchedFields,
                 setErrors: setFieldErrors,
                 validateFn: validateField,
               })
             }
             fullWidth
-            error={Boolean(fieldErrors.legajo)}
-            helperText={fieldErrors.legajo ?? C.employLegajoHelper ?? ""}
+            error={Boolean(fieldErrors.legajo_empleado)}
+            helperText={fieldErrors.legajo_empleado ?? C.employLegajoHelper ?? ""}
             required
           />
 
           <Autocomplete
             disablePortal
-            options={perfilesDisponibles}
+            options={perfilesValidos}
             getOptionLabel={(option) => option.nombre}
             onChange={(_event, newValue) => {
               handleDataChange("id_perfil", newValue ? newValue.id : null, {
@@ -423,7 +418,7 @@ function EmpleadosDialog() {
             }}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             value={
-              perfilesDisponibles.find(
+              perfilesValidos.find(
                 (perfil) => perfil.id === dialogData.id_perfil,
               ) || null
             }
@@ -431,10 +426,12 @@ function EmpleadosDialog() {
               <TextField
                 {...params}
                 label={C.employProfile}
-                inputProps={{
-                  ...params.inputProps,
-                  readOnly: true,
-                }}
+                slotProps={{
+                    htmlInput: {
+                      ...params.inputProps,
+                      readOnly: true,
+                    },
+                  }}
                 error={Boolean(fieldErrors.id_perfil)}
                 helperText={fieldErrors.id_perfil ?? ""}
                 required
@@ -446,7 +443,7 @@ function EmpleadosDialog() {
             <FormControlLabel
               control={
                 <Switch
-                  checked={dialogData.activo}
+                  checked={dialogData.activo||false}
                   onChange={(e) =>
                     handleDataChange("activo", e.target.checked, {
                       setTouched: setTouchedFields,
@@ -458,8 +455,6 @@ function EmpleadosDialog() {
                 />
               }
               label={dialogData.activo ? C.employActive : C.employNoActive}
-              error={Boolean(fieldErrors.activo)}
-              helperText={fieldErrors.activo ?? ""}
             />
           )}
         </Stack>
@@ -515,6 +510,7 @@ function UsuariosDialog() {
     setDialogData,
     closeDialog,
   } = useNotification();
+  
   return (
     <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="xl" fullWidth>
       <DialogTitle
@@ -569,10 +565,10 @@ function UsuariosDialog() {
             <Grid size={{ xs: 12, sm: 3 }}>
               <SAETextField
                 label={C.studentID}
-                value={dialogData.legajo}
+                value={dialogData.legajo|| ""}
                 disabled={dialogMode !== "create"}
                 onChange={(e) =>
-                  handleDataChange("legajo", e.target.value, {
+                  handleDataChange("legajo", onlyDigits(e.target.value), {
                     setTouched: setTouchedFields,
                     setErrors: setFieldErrors,
                     validateFn: validateField,
@@ -698,7 +694,7 @@ function UsuariosDialog() {
 
           <SAETextField
             label={C.employNames}
-            value={dialogData.nombres}
+            value={dialogData.nombres|| ""}
             onChange={(e) =>
               handleDataChange("nombres", e.target.value, {
                 setTouched: setTouchedFields,
@@ -713,7 +709,7 @@ function UsuariosDialog() {
           />
           <SAETextField
             label={C.employLastName}
-            value={dialogData.apellidos}
+            value={dialogData.apellidos|| ""}
             onChange={(e) =>
               handleDataChange("apellidos", e.target.value, {
                 setTouched: setTouchedFields,
@@ -810,6 +806,7 @@ function StudentSection() {
       my={{ xs: 2, md: 4 }}
       px={{ xs: 2, md: 4 }}
       sx={{
+        position:"relative",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -838,16 +835,16 @@ function StudentSection() {
             size={{ xs: 2, md: 1 }}
             m={0}
             pl={{ xs: 0, md: 2 }}
-            position={"relative"}
+
           >
             {loadingCard && (
               <Box
                 sx={{
                   position: "absolute",
-                  top: 0,
+                  top:-10,
                   left: 0,
-                  width: "100%",
-                  height: "100%",
+                  minWidth: "100%",
+                  minHeight: "100%",
                   bgcolor: "rgba(255, 255, 255, 0.7)", // Fondo blanco semitransparente
                   display: "flex",
                   alignItems: "center",

@@ -4,7 +4,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-import { timeToMinutes } from "../../../utils/schedule.utils";
 
 dayjs.extend(customParseFormat);
 
@@ -32,41 +31,23 @@ export default function SAETimeField({
   readOnly = false,
 }) {
   const textFieldSize = size === "big" ? "medium" : size;
-  const minMinutes = timeToMinutes(minTime);
-  const maxMinutes = timeToMinutes(maxTime);
+  const redondearMinutos = (dayjsObj) => {
+      if (!dayjsObj || !dayjsObj.isValid()) return dayjsObj;
 
-  const isSelectableTime = (time) => {
-    const parsedTime = parseTime(time);
+      const minutosActuales = dayjsObj.minute();
+      const resto = minutosActuales % timeStepsMinutes;
 
-    if (!parsedTime?.isValid()) return false;
-
-    const minutes = timeToMinutes(parsedTime.format("HH:mm"));
-
-    return (
-      minutes !== null &&
-      (minMinutes === null || minutes >= minMinutes) &&
-      (maxMinutes === null || minutes <= maxMinutes) &&
-      parsedTime.minute() % timeStepsMinutes === 0
-    );
-  };
-
-  const preventTextEdition = (event) => {
-    if (!readOnly) return;
-
-    const allowedKeys = [
-      "ArrowDown",
-      "ArrowLeft",
-      "ArrowRight",
-      "ArrowUp",
-      "Escape",
-      "Tab",
-    ];
-
-    if (!allowedKeys.includes(event.key)) {
-      event.preventDefault();
-    }
-  };
-
+      // Si no coincide exactamente con el intervalo, redondeamos
+      if (resto !== 0) {
+        const minutosRedondeados = 
+          resto >= timeStepsMinutes / 2
+            ? minutosActuales + (timeStepsMinutes - resto) // Redondea hacia arriba
+            : minutosActuales - resto;                     // Redondea hacia abajo
+            
+        return dayjsObj.minute(minutosRedondeados).second(0);
+      }
+      return dayjsObj.second(0);
+    };
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <TimePicker
@@ -75,13 +56,16 @@ export default function SAETimeField({
         // Usamos el formato estricto 'HH:mm' para evitar errores de parseo
         value={parseTime(value)}
         onChange={(nuevoValor) => {
-          const horaFormateada =
-            nuevoValor && nuevoValor.isValid() ? nuevoValor.format("HH:mm") : "";
 
-          if (horaFormateada && !isSelectableTime(horaFormateada)) return;
+          const valorRedondeado = redondearMinutos(nuevoValor);
+          const horaFormateada =
+            valorRedondeado && valorRedondeado.isValid()
+              ? valorRedondeado.format("HH:mm")
+              : "";
 
           onChange?.(horaFormateada);
         }}
+
         timeSteps={{ minutes: timeStepsMinutes }}
         minTime={parseTime(minTime)}
         maxTime={parseTime(maxTime)}
@@ -105,7 +89,6 @@ export default function SAETimeField({
             inputProps: {
               readOnly,
             },
-            onKeyDown: preventTextEdition,
             onPaste: readOnly ? (event) => event.preventDefault() : undefined,
             sx: fullWidth ? undefined : { width },
           },

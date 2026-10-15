@@ -41,7 +41,7 @@ import {
   mapEstado,
   mapTurnos,
 } from "../../../api/formatters/SaludFormatters";
-import { ObtenerUsuariosXLegajo } from "../../../api/EmpleadoService";
+import { CrearEmpleado, ObtenerUsuariosXLegajo } from "../../../api/EmpleadoService";
 import { HealthContext } from "../employedContext";
 import { useNotification } from "../../../shared/context/sharedContext";
 import {
@@ -835,9 +835,7 @@ export const HealthUsersProvider = ({ children }) => {
         };
 
         if (dialogMode === "create") {
-          // Guardamos en la base y recargamos todos los turnos desde la API.
-          await CrearTurnosEmpleado(body);
-          await fetchTurnosMedicos();
+          await CrearEmpleado(body);
         } else if (dialogMode === "edit") {
           await ModificarPersonal(dialogData.cuil, body);
         }

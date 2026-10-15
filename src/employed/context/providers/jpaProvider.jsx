@@ -39,6 +39,7 @@ import {
   isValidText,
   isValidMinLengthPhone,
   validateNombreApellido,
+  isEndDateBeforeStartDate,
 } from "../../../utils/validation.utils.js";
 
 import { useNotification } from "../../../shared/context/sharedContext";
@@ -77,7 +78,10 @@ export function JPAProvider({ children }) {
           if (isEmpty(value)) return requiredMessage;
           return isValidText(value) ? "" : C.eventNameFormat;
         case "lugar":
+          return isEmpty(value) ? C.validationPlace :"" ;
         case "fecha_evento":
+          if (isEmpty(value)) return requiredMessage;
+          return isEndDateBeforeStartDate(value,new Date()) ? C.validationDate : "";
         case "nombre_stand":
           if (isEmpty(value)) return requiredMessage;
           return isValidText(value) ? "" : C.standNameFormat;
@@ -85,8 +89,7 @@ export function JPAProvider({ children }) {
           if (isEmpty(value)) return requiredMessage;
           return isValidText(value) ? "" : C.standExpoFormat;
         case "ubicacion":
-          if (isEmpty(value)) return requiredMessage;
-          return isValidText(value) ? "" : C.standUbiFormat;
+          return isEmpty(value) ? C.standUbiFormat :"" ;
         case "nombre_interesado":
           if (isEmpty(value)) return requiredMessage;
           return validateNombreApellido(value, C.interestName) ?? "";
@@ -533,7 +536,7 @@ export function JPAProvider({ children }) {
       } else if (dialogMode === "edit") {
         await modificarInteresado(dialogData.id, body);
       } else {
-        let res = await eliminarInteresado(dialogData.id);
+        await eliminarInteresado(dialogData.id);
       }
       fetchInteresados();
       closeDialog();
