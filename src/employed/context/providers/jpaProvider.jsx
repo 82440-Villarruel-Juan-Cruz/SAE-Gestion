@@ -54,6 +54,7 @@ export function JPAProvider({ children }) {
     closeDialog,
     dialogData,
     dialogMode,
+    handleDataChange,
     setDialogError,
     setDialogSaving,
   } = useNotification();
@@ -116,6 +117,27 @@ export function JPAProvider({ children }) {
       }
     },
     [dialogData],
+  );
+
+  const handleValidatedDataChange = useCallback(
+    (field, value) => {
+      const nextData = { ...dialogData, [field]: value };
+      handleDataChange(field, value);
+      setFieldErrors((previous) => ({
+        ...previous,
+        [field]: validateField(field, value, nextData),
+        ...(field === "horario_inicio"
+          ? {
+              horario_fin: validateField(
+                "horario_fin",
+                nextData.horario_fin,
+                nextData,
+              ),
+            }
+          : {}),
+      }));
+    },
+    [dialogData, handleDataChange, validateField],
   );
 
   const getRequiredFields = useCallback((type) => {
@@ -723,6 +745,7 @@ export function JPAProvider({ children }) {
         openEditInteresados,
         openDeleteInteresados,
         handleInteresadoSave,
+        handleValidatedDataChange,
         fieldErrors,
         setFieldErrors,
         validateField,
