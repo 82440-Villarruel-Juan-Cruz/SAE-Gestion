@@ -19,7 +19,7 @@ export default function StudentMain() {
         <HeaderPageStudent
           title={C.headerTitle}
           description={C.headerDescription+user.nombre}
-          backgroundImage="images/carrousel/EntradaUTN.jpg"
+          backgroundImage="images/headers/initial.jpg"
           icon={LightbulbIcon}
         />
         <TitleBox 
