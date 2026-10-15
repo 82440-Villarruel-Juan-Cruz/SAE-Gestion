@@ -400,6 +400,7 @@ function InscriptDeleteDialog() {
 }
 
 function DocumentsDialog() {
+  const [deletingDocument, setDeletingDocument] = useState(false);
   const {
     downloadingDocId,
     handlePreviewDoc,
@@ -426,6 +427,15 @@ function DocumentsDialog() {
   const handleClose = () => {
     setSeletedInscripts(null);
     closeDialog();
+  };
+
+  const handleConfirmDelete = async () => {
+    setDeletingDocument(true);
+    try {
+      await handleDelete();
+    } finally {
+      setDeletingDocument(false);
+    }
   };
 
   return (
@@ -557,36 +567,14 @@ function DocumentsDialog() {
           </SAEButton>
         </DialogActions>
       </Dialog>
-      <Dialog open={openPopup} onClose={() => setOpenPopup(false)}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 600, p: 4 }}>
-          {C.travelDeleteDocs}
-        </Typography>
-
-        <DialogContent>
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            {C.travelWarningMsg}
-            {documentoAEliminar?.nombre_documento}
-          </Typography>
-        </DialogContent>
-
-        <DialogActions>
-          <SAEButton
-            onClick={() => setOpenPopup(false)}
-            autoFocus
-            color="outlined"
-            startIcon={<CloseIcon />}
-          >
-            {C.cancel}
-          </SAEButton>
-          <SAEButton
-            onClick={() => handleDelete(documentoAEliminar)}
-            autoFocus
-            color="error"
-          >
-            {C.delete}
-          </SAEButton>
-        </DialogActions>
-      </Dialog>
+      <SAEDeleteDialog
+        open={openPopup}
+        entityLabel="Documento"
+        itemName={documentoAEliminar?.nombre_documento}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setOpenPopup(false)}
+        loading={deletingDocument}
+      />
     </>
   );
 }

@@ -168,13 +168,13 @@ export function ScholarshipProvider({ children }) {
 
         case "proyecto_investigacion.id":
           return data.beca?.tipo === SCHOLARSHIP_TYPES.INVESTIGACION &&
-            !data.beca?.["proyecto_investigacion.id"]
+            isEmpty(data.beca?.["proyecto_investigacion.id"])
             ? BS.becarioDialog.validationResearchProject
             : "";
 
         case "servicio.id":
           return data.beca?.tipo === SCHOLARSHIP_TYPES.SERVICIO &&
-            !data.beca?.["servicio.id"]
+            isEmpty(data.beca?.["servicio.id"])
             ? BS.becarioDialog.validationInternalService
             : "";
 
@@ -270,7 +270,7 @@ export function ScholarshipProvider({ children }) {
 
           if (
             scholarshipType === SCHOLARSHIP_TYPES.INVESTIGACION &&
-            !data.beca?.["proyecto_investigacion.id"]
+            isEmpty(data.beca?.["proyecto_investigacion.id"])
           ) {
             errors["proyecto_investigacion.id"] =
               BS.becarioDialog.validationResearchProject;
@@ -278,7 +278,7 @@ export function ScholarshipProvider({ children }) {
 
           if (
             scholarshipType === SCHOLARSHIP_TYPES.SERVICIO &&
-            !data.beca?.["servicio.id"]
+            isEmpty(data.beca?.["servicio.id"])
           ) {
             errors["servicio.id"] = BS.becarioDialog.validationInternalService;
           }
@@ -301,7 +301,7 @@ export function ScholarshipProvider({ children }) {
 
         if (
           beca.tipo === SCHOLARSHIP_TYPES.INVESTIGACION &&
-          !(
+          isEmpty(
             datos["proyecto_investigacion.id"] ??
             datos.proyecto_investigacion?.id
           )
@@ -312,7 +312,7 @@ export function ScholarshipProvider({ children }) {
 
         if (
           beca.tipo === SCHOLARSHIP_TYPES.SERVICIO &&
-          !(datos["servicio.id"] ?? datos.servicio?.id)
+          isEmpty(datos["servicio.id"] ?? datos.servicio?.id)
         ) {
           errors[`${baseKey}.servicio.id`] =
             BS.becarioDialog.validationInternalService;
@@ -618,7 +618,7 @@ export function ScholarshipProvider({ children }) {
       const servicioId = getRelationId(payload, "servicio");
       delete payload["servicio.id"];
 
-      if (servicioId) {
+      if (!isEmpty(servicioId)) {
         payload.servicio = { ...(payload.servicio ?? {}), id: servicioId };
       }
     }
@@ -627,7 +627,7 @@ export function ScholarshipProvider({ children }) {
       const proyectoId = getRelationId(payload, "proyecto_investigacion");
       delete payload["proyecto_investigacion.id"];
 
-      if (proyectoId) {
+      if (!isEmpty(proyectoId)) {
         payload.proyecto_investigacion = {
           ...(payload.proyecto_investigacion ?? {}),
           id: proyectoId,

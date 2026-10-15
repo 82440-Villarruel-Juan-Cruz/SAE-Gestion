@@ -97,6 +97,7 @@ export default function DialogProyecto() {
             <Grid size={{ xs: 12 }} m={0}>
               <SAETextField
                 label={BS.fieldName}
+                required
                 value={dialogData.nombre_proyecto_investigacion ?? ""}
                 onChange={(event) =>
                   handleDialogChange(
@@ -112,6 +113,7 @@ export default function DialogProyecto() {
             <Grid size={{ xs: 12 }} m={0}>
               <SAETextField
                 label={BS.fieldResearchCenter}
+                required
                 value={dialogData.centro_investigacion ?? ""}
                 onChange={(event) => {
                   handleDialogChange(

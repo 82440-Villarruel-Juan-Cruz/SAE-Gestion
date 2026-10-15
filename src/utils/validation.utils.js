@@ -37,10 +37,6 @@ export const isTimeAfter = (endTime = "", startTime = "") => {
   return endMinutes > startMinutes;
 };
 
-export const isValidNumber = (value) =>
-  !isEmpty(value) && Number.isFinite(Number(value));
-
-
 export const isValidAddress = (value = "") => {
   const parts = String(value).split(/\s+-\s+/);
 
@@ -57,19 +53,19 @@ export const isValidCuit = (value = "") => {
   // 1. Extraemos solo los números
   const digits = String(value).replace(/\D/g, "");
 
-  // 2. Si el usuario está escribiendo y no llegó a los 11 dígitos, 
+  // 2. Si el usuario está escribiendo y no llegó a los 11 dígitos,
   // no lo consideramos inválido aún (evita que titile en rojo desde cero)
-  if (digits.length < 11) return true; 
+  if (digits.length < 11) return true;
   if (digits.length > 11) return false;
 
   // 3. Pesos oficiales del algoritmo Módulo 11
   const weights = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
-  
+
   const sum = weights.reduce(
     (total, weight, index) => total + Number(digits[index]) * weight,
     0,
   );
-  
+
   const remainder = sum % 11;
   let checkDigit;
 
@@ -82,7 +78,7 @@ export const isValidCuit = (value = "") => {
     const prefix = digits.substring(0, 2);
     if (prefix === "23") {
       // Permitimos que pase tanto 9 como 4 si el prefijo ya cambió a 23
-      checkDigit = Number(digits[10]); 
+      checkDigit = Number(digits[10]);
     } else {
       checkDigit = 9; // Valor por defecto para remanentes mapeados
     }
@@ -216,8 +212,7 @@ export function validateDeportista(data, mode) {
     /*else if (!/^[a-zA-Z0-9]+$/.test(data.legajo.toString().trim())) {
       errors.legajo = "El legajo solo puede contener letras y números";
     }*/
-  }
-  else{
+  } else {
     if (data.vencimiento_ficha) {
       const fecha = new Date(data.vencimiento_ficha);
       const today = new Date();
@@ -229,7 +224,6 @@ export function validateDeportista(data, mode) {
       errors.vencimiento_ficha = "El vencimiento de ficha es obligatorio";
     }
   }
-
 
   return errors;
 }
@@ -259,7 +253,7 @@ export const isEndDateBeforeStartDate = (startDate, endDate) => {
 
   // Compara si la fecha final es estrictamente menor (anterior) a la inicial
   return end < start;
-}   
+};
 
 export const isPositiveNumber = (value) =>
   !isEmpty(value) && Number.isFinite(Number(value)) && Number(value) > 0;
@@ -276,7 +270,13 @@ const timeToMinutes = (timeStr) => {
   return hours * 60 + minutes;
 };
 
-export const validarSolapamiento = (nuevoInicio, nuevoFin, diaNuevo, horariosExistentes, idEnEdicion = null) => {
+export const validarSolapamiento = (
+  nuevoInicio,
+  nuevoFin,
+  diaNuevo,
+  horariosExistentes,
+  idEnEdicion = null,
+) => {
   const inicioMin = timeToMinutes(nuevoInicio);
   const finMin = timeToMinutes(nuevoFin);
 
@@ -284,7 +284,7 @@ export const validarSolapamiento = (nuevoInicio, nuevoFin, diaNuevo, horariosExi
     // Si estamos editando, ignoramos el horario que tiene el mismo ID que estamos modificando
     if (idEnEdicion && h.id === idEnEdicion) return false;
 
-    // Comparamos solo si es el mismo día 
+    // Comparamos solo si es el mismo día
     // (Asegúrate de cómo guardas el día, ej: h.dia vs diaNuevo)
     if (Number(h.dia) !== Number(diaNuevo)) return false;
 
@@ -294,10 +294,10 @@ export const validarSolapamiento = (nuevoInicio, nuevoFin, diaNuevo, horariosExi
     // Lógica de solapamiento de intervalos:
     // Un rango (inicioMin, finMin) se solapa con (hInicioMin, hFinMin) si:
     // El inicio del nuevo está dentro del existente, O el fin del nuevo está dentro, O envuelve al existente.
-    const seSolapa = 
+    const seSolapa =
       (inicioMin >= hInicioMin && inicioMin < hFinMin) || // Empieza dentro de otro
-      (finMin > hInicioMin && finMin <= hFinMin) ||       // Termina dentro de otro
-      (inicioMin <= hInicioMin && finMin >= hFinMin);     // Envuelve por completo a otro
+      (finMin > hInicioMin && finMin <= hFinMin) || // Termina dentro de otro
+      (inicioMin <= hInicioMin && finMin >= hFinMin); // Envuelve por completo a otro
 
     return seSolapa;
   });

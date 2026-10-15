@@ -87,6 +87,7 @@ export default function DialogServicios() {
             <Grid size={{ xs: 12 }} m={0}>
               <SAETextField
                 label={BS.fieldName}
+                required
                 value={dialogData.nombre ?? ""}
                 onChange={(event) =>
                   handleDialogChange("nombre", event.target.value)
@@ -99,6 +100,7 @@ export default function DialogServicios() {
             <Grid size={{ xs: 12, md: 6 }} m={0}>
               <SAETextField
                 label={BS.fieldPhone}
+                required
                 value={dialogData.nro_telefono ?? ""}
                 onChange={(event) =>
                   handleDialogChange(
@@ -129,6 +131,7 @@ export default function DialogServicios() {
             <Grid size={{ xs: 12 }} m={0}>
               <SAETextField
                 label={BS.fieldInstitutionalEmail}
+                required
                 value={dialogData.email_institucional ?? ""}
                 onChange={(event) =>
                   handleDialogChange("email_institucional", event.target.value)
@@ -141,6 +144,7 @@ export default function DialogServicios() {
             <Grid size={{ xs: 12, md: 6 }} m={0}>
               <SAETimeField
                 label={BS.fieldOpeningTime}
+                required
                 value={dialogData.horario_atencion}
                 onChange={(value) =>
                   handleDialogChange("horario_atencion", value)
@@ -156,6 +160,7 @@ export default function DialogServicios() {
             <Grid size={{ xs: 12, md: 6 }} m={0}>
               <SAETimeField
                 label={BS.fieldClosingTime}
+                required
                 value={dialogData.horario_atencion_final}
                 onChange={(value) =>
                   handleDialogChange("horario_atencion_final", value)

@@ -38,6 +38,7 @@ import SAESpinner from "../../../assets/components/spinner/SAESpinner";
 import HeaderPageEmployed from "../../../assets/components/headerPage/headerPageEmployed.jsx";
 import SAEDataGrid from "../../../assets/components/datagrid/SAEDataGrid";
 import DocumentPreviewDialog from "../../../assets/components/documents/DocumentPreviewDialog";
+import SAEDeleteDialog from "../../../assets/components/popUp/SAEDeleteDialog";
 import SAEPage from "../../../assets/components/page/SAEPage";
 
 import { digitsOnly } from "../../../utils/text.utils";
@@ -901,6 +902,7 @@ function TravelsDialog() {
 
 //Lo separe para que me sea mas coherente de programar
 function DocumentsDialog() {
+  const [deletingDocument, setDeletingDocument] = useState(false);
   const {
     docsViaje,
     docsViajeList,
@@ -934,6 +936,14 @@ function DocumentsDialog() {
   };
   const handleButtonClick = () => {
     fileInputRef.current.click();
+  };
+  const handleConfirmDelete = async () => {
+    setDeletingDocument(true);
+    try {
+      await handleDelete();
+    } finally {
+      setDeletingDocument(false);
+    }
   };
   return (
     <>
@@ -1129,36 +1139,14 @@ function DocumentsDialog() {
           </SAEButton>
         </DialogActions>
       </Dialog>
-      <Dialog open={openPopup} onClose={() => setOpenPopup(false)}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 600, p: 4 }}>
-          {C.travelDeleteDocs}
-        </Typography>
-
-        <DialogContent>
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            {C.travelWarningMsg}
-            {documentoAEliminar?.nombre_documento}
-          </Typography>
-        </DialogContent>
-
-        <DialogActions>
-          <SAEButton
-            onClick={() => setOpenPopup(false)}
-            autoFocus
-            color="outlined"
-            startIcon={<CloseIcon />}
-          >
-            {C.cancel}
-          </SAEButton>
-          <SAEButton
-            onClick={() => handleDelete(documentoAEliminar)}
-            autoFocus
-            color="error"
-          >
-            {C.delete}
-          </SAEButton>
-        </DialogActions>
-      </Dialog>
+      <SAEDeleteDialog
+        open={openPopup}
+        entityLabel="Documento"
+        itemName={documentoAEliminar?.nombre_documento}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setOpenPopup(false)}
+        loading={deletingDocument}
+      />
     </>
   );
 }
