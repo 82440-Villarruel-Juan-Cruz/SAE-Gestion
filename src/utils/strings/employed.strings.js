@@ -229,6 +229,15 @@ export const HEALTH_STRING = {
 };
 
 export const JPA_STRINGS = {
+  requiredField: "Este campo es obligatorio",
+  inputStarHour: "Ingresá la hora de inicio",
+  inputEndHour: "Ingresá la hora de fin",
+  inputEndHourAfterStart: "La hora de fin no puede ser anterior a la de inicio",
+  inputEventName: "Ingresá el nombre del evento",
+  inputEmail:"Ingresá un email.",
+  inputContact:"Ingresá un contacto.",
+  inputValidPhone:"Ingresá un teléfono válido.",
+
   headerMainTitle: "Módulo de JPA",
   headerMainSubtitle:
     "Gestión de eventos generales y Jornada de puertas abiertas",
@@ -245,7 +254,7 @@ export const JPA_STRINGS = {
   eventeDate: "Fecha del Evento",
   eventStartTime: "Hora inicio",
   eventEndTime: "Hora fin",
-
+eventUrlCheck: "La URL debe comenzar con http:// o https://",
   standDeleteConfirm: "Está seguro que quiere eliminar el stand:",
   standName: "Nombre del Stand",
   standNameFormat:
@@ -552,7 +561,8 @@ export const SPORTS_STRINGS = {
   scheduleValidationTeacher: "Seleccioná un docente",
   scheduleValidationConflictDay: "Revisá el día",
   scheduleValidationConflictTime: "Ya existe un horario con esos datos",
-  scheduleValidationConflictAssignment: "El espacio o docente ya tiene un horario superpuesto",
+  scheduleValidationConflictAssignment:
+    "El espacio o docente ya tiene un horario superpuesto",
 
   active: "Activo",
   inactive: "Desactivado",
@@ -561,7 +571,8 @@ export const SPORTS_STRINGS = {
   scheduleTeacher: "Docente Encargado",
 
   scheduleDelete: "Eliminar Horario",
-  scheduleDeleteWarning: "¿Estás seguro que querés eliminar este horario? Esta acción no se puede deshacer.",
+  scheduleDeleteWarning:
+    "¿Estás seguro que querés eliminar este horario? Esta acción no se puede deshacer.",
 
   cancel: "Cancelar",
   delete: "Eliminar",

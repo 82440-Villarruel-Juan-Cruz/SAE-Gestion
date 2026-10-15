@@ -30,6 +30,7 @@ export const ConsultationProvider = ({ children }) => {
     openDialog,
     dialogData,
     dialogMode,
+    handleDataChange,
     setDialogOpen,
     setDialogData,
     setDialogError,
@@ -39,6 +40,50 @@ export const ConsultationProvider = ({ children }) => {
   // Estados globales de Diálogo
 
   const [deleteId, setDeleteId] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  const resetValidation = useCallback(() => {
+    setFieldErrors({});
+  }, []);
+
+  const validateField = useCallback((field, value) => {
+    switch (field) {
+      case "titulo":
+        return isEmpty(value) ? C.errorName : "";
+      case "hipervinculo":
+        if (isEmpty(value)) return C.errorRequiredLink;
+        return isValidHyperlink(value) ? "" : C.errorLink;
+      default:
+        return "";
+    }
+  }, []);
+
+  const validateDialog = useCallback(
+    (data = dialogData) => {
+      const fields = ["titulo", "hipervinculo"];
+      const errors = fields.reduce((result, field) => {
+        const message = validateField(field, data[field]);
+        if (message) result[field] = message;
+        return result;
+      }, {});
+
+      setFieldErrors(errors);
+      setDialogError("");
+      return Object.keys(errors).length === 0;
+    },
+    [dialogData, setDialogError, validateField],
+  );
+
+  const handleDialogChange = useCallback(
+    (field, value) => {
+      handleDataChange(field, value);
+      setFieldErrors((previous) => ({
+        ...previous,
+        [field]: validateField(field, value),
+      }));
+    },
+    [handleDataChange, validateField],
+  );
 
   //Secciones linksFrecuentes
   //const [linksFrecuentes,setLinksFrecuentes] = useState([]);
@@ -63,8 +108,9 @@ export const ConsultationProvider = ({ children }) => {
   }, [fetchLinksFrecuentes]);
 
   const openCreatelinksFrecuentes = useCallback(() => {
+    resetValidation();
     openDialog("linkFrecuentes", "create", EMPTY_LINKFRECUENTE);
-  }, [openDialog]);
+  }, [openDialog, resetValidation]);
 
   const openDeleteLinksFrecuentes = useCallback(
     (row) => {
@@ -128,6 +174,8 @@ export const ConsultationProvider = ({ children }) => {
   }, [consultationActions]);
 
   const handleLinksFrecuentesSave = async () => {
+    if (!validateDialog()) return;
+
     setDialogSaving(true);
     setDialogError("");
     try {
@@ -153,6 +201,7 @@ export const ConsultationProvider = ({ children }) => {
       } else if (dialogMode === "edit") {
         throw new Error(C.errorNoUpdate);
       }
+      resetValidation();
       setDialogOpen(false);
       setDialogData(EMPTY_LINKFRECUENTE);
       fetchLinksFrecuentes();
@@ -196,6 +245,12 @@ export const ConsultationProvider = ({ children }) => {
         handleLinksFrecuentesSave,
         handleLinksFrecuenteDelete,
         linksFrecuentesIcons: LINK_FRECUENTE_ICONS,
+        fieldErrors,
+        setFieldErrors,
+        validateField,
+        validateDialog,
+        handleDialogChange,
+        resetValidation,
       }}
     >
       {children}

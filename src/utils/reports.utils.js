@@ -52,6 +52,31 @@ export const getMonthsBetween = (from, to) => {
   return months;
 };
 
+export const getYearFromMonth = (monthValue) =>
+  Number(String(monthValue).slice(0, 4));
+
+export const getDateRangeFromMonths = (from, to) => {
+  const [fromYear] = String(from).split("-").map(Number);
+  const [toYear, toMonth] = String(to).split("-").map(Number);
+
+  if (
+    !Number.isFinite(fromYear) ||
+    !Number.isFinite(toYear) ||
+    !Number.isFinite(toMonth)
+  ) {
+    return null;
+  }
+
+  const lastDay = new Date(toYear, toMonth, 0).getDate();
+
+  return {
+    startDate: `${from}-01`,
+    endDate: `${to}-${String(lastDay).padStart(2, "0")}`,
+    startYear: fromYear,
+    endYear: toYear,
+  };
+};
+
 export const formatPeriodLabel = (from, to) => {
   const formatValue = (value) => {
     const [year, month] = String(value).split("-").map(Number);

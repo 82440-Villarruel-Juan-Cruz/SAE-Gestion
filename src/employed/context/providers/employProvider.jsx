@@ -37,7 +37,6 @@ import {
   EMPTY_EMPLEADO,
 } from "../../../utils/common/common.config.js";
 import { USER_STRINGS } from "../../../utils/strings/employed.strings.js";
-import { isEmpty } from "../../../utils/text.utils.js";
 import {
   isNumberN0,
   isPositiveNumber,
@@ -46,14 +45,18 @@ import {
   validarSolapamiento,
   validateNombreApellido,
 } from "../../../utils/validation.utils.js";
-import { buildEmployeeLegajo, normalizeCareerValue } from "../../../utils/formatters.utils.js";
+import { buildEmployeeLegajo } from "../../../utils/formatters.utils.js";
+import {
+  isEmpty,
+  normalizeText,
+} from "../../../utils/text.utils.js";
 
 const C = USER_STRINGS;
 
 const mapCareerWithLoginCareer = (backendCareer) => {
-  const backendCareerName = normalizeCareerValue(backendCareer?.nombre);
+  const backendCareerName = normalizeText(backendCareer?.nombre);
   const loginCareer = loginCarreras.find((career) =>
-    backendCareerName.includes(normalizeCareerValue(career.value)),
+    backendCareerName.includes(normalizeText(career.value)),
   );
 
   return {
@@ -62,15 +65,7 @@ const mapCareerWithLoginCareer = (backendCareer) => {
   };
 };
 
-
 const ALLOWED_EMPLOYEE_PROFILE_NAMES = ["empleado sae", "administrador"];
-
-const normalizeProfileName = (value = "") =>
-  String(value)
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
 
 export const AdminUsersProvider = ({ children }) => {
   // Estados globales de Diálogo compartidos por ambas secciones
@@ -117,7 +112,7 @@ export const AdminUsersProvider = ({ children }) => {
             (perfil) =>
               Number(perfil.id) === Number(value) &&
               ALLOWED_EMPLOYEE_PROFILE_NAMES.includes(
-                normalizeProfileName(perfil.nombre),
+                normalizeText(perfil.nombre),
               ),
           )
         ) {

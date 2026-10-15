@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   Alert,
   Box,
@@ -40,23 +40,9 @@ import HeaderPageEmployed from "../../../assets/components/headerPage/headerPage
 import { CONSULTATION_FAQS,QUICK_CONSULTATION_FAQS,SAE_EMAIL } from "../../../utils/common/common.config";
 import { CONSULTATIONS_STRINGS } from "../../../utils/strings/employed.strings";
 import { getDialogTitle } from "../../../utils/util";
-import { isValidHyperlink } from "../../../utils/validation.utils";
-import { isEmpty } from "../../../utils/text.utils";
 
 
 const C = CONSULTATIONS_STRINGS;
-const validateLinkField = (field, value) => {
-  switch (field) {
-    case "titulo":
-      return isEmpty(value) ? C.errorName : "";
-    case "hipervinculo":
-      if (isEmpty(value)) return C.errorRequiredLink;
-      return isValidHyperlink(value) ? "" : C.errorLink;
-    default:
-      return "";
-  }
-};
-
 function EmployedContent() {
   const {
     // ABM Link Frecuentes
@@ -169,7 +155,6 @@ function DialogConsultation() {
     dialogError,
     dialogSaving,
     setDialogError,
-    handleDataChange,
     closeDialog,
   } = useNotification();
 
@@ -177,14 +162,10 @@ function DialogConsultation() {
     handleLinksFrecuentesSave,
     handleLinksFrecuenteDelete,
     linksFrecuentesIcons,
+    fieldErrors,
+    handleDialogChange,
+    resetValidation,
   } = useConsultations();
-  const validationKey = `${dialogType}-${dialogMode}-${dialogOpen}`;
-  const [fieldValidation, setFieldValidation] = useState({
-    key: validationKey,
-    errors: {},
-  });
-  const fieldErrors =
-    fieldValidation.key === validationKey ? fieldValidation.errors : {};
 
   const selectedDialogIcon = useMemo(() => {
     const iconIndex = Number(dialogData?.id_index_ico) || 0;
@@ -197,40 +178,13 @@ function DialogConsultation() {
   const SelectedDialogIcon = selectedDialogIcon.icon;
   const hasFieldErrors = Object.values(fieldErrors).some(Boolean);
 
-  const handleLinkFieldChange = (field, value) => {
-    handleDataChange(field, value);
-    setFieldValidation((previous) => ({
-      key: validationKey,
-      errors: {
-        ...(previous.key === validationKey ? previous.errors : {}),
-        [field]: validateLinkField(field, value),
-      },
-    }));
-  };
-
-  const validateLinkDialog = () => {
-    const fields = ["titulo", "hipervinculo"];
-    const errors = fields.reduce((result, field) => {
-      const message = validateLinkField(field, dialogData[field]);
-      if (message) result[field] = message;
-      return result;
-    }, {});
-
-    setFieldValidation({
-      key: validationKey,
-      errors,
-    });
-
-    return Object.keys(errors).length === 0;
-  };
-
   const handleSaveLinkFrecuente = () => {
-    if (!validateLinkDialog()) {
-      setDialogError("");
-      return;
-    }
-
     handleLinksFrecuentesSave();
+  };
+
+  const handleClose = () => {
+    resetValidation();
+    closeDialog();
   };
 
   // Cada nueva tabla puede agregar aquí su entidad, nombre y método de borrado.
@@ -252,7 +206,7 @@ function DialogConsultation() {
         itemName={config.itemName}
         itemId={dialogData?.id}
         onConfirm={config.onConfirm}
-        onClose={closeDialog}
+        onClose={handleClose}
         loading={dialogSaving}
         error={dialogError}
         onClearError={() => setDialogError("")}
@@ -263,7 +217,7 @@ function DialogConsultation() {
   return (
     <>
       {dialogOpen && dialogType === "linkFrecuentes" && (
-        <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
+        <Dialog open={dialogOpen} onClose={handleClose} maxWidth="sm" fullWidth>
           <DialogTitle
             sx={{
               display: "flex",
@@ -278,7 +232,7 @@ function DialogConsultation() {
             >
               {getDialogTitle("Link Frecuente", dialogMode)}
             </Typography>
-            <IconButton onClick={closeDialog} size="small">
+            <IconButton onClick={handleClose} size="small">
               <CloseIcon />
             </IconButton>
           </DialogTitle>
@@ -297,7 +251,7 @@ function DialogConsultation() {
                         type="number"
                         fullWidth
                         value={dialogData.id}
-                        onChange={(e) => handleDataChange("id", e.target.value)}
+                        onChange={(e) => handleDialogChange("id", e.target.value)}
                         disabled={true}
                       />
                     </Grid>
@@ -307,7 +261,7 @@ function DialogConsultation() {
                         label={C.formTitle}
                         value={dialogData.titulo}
                         onChange={(e) =>
-                          handleLinkFieldChange("titulo", e.target.value)
+                          handleDialogChange("titulo", e.target.value)
                         }
                         error={Boolean(fieldErrors.titulo)}
                         helperText={fieldErrors.titulo ?? ""}
@@ -320,7 +274,7 @@ function DialogConsultation() {
                         label={C.formLink}
                         value={dialogData.hipervinculo}
                         onChange={(e) =>
-                          handleLinkFieldChange("hipervinculo", e.target.value)
+                          handleDialogChange("hipervinculo", e.target.value)
                         }
                         error={Boolean(fieldErrors.hipervinculo)}
                         helperText={fieldErrors.hipervinculo ?? ""}
@@ -338,7 +292,7 @@ function DialogConsultation() {
                           label={C.formIcon}
                           value={Number(dialogData.id_index_ico) || 0}
                           onChange={(e) =>
-                            handleDataChange("id_index_ico", e.target.value)
+                            handleDialogChange("id_index_ico", e.target.value)
                           }
                           renderValue={() => {
                             const Icon = selectedDialogIcon.icon;
@@ -439,7 +393,7 @@ function DialogConsultation() {
           <DialogActions sx={{ px: 3, pb: 2 }}>
             <SAEButton
               variant="outlined"
-              onClick={closeDialog}
+              onClick={handleClose}
               disabled={dialogSaving}
               startIcon={<CloseIcon />}
             >

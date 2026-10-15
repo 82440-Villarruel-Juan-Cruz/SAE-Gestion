@@ -20,7 +20,7 @@ import AddIcon from "@mui/icons-material/Add";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 
 import SAEButton from "../../../assets/components/buttons/SAEButton";
-import HeaderPageEmployed from "../../../assets/components/headerPage/headerPageEmployed.jsx"; 
+import HeaderPageEmployed from "../../../assets/components/headerPage/headerPageEmployed.jsx";
 import SAETextField from "../../../assets/components/inputs/SAETextField";
 import SAETimeField from "../../../assets/components/inputs/SAETimeField";
 import SAEPage from "../../../assets/components/page/SAEPage";
@@ -104,6 +104,7 @@ function EmployedJPAContent() {
     loadingInteresados,
     openCreateInteresados,
   } = useJPA();
+  const { dialogOpen, dialogType } = useNotification();
 
   const sectionConfig = useMemo(
     () => ({
@@ -187,7 +188,10 @@ function EmployedJPAContent() {
         sectionConfig={sectionConfig}
         currentSection={currentSection}
       />
-      <DialogJpa />
+      {dialogOpen &&
+        ["eventoPublico", "eventosInternos", "stands", "interesados"].includes(
+          dialogType,
+        ) && <DialogJpa />}
     </SAEPage>
   );
 }
@@ -202,7 +206,6 @@ function DialogJpa() {
     dialogSaving,
     setDialogError,
     closeDialog,
-    handleDataChange
   } = useNotification();
 
   const {
@@ -211,9 +214,7 @@ function DialogJpa() {
     handleStandSave,
     handleInteresadoSave,
     fieldErrors,
-    setTouchedFields,
-    setFieldErrors,
-    validateField
+    handleValidatedDataChange,
   } = useJPA();
 
   const fieldProps = (field) => ({
@@ -221,6 +222,10 @@ function DialogJpa() {
     helperText: fieldErrors[field] ?? "",
   });
   const hasFieldErrors = Object.values(fieldErrors).some(Boolean);
+  const handleClose = () => {
+    setDialogError("");
+    closeDialog();
+  };
 
   // Configuración del diálogo de eliminación según el tipo de entidad seleccionado.
   // Cada clave debe coincidir con el valor guardado en `dialogType`.
@@ -260,7 +265,7 @@ function DialogJpa() {
         itemName={config.itemName}
         itemId={dialogData?.id}
         onConfirm={config.onConfirm}
-        onClose={closeDialog}
+        onClose={handleClose}
         loading={dialogSaving}
         error={dialogError}
         onClearError={() => setDialogError("")}
@@ -271,7 +276,7 @@ function DialogJpa() {
   return (
     <>
       {dialogOpen && dialogType === "eventoPublico" && (
-        <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
+        <Dialog open={dialogOpen} onClose={handleClose} maxWidth="sm" fullWidth>
           <DialogTitle
             sx={{
               display: "flex",
@@ -286,7 +291,7 @@ function DialogJpa() {
             >
               {getDialogTitle("Evento Publico", dialogMode)}
             </Typography>
-            <IconButton onClick={closeDialog} size="small">
+            <IconButton onClick={handleClose} size="small">
               <CloseIcon />
             </IconButton>
           </DialogTitle>
@@ -315,31 +320,28 @@ function DialogJpa() {
                         <SAETextField
                           label={C.eventID}
                           type="number"
-                          value={dialogData.id||""}
+                          fullWidth
+                          value={dialogData.id}
+                          onChange={(e) =>
+                            handleValidatedDataChange("id", e.target.value)
+                          }
                           disabled={true}
-                          onChange={(e) => handleDataChange("id", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })
-                        }
-                        fullWidth
-                        error={Boolean(fieldErrors.apellidos)}
-                        helperText={fieldErrors.apellidos ?? ""}
-                        required
+                          error={Boolean(fieldErrors.apellidos)}
+                          helperText={fieldErrors.apellidos ?? ""}
+                          required
                         />
                       </Grid>
                     )}
-                    <Grid size={{ xs: 12, md: dialogMode === "edit" ? 9 : 12 }} m={0}>
+                    <Grid
+                      size={{ xs: 12, md: dialogMode === "edit" ? 9 : 12 }}
+                      m={0}
+                    >
                       <SAETextField
                         label={C.eventManager}
-                        value={dialogData.encargado||""}
+                        value={dialogData.encargado || ""}
                         onChange={(e) =>
-                          handleDataChange("encargado", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                          handleValidatedDataChange("encargado", e.target.value)
+                        }
                         {...fieldProps("encargado")}
                         required
                         fullWidth
@@ -349,25 +351,20 @@ function DialogJpa() {
 
                   <SAETextField
                     label={C.eventName}
-                    value={dialogData.nombre_evento||""}
+                    value={dialogData.nombre_evento || ""}
                     onChange={(e) =>
-                      handleDataChange("nombre_evento", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                      handleValidatedDataChange("nombre_evento", e.target.value)
+                    }
                     {...fieldProps("nombre_evento")}
                     required
                     fullWidth
                   />
                   <SAETextField
                     label={C.eventURL}
-                    value={dialogData.lugar||""}
-                    onChange={(e) => handleDataChange("lugar", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                    value={dialogData.lugar}
+                    onChange={(e) =>
+                      handleValidatedDataChange("lugar", e.target.value)
+                    }
                     {...fieldProps("lugar")}
                     required
                     fullWidth
@@ -378,13 +375,10 @@ function DialogJpa() {
                   <SAETextField
                     label={C.eventeDate}
                     type="date"
-                    value={dialogData.fecha_evento||""}
+                    value={dialogData.fecha_evento || ""}
                     onChange={(e) =>
-                      handleDataChange("fecha_evento", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                      handleValidatedDataChange("fecha_evento", e.target.value)
+                    }
                     {...fieldProps("fecha_evento")}
                     required
                     fullWidth
@@ -394,9 +388,9 @@ function DialogJpa() {
                     <Grid size={{ xs: 12, md: 6 }}>
                       <SAETimeField
                         label={C.eventStartTime}
-                        value={ toTimeInput(dialogData?.horario_inicio)||"" }
+                        value={toTimeInput(dialogData?.horario_inicio) || ""}
                         onChange={(value) =>
-                          handleDataChange("horario_inicio", value)
+                          handleValidatedDataChange("horario_inicio", value)
                         }
                         {...fieldProps("horario_inicio")}
                         required
@@ -409,9 +403,9 @@ function DialogJpa() {
                     <Grid size={{ xs: 12, md: 6 }}>
                       <SAETimeField
                         label={C.eventEndTime}
-                        value={toTimeInput(dialogData?.horario_fin)||"" }
+                        value={toTimeInput(dialogData?.horario_fin) || ""}
                         onChange={(value) =>
-                          handleDataChange("horario_fin", value)
+                          handleValidatedDataChange("horario_fin", value)
                         }
                         {...fieldProps("horario_fin")}
                         required
@@ -429,7 +423,7 @@ function DialogJpa() {
           <DialogActions sx={{ px: 3, pb: 2 }}>
             <SAEButton
               variant="outlined"
-              onClick={closeDialog}
+              onClick={handleClose}
               disabled={dialogSaving}
               startIcon={<CloseIcon />}
             >
@@ -460,7 +454,7 @@ function DialogJpa() {
       )}
       {/*       SECCION EVENTO SAE     */}
       {dialogOpen && dialogType === "eventosInternos" && (
-        <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
+        <Dialog open={dialogOpen} onClose={handleClose} maxWidth="sm" fullWidth>
           <DialogTitle
             sx={{
               display: "flex",
@@ -475,7 +469,7 @@ function DialogJpa() {
             >
               {getDialogTitle("Evento SAE", dialogMode)}
             </Typography>
-            <IconButton onClick={closeDialog} size="small">
+            <IconButton onClick={handleClose} size="small">
               <CloseIcon />
             </IconButton>
           </DialogTitle>
@@ -505,26 +499,24 @@ function DialogJpa() {
                           label={C.eventID}
                           type="number"
                           fullWidth
-                          value={dialogData.id||""}
-                          onChange={(e) => handleDataChange("id", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                          value={dialogData.id}
+                          onChange={(e) =>
+                            handleValidatedDataChange("id", e.target.value)
+                          }
                           disabled={true}
                         />
                       </Grid>
                     )}
-                    <Grid size={{ xs: 12, md: dialogMode === "edit" ? 9 : 12 }} m={0}>
+                    <Grid
+                      size={{ xs: 12, md: dialogMode === "edit" ? 9 : 12 }}
+                      m={0}
+                    >
                       <SAETextField
                         label={C.eventManager}
-                        value={dialogData.encargado||""}
+                        value={dialogData.encargado || ""}
                         onChange={(e) =>
-                          handleDataChange("encargado", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                          handleValidatedDataChange("encargado", e.target.value)
+                        }
                         {...fieldProps("encargado")}
                         required
                         fullWidth
@@ -534,25 +526,20 @@ function DialogJpa() {
 
                   <SAETextField
                     label={C.eventName}
-                    value={dialogData.nombre_evento||""}
+                    value={dialogData.nombre_evento || ""}
                     onChange={(e) =>
-                      handleDataChange("nombre_evento", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                      handleValidatedDataChange("nombre_evento", e.target.value)
+                    }
                     {...fieldProps("nombre_evento")}
                     required
                     fullWidth
                   />
                   <SAETextField
                     label={C.eventURL}
-                    value={dialogData.lugar||""}
-                    onChange={(e) => handleDataChange("lugar", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                    value={dialogData.lugar}
+                    onChange={(e) =>
+                      handleValidatedDataChange("lugar", e.target.value)
+                    }
                     {...fieldProps("lugar")}
                     required
                     fullWidth
@@ -563,13 +550,10 @@ function DialogJpa() {
                   <SAETextField
                     label={C.eventeDate}
                     type="date"
-                    value={dialogData.fecha_evento||""}
+                    value={dialogData.fecha_evento || ""}
                     onChange={(e) =>
-                      handleDataChange("fecha_evento", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                      handleValidatedDataChange("fecha_evento", e.target.value)
+                    }
                     {...fieldProps("fecha_evento")}
                     required
                     fullWidth
@@ -579,9 +563,9 @@ function DialogJpa() {
                     <Grid size={{ xs: 12, md: 6 }}>
                       <SAETimeField
                         label={C.eventStartTime}
-                        value={ toTimeInput(dialogData?.horario_inicio)||""   }
+                        value={toTimeInput(dialogData?.horario_inicio) || ""}
                         onChange={(value) =>
-                          handleDataChange("horario_inicio", value)
+                          handleValidatedDataChange("horario_inicio", value)
                         }
                         {...fieldProps("horario_inicio")}
                         required
@@ -594,9 +578,9 @@ function DialogJpa() {
                     <Grid size={{ xs: 12, md: 6 }}>
                       <SAETimeField
                         label={C.eventEndTime}
-                        value={ toTimeInput(dialogData?.horario_fin)||"" }
+                        value={toTimeInput(dialogData?.horario_fin) || ""}
                         onChange={(value) =>
-                          handleDataChange("horario_fin", value)
+                          handleValidatedDataChange("horario_fin", value)
                         }
                         {...fieldProps("horario_fin")}
                         required
@@ -614,7 +598,7 @@ function DialogJpa() {
           <DialogActions sx={{ px: 3, pb: 2 }}>
             <SAEButton
               variant="outlined"
-              onClick={closeDialog}
+              onClick={handleClose}
               disabled={dialogSaving}
               startIcon={<CloseIcon />}
             >
@@ -645,7 +629,7 @@ function DialogJpa() {
       )}
       {/*       SECCION STANDS        */}
       {dialogOpen && dialogType === "stands" && (
-        <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
+        <Dialog open={dialogOpen} onClose={handleClose} maxWidth="sm" fullWidth>
           <DialogTitle
             sx={{
               display: "flex",
@@ -660,7 +644,7 @@ function DialogJpa() {
             >
               {getDialogTitle("Puesto", dialogMode)}
             </Typography>
-            <IconButton onClick={closeDialog} size="small">
+            <IconButton onClick={handleClose} size="small">
               <CloseIcon />
             </IconButton>
           </DialogTitle>
@@ -690,26 +674,24 @@ function DialogJpa() {
                           label={C.eventID}
                           type="number"
                           fullWidth
-                          value={dialogData.id||""}
-                          onChange={(e) => handleDataChange("id", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                          value={dialogData.id}
+                          onChange={(e) =>
+                            handleValidatedDataChange("id", e.target.value)
+                          }
                           disabled={true}
                         />
                       </Grid>
                     )}
-                    <Grid size={{ xs: 12, md: dialogMode === "edit" ? 9 : 12 }} m={0}>
+                    <Grid
+                      size={{ xs: 12, md: dialogMode === "edit" ? 9 : 12 }}
+                      m={0}
+                    >
                       <SAETextField
                         label={C.standExpo}
-                        value={dialogData.expositor||""}
+                        value={dialogData.expositor || ""}
                         onChange={(e) =>
-                          handleDataChange("expositor", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                          handleValidatedDataChange("expositor", e.target.value)
+                        }
                         {...fieldProps("expositor")}
                         required
                         fullWidth
@@ -719,26 +701,20 @@ function DialogJpa() {
 
                   <SAETextField
                     label={C.standName}
-                    value={dialogData.nombre_stand||""}
+                    value={dialogData.nombre_stand || ""}
                     onChange={(e) =>
-                      handleDataChange("nombre_stand", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                      handleValidatedDataChange("nombre_stand", e.target.value)
+                    }
                     {...fieldProps("nombre_stand")}
                     required
                     fullWidth
                   />
                   <SAETextField
                     label={C.standUbi}
-                    value={dialogData.ubicacion||""}
+                    value={dialogData.ubicacion || ""}
                     onChange={(e) =>
-                      handleDataChange("ubicacion", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                      handleValidatedDataChange("ubicacion", e.target.value)
+                    }
                     {...fieldProps("ubicacion")}
                     required
                     fullWidth
@@ -747,9 +723,9 @@ function DialogJpa() {
                     <Grid size={{ xs: 12, md: 6 }}>
                       <SAETimeField
                         label={C.eventStartTime}
-                        value={toTimeInput(dialogData?.horario_inicio)||""  }
+                        value={toTimeInput(dialogData?.horario_inicio) || ""}
                         onChange={(value) =>
-                          handleDataChange("horario_inicio", value)
+                          handleValidatedDataChange("horario_inicio", value)
                         }
                         {...fieldProps("horario_inicio")}
                         required
@@ -762,9 +738,9 @@ function DialogJpa() {
                     <Grid size={{ xs: 12, md: 6 }}>
                       <SAETimeField
                         label={C.eventEndTime}
-                        value={ toTimeInput(dialogData?.horario_fin)||""}
+                        value={toTimeInput(dialogData?.horario_fin) || ""}
                         onChange={(value) =>
-                          handleDataChange("horario_fin", value)
+                          handleValidatedDataChange("horario_fin", value)
                         }
                         {...fieldProps("horario_fin")}
                         required
@@ -782,7 +758,7 @@ function DialogJpa() {
           <DialogActions sx={{ px: 3, pb: 2 }}>
             <SAEButton
               variant="outlined"
-              onClick={closeDialog}
+              onClick={handleClose}
               disabled={dialogSaving}
               startIcon={<CloseIcon />}
             >
@@ -803,7 +779,7 @@ function DialogJpa() {
               }
             >
               {dialogMode === "create"
-                ?  C.create
+                ? C.create
                 : dialogMode === "delete"
                   ? C.delete
                   : C.save}
@@ -813,7 +789,7 @@ function DialogJpa() {
       )}
       {/*      SECCION INTERESADOS    */}
       {dialogOpen && dialogType === "interesados" && (
-        <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
+        <Dialog open={dialogOpen} onClose={handleClose} maxWidth="sm" fullWidth>
           <DialogTitle
             sx={{
               display: "flex",
@@ -828,7 +804,7 @@ function DialogJpa() {
             >
               {getDialogTitle("Interesado", dialogMode)}
             </Typography>
-            <IconButton onClick={closeDialog} size="small">
+            <IconButton onClick={handleClose} size="small">
               <CloseIcon />
             </IconButton>
           </DialogTitle>
@@ -858,26 +834,27 @@ function DialogJpa() {
                           label={C.eventID}
                           type="number"
                           fullWidth
-                          value={dialogData.id||""}
-                          onChange={(e) => handleDataChange("id", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                          value={dialogData.id}
+                          onChange={(e) =>
+                            handleValidatedDataChange("id", e.target.value)
+                          }
                           disabled={true}
                         />
                       </Grid>
                     )}
-                    <Grid size={{ xs: 12, md: dialogMode === "edit" ? 9 : 12 }} m={0}>
+                    <Grid
+                      size={{ xs: 12, md: dialogMode === "edit" ? 9 : 12 }}
+                      m={0}
+                    >
                       <SAETextField
                         label={C.interestName}
-                        value={dialogData.nombre_interesado||""}
+                        value={dialogData.nombre_interesado || ""}
                         onChange={(e) =>
-                          handleDataChange("nombre_interesado", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                          handleValidatedDataChange(
+                            "nombre_interesado",
+                            e.target.value,
+                          )
+                        }
                         {...fieldProps("nombre_interesado")}
                         required
                         fullWidth
@@ -886,25 +863,20 @@ function DialogJpa() {
                   </Grid>
                   <SAETextField
                     label={C.interestPhone}
-                    value={dialogData.contacto||""}
+                    value={dialogData.contacto || ""}
                     onChange={(e) =>
-                      handleDataChange("contacto", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                      handleValidatedDataChange("contacto", e.target.value)
+                    }
                     {...fieldProps("contacto")}
                     required
                     fullWidth
                   />
                   <SAETextField
                     label={C.interestEmail}
-                    value={dialogData.email||""}
-                    onChange={(e) => handleDataChange("email", e.target.value, {
-                            setTouched: setTouchedFields,
-                            setErrors: setFieldErrors,
-                            validateFn: validateField,
-                          })}
+                    value={dialogData.email}
+                    onChange={(e) =>
+                      handleValidatedDataChange("email", e.target.value)
+                    }
                     {...fieldProps("email")}
                     required
                     fullWidth
@@ -916,7 +888,7 @@ function DialogJpa() {
           <DialogActions sx={{ px: 3, pb: 2 }}>
             <SAEButton
               variant="outlined"
-              onClick={closeDialog}
+              onClick={handleClose}
               disabled={dialogSaving}
               startIcon={<CloseIcon />}
             >

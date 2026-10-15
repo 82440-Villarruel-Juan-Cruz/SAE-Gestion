@@ -8,10 +8,9 @@ import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import * as api from "../../../api/DeporteService";
 import { ObtenerUsuariosXLegajo } from "../../../api/EmpleadoService.js";
 import {
-  validateDeporte,
-  validateDeportista,
-  validateDocente,
-  validateEspacio,
+  validateCuil,
+  validateFechaNacimiento,
+  validateNombreApellido,
 } from "../../../utils/validation.utils.js";
 
 import { SportsContext } from "../employedContext";
@@ -25,7 +24,10 @@ import {
   normalizeDateInput,
   toApiDateTime,
 } from "../../../utils/date.utils.js";
-import { buildDownloadFileName } from "../../../utils/documents.utils.js";
+import {
+  buildDownloadFileName,
+  getDownloadedDocumentName,
+} from "../../../utils/documents.utils.js";
 
 //Luis me gano, lo voy a dejar asi hasta que nos de ganas de hacerlo de 0
 const generateSportsColumns = (
@@ -65,15 +67,6 @@ const generateSportsColumns = (
 
 const C = SPORTS_STRINGS;
 
-const getDownloadedDocumentName = (downloadedName, listName) => {
-  const normalizedDownloadedName = String(downloadedName ?? "").trim();
-  const normalizedListName = String(listName ?? "").trim();
-
-  return normalizedDownloadedName &&
-    normalizedDownloadedName.toLowerCase() !== "documento"
-    ? normalizedDownloadedName
-    : normalizedListName;
-};
 
 export function SportsProvider({ children, autoLoad = true }) {
   const navigate = useNavigate();
@@ -334,14 +327,148 @@ export function SportsProvider({ children, autoLoad = true }) {
     }
   }, []);
 
+  const validateField = useCallback(
+    (field, value, data = dialogData) => {
+      const text = String(value ?? "").trim();
+
+      switch (field) {
+        case "cuil":
+          if (dialogMode !== "create") return "";
+          if (!text) return "El CUIL es obligatorio";
+          return validateCuil(text) ? "" : "El CUIL ingresado no es válido";
+
+        case "nombres":
+          return validateNombreApellido(text, "El nombre") || "";
+
+        case "apellidos":
+          return validateNombreApellido(text, "El apellido") || "";
+
+        case "fecha_nacimiento":
+          return validateFechaNacimiento(value) || "";
+
+        case "nombre":
+          if (!text) {
+            return dialogType === "deporte"
+              ? "El nombre del deporte es obligatorio"
+              : "El nombre es obligatorio";
+          }
+          return text.length < 2 ? "Debe tener al menos 2 caracteres" : "";
+
+        case "domicilio":
+          if (!text) return "El domicilio es obligatorio";
+          return text.length < 5 ? "Ingresá un domicilio válido" : "";
+
+        case "url_maps":
+          if (!text) return "";
+          try {
+            const url = new URL(text);
+            return ["http:", "https:"].includes(url.protocol)
+              ? ""
+              : "La URL debe comenzar con http:// o https://";
+          } catch {
+            return "La URL ingresada no es válida";
+          }
+
+        case "legajo":
+          if (dialogMode !== "create") return "";
+          if (!text) return "El legajo es obligatorio";
+          return String(data.nombre_deportista ?? "").trim()
+            ? ""
+            : "Seleccioná un alumno mediante el buscador";
+
+        case "vencimiento_ficha": {
+          if (dialogMode === "create") return "";
+          if (!value) return "El vencimiento de ficha es obligatorio";
+          const fecha = new Date(value);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          return fecha < today ? "La ficha ya está vencida" : "";
+        }
+
+        default:
+          return "";
+      }
+    },
+    [dialogData, dialogMode, dialogType],
+  );
+
+  const getRequiredFields = useCallback(
+    (type, mode = dialogMode) => {
+      const fieldsByType = {
+        docente:
+          mode === "create"
+            ? ["cuil", "nombres", "apellidos", "fecha_nacimiento"]
+            : ["nombres", "apellidos", "fecha_nacimiento"],
+        espacio: ["nombre", "domicilio", "url_maps"],
+        deportista:
+          mode === "create" ? ["legajo"] : ["vencimiento_ficha"],
+        deporte: ["nombre"],
+      };
+
+      return fieldsByType[type] || [];
+    },
+    [dialogMode],
+  );
+
+  const validateDialog = useCallback(
+    (type) => {
+      const errors = getRequiredFields(type).reduce((acc, field) => {
+        const message = validateField(field, dialogData[field], dialogData);
+        if (message) acc[field] = message;
+        return acc;
+      }, {});
+
+      setDialogFieldErrors(errors);
+
+      if (Object.keys(errors).length) {
+        setDialogError("Revisá los campos marcados antes de guardar.");
+        return false;
+      }
+
+      setDialogError("");
+      return true;
+    },
+    [dialogData, getRequiredFields, setDialogError, validateField],
+  );
+
   const handleDialogChange = useCallback(
     (field, value) => {
+      const nextData = { ...dialogData, [field]: value };
+      const message = validateField(field, value, nextData);
+
       handleDataChange(field, value);
-      setDialogFieldErrors((x) =>
-        x[field] ? { ...x, [field]: undefined } : x,
-      );
+      setDialogFieldErrors((currentErrors) => {
+        const nextErrors = { ...currentErrors };
+
+        if (message) {
+          nextErrors[field] = message;
+        } else {
+          delete nextErrors[field];
+        }
+
+        if (
+          field === "nombre_deportista" &&
+          String(value ?? "").trim() &&
+          currentErrors.legajo
+        ) {
+          delete nextErrors.legajo;
+        } else if (field === "nombre_deportista" && currentErrors.legajo) {
+          const legajoError = validateField(
+            "legajo",
+            nextData.legajo,
+            nextData,
+          );
+          if (legajoError) {
+            nextErrors.legajo = legajoError;
+          } else {
+            delete nextErrors.legajo;
+          }
+        }
+
+        return nextErrors;
+      });
     },
-    [handleDataChange],
+    [dialogData, handleDataChange, validateField],
   );
 
   const buscarAlumnoPorLegajo = useCallback(async (legajo) => {
@@ -425,17 +552,8 @@ export function SportsProvider({ children, autoLoad = true }) {
   ]);
 
   const handleDialogSave = useCallback(() => {
-    const validators = {
-      docente: () => validateDocente(dialogData, dialogMode),
-      espacio: () => validateEspacio(dialogData),
-      deportista: () => validateDeportista(dialogData, dialogMode),
-      deporte: () => validateDeporte(dialogData),
-    };
-    const errors = validators[dialogType]?.() || {};
-    setDialogFieldErrors(errors);
-    setDialogError("");
-    if (!Object.keys(errors).length) executeSave();
-  }, [dialogData, dialogMode, dialogType, executeSave, setDialogError]);
+    if (validateDialog(dialogType)) executeSave();
+  }, [dialogType, executeSave, validateDialog]);
 
   //#region Inscripcion a Deportes
 

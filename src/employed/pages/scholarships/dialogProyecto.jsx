@@ -1,11 +1,9 @@
-import { useState } from "react";
 import {
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Divider,
   FormControlLabel,
   Grid,
   IconButton,
@@ -22,8 +20,6 @@ import { useScholarships } from "../../context/employedContext";
 import { useNotification } from "../../../shared/context/sharedContext";
 import { getDialogTitle } from "../../../utils/util";
 import { BECAS_STRINGS } from "../../../utils/strings/employed.strings";
-import { isEmpty } from "../../../utils/text.utils";
-import { isValidText } from "../../../utils/validation.utils";
 
 const BS = BECAS_STRINGS.projectDialog;
 
@@ -34,58 +30,18 @@ export default function DialogProyecto() {
     dialogType,
     dialogMode,
     dialogSaving,
-    handleDataChange,
     closeDialog,
   } = useNotification();
-  const { handleSaveProyecto } = useScholarships();
-  const [fieldErrors, setFieldErrors] = useState({});
+  const {
+    fieldErrors,
+    handleDialogChange,
+    handleSaveProyecto,
+    resetValidation,
+  } = useScholarships();
 
   const open = dialogOpen && dialogType === "proyectos";
 
-  const resetValidation = () => {
-    setFieldErrors({});
-  };
-
-  const validateField = (field, value) => {
-    switch (field) {
-      case "nombre_proyecto_investigacion":
-        if (isEmpty(value)) return BS.validationName;
-        return isValidText(value) ? "" : BS.validationNameFormat;
-      case "centro_investigacion":
-        if (isEmpty(value)) return BS.validationResearchCenter;
-        return isValidText(value) ? "" : BS.validationResearchCenterFormat;
-      default:
-        return "";
-    }
-  };
-
-  const handleFieldChange = (field, value) => {
-    const previousValue = dialogData[field];
-    const emptyEquivalent = isEmpty(previousValue) && isEmpty(value);
-
-    if (previousValue === value || emptyEquivalent) return;
-
-    handleDataChange(field, value);
-    setFieldErrors((previous) => ({
-      ...previous,
-      [field]: validateField(field, value),
-    }));
-  };
-
-  const validate = () => {
-    const fields = ["nombre_proyecto_investigacion", "centro_investigacion"];
-    const errors = fields.reduce((result, field) => {
-      const message = validateField(field, dialogData[field]);
-      return message ? { ...result, [field]: message } : result;
-    }, {});
-
-    setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
   const handleSave = () => {
-    if (!validate()) return;
-    resetValidation();
     handleSaveProyecto();
   };
 
@@ -130,7 +86,7 @@ export default function DialogProyecto() {
                   <Switch
                     checked={Boolean(dialogData.activo)}
                     onChange={(event) =>
-                      handleDataChange("activo", event.target.checked)
+                      handleDialogChange("activo", event.target.checked)
                     }
                     color="primary"
                   />
@@ -143,7 +99,7 @@ export default function DialogProyecto() {
                 label={BS.fieldName}
                 value={dialogData.nombre_proyecto_investigacion ?? ""}
                 onChange={(event) =>
-                  handleFieldChange(
+                  handleDialogChange(
                     "nombre_proyecto_investigacion",
                     event.target.value,
                   )
@@ -158,7 +114,7 @@ export default function DialogProyecto() {
                 label={BS.fieldResearchCenter}
                 value={dialogData.centro_investigacion ?? ""}
                 onChange={(event) => {
-                  handleFieldChange(
+                  handleDialogChange(
                     "centro_investigacion",
                     event.target.value,
                   );

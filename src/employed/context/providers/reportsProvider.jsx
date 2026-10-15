@@ -9,6 +9,10 @@ import {
 import { BuscarLinkFrecuentes } from "../../../api/EmpleadoService";
 import { useNotification } from "../../../shared/context/sharedContext";
 import { ReportsContext } from "../employedContext";
+import {
+  getDateRangeFromMonths,
+  getYearFromMonth,
+} from "../../../utils/reports.utils";
 
 const emptyReports = {
   becas: {
@@ -27,21 +31,6 @@ const emptyReports = {
     viajesXMesAnio: [],
   },
   linksFrecuentes: [],
-};
-
-const getYearFromMonth = (monthValue) => Number(String(monthValue).slice(0, 4));
-
-const getDateRangeFromMonths = (from, to) => {
-  const [fromYear] = String(from).split("-").map(Number);
-  const [toYear, toMonth] = String(to).split("-").map(Number);
-  const lastDay = new Date(toYear, toMonth, 0).getDate();
-
-  return {
-    startDate: `${from}-01`,
-    endDate: `${to}-${String(lastDay).padStart(2, "0")}`,
-    startYear: fromYear,
-    endYear: toYear,
-  };
 };
 
 export function ReportsProvider({ children }) {

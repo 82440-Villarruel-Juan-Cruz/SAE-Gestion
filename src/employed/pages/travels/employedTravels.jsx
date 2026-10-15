@@ -325,10 +325,8 @@ function BussinessDialog() {
   const {
     handleBussinessSave,
     fieldErrors,
-    setFieldErrors,
-    setTouchedFields,
-    validateField,
     resetValidation,
+    handleDialogChange,
   } = useTravel();
   const {
     dialogOpen,
@@ -337,7 +335,6 @@ function BussinessDialog() {
     dialogSaving,
     dialogError,
     setDialogError,
-    handleDataChange,
     closeDialog,
   } = useNotification();
 
@@ -378,13 +375,7 @@ function BussinessDialog() {
                   type="number"
                   fullWidth
                   value={dialogData.id || ""}
-                  onChange={(e) =>
-                    handleDataChange("id", e.target.value, {
-                      setTouched: setTouchedFields,
-                      setErrors: setFieldErrors,
-                      validateFn: validateField,
-                    })
-                  }
+                  onChange={(e) => handleDialogChange("id", e.target.value)}
                   disabled={true}
                   error={Boolean(fieldErrors.id)}
                   helperText={fieldErrors.id}
@@ -396,11 +387,7 @@ function BussinessDialog() {
                 label={C.businessName}
                 value={dialogData.nombre}
                 onChange={(e) =>
-                  handleDataChange("nombre", e.target.value, {
-                    setTouched: setTouchedFields,
-                    setErrors: setFieldErrors,
-                    validateFn: validateField,
-                  })
+                  handleDialogChange("nombre", e.target.value)
                 }
                 required
                 fullWidth
@@ -413,11 +400,7 @@ function BussinessDialog() {
                 label={C.businessPhone}
                 value={dialogData.contacto}
                 onChange={(e) =>
-                  handleDataChange("contacto", digitsOnly(e.target.value), {
-                    setTouched: setTouchedFields,
-                    setErrors: setFieldErrors,
-                    validateFn: validateField,
-                  })
+                  handleDialogChange("contacto", digitsOnly(e.target.value))
                 }
                 error={Boolean(fieldErrors.contacto)}
                 helperText={fieldErrors.contacto}
@@ -430,11 +413,7 @@ function BussinessDialog() {
                 label={C.businessEmail}
                 value={dialogData.email}
                 onChange={(e) =>
-                  handleDataChange("email", e.target.value, {
-                    setTouched: setTouchedFields,
-                    setErrors: setFieldErrors,
-                    validateFn: validateField,
-                  })
+                  handleDialogChange("email", e.target.value)
                 }
                 error={Boolean(fieldErrors.email)}
                 helperText={fieldErrors.email}
@@ -447,11 +426,7 @@ function BussinessDialog() {
                 label={C.businessCUIT}
                 value={dialogData.cuit}
                 onChange={(e) =>
-                  handleDataChange("cuit", formatCuit(e.target.value), {
-                    setTouched: setTouchedFields,
-                    setErrors: setFieldErrors,
-                    validateFn: validateField,
-                  })
+                  handleDialogChange("cuit", formatCuit(e.target.value))
                 }
                 error={Boolean(fieldErrors.cuit)}
                 helperText={fieldErrors.cuit}
@@ -464,11 +439,7 @@ function BussinessDialog() {
                 label={C.businessCBU}
                 value={dialogData.cbu}
                 onChange={(e) =>
-                  handleDataChange("cbu", formatCbu(e.target.value), {
-                    setTouched: setTouchedFields,
-                    setErrors: setFieldErrors,
-                    validateFn: validateField,
-                  })
+                  handleDialogChange("cbu", formatCbu(e.target.value))
                 }
                 error={Boolean(fieldErrors.cbu)}
                 helperText={fieldErrors.cbu}
@@ -482,11 +453,7 @@ function BussinessDialog() {
                   <Switch
                     checked={dialogData.activo}
                     onChange={(e) =>
-                      handleDataChange("activo", e.target.checked, {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField,
-                      })
+                      handleDialogChange("activo", e.target.checked)
                     }
                     color="primary"
                     error={Boolean(fieldErrors.activo)}
@@ -540,11 +507,8 @@ function TravelsDialog() {
     bussiness,
     handleTravelSave,
     fieldErrors,
-    setFieldErrors,
-    touchedFields,
-    setTouchedFields,
-    validateField,
     resetValidation,
+    handleDialogChange,
   } = useTravel();
   const {
     dialogOpen,
@@ -553,7 +517,6 @@ function TravelsDialog() {
     dialogSaving,
     dialogError,
     setDialogError,
-    handleDataChange,
     closeDialog,
   } = useNotification();
 
@@ -561,45 +524,6 @@ function TravelsDialog() {
     resetValidation();
     setDialogError("");
     closeDialog();
-  };
-
-  const handleDialogChange = (field, value) => {
-    const nextData = { ...dialogData, [field]: value };
-    const message = validateField(field, value, nextData);
-    const shouldValidateEndDate =
-      ["fecha_inicio", "fecha_fin"].includes(field) &&
-      (field === "fecha_fin" ||
-        touchedFields.fecha_fin ||
-        Boolean(fieldErrors.fecha_fin));
-
-    handleDataChange(field, value);
-    setTouchedFields((previous) => ({ ...previous, [field]: true }));
-    setFieldErrors((previous) => {
-      const nextErrors = { ...previous };
-
-      if (message) {
-        nextErrors[field] = message;
-      } else {
-        delete nextErrors[field];
-        setDialogError("");
-      }
-
-      if (shouldValidateEndDate) {
-        const fechaFinMessage = validateField(
-          "fecha_fin",
-          nextData.fecha_fin,
-          nextData,
-        );
-
-        if (fechaFinMessage) {
-          nextErrors.fecha_fin = fechaFinMessage;
-        } else {
-          delete nextErrors.fecha_fin;
-        }
-      }
-
-      return nextErrors;
-    });
   };
 
   const sanitizeAddressPart = (value = "") =>
@@ -660,13 +584,7 @@ function TravelsDialog() {
                   type="number"
                   fullWidth
                   value={dialogData.id}
-                  onChange={(e) =>
-                    handleDialogChange("id", e.target.value, {
-                      setTouched: setTouchedFields,
-                      setErrors: setFieldErrors,
-                      validateFn: validateField,
-                    })
-                  }
+                  onChange={(e) => handleDialogChange("id", e.target.value)}
                   disabled={true}
                   error={Boolean(fieldErrors.id)}
                   helperText={fieldErrors.id}
@@ -678,11 +596,7 @@ function TravelsDialog() {
                 label={C.travelName}
                 value={dialogData.nombre}
                 onChange={(e) =>
-                  handleDialogChange("nombre", e.target.value, {
-                    setTouched: setTouchedFields,
-                    setErrors: setFieldErrors,
-                    validateFn: validateField,
-                  })
+                  handleDialogChange("nombre", e.target.value)
                 }
                 required
                 fullWidth
@@ -697,11 +611,7 @@ function TravelsDialog() {
                 fullWidth
                 value={dialogData.cantidad_personas}
                 onChange={(e) =>
-                  handleDialogChange("cantidad_personas", e.target.value, {
-                    setTouched: setTouchedFields,
-                    setErrors: setFieldErrors,
-                    validateFn: validateField,
-                  })
+                  handleDialogChange("cantidad_personas", e.target.value)
                 }
                 error={Boolean(fieldErrors.cantidad_personas)}
                 helperText={fieldErrors.cantidad_personas}
@@ -714,11 +624,7 @@ function TravelsDialog() {
                 type="date"
                 value={dialogData.fecha_inicio}
                 onChange={(e) =>
-                  handleDialogChange("fecha_inicio", e.target.value, {
-                    setTouched: setTouchedFields,
-                    setErrors: setFieldErrors,
-                    validateFn: validateField,
-                  })
+                  handleDialogChange("fecha_inicio", e.target.value)
                 }
                 fullWidth
                 required
@@ -733,11 +639,7 @@ function TravelsDialog() {
                 type="date"
                 value={dialogData.fecha_fin}
                 onChange={(e) =>
-                  handleDialogChange("fecha_fin", e.target.value, {
-                    setTouched: setTouchedFields,
-                    setErrors: setFieldErrors,
-                    validateFn: validateField,
-                  })
+                  handleDialogChange("fecha_fin", e.target.value)
                 }
                 fullWidth
                 required
@@ -867,11 +769,6 @@ function TravelsDialog() {
                   handleDialogChange(
                     "id_empresa_viaje",
                     newValue ? newValue.id : null,
-                    {
-                      setTouched: setTouchedFields,
-                      setErrors: setFieldErrors,
-                      validateFn: validateField,
-                    },
                   );
                 }}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -908,11 +805,6 @@ function TravelsDialog() {
                   handleDialogChange(
                     "costo_aproximado",
                     sanitizeCurrencyInput(e.target.value),
-                    {
-                      setTouched: setTouchedFields,
-                      setErrors: setFieldErrors,
-                      validateFn: validateField,
-                    },
                   )
                 }
                 onBlur={(e) =>
@@ -943,11 +835,7 @@ function TravelsDialog() {
                   <Switch
                     checked={dialogData.seguro || false}
                     onChange={(e) =>
-                      handleDialogChange("seguro", e.target.checked, {
-                        setTouched: setTouchedFields,
-                        setErrors: setFieldErrors,
-                        validateFn: validateField,
-                      })
+                      handleDialogChange("seguro", e.target.checked)
                     }
                     color="primary"
                     error={Boolean(fieldErrors.seguro)}
@@ -964,11 +852,7 @@ function TravelsDialog() {
                 label={C.travelMotive}
                 value={dialogData.motivo}
                 onChange={(e) =>
-                  handleDialogChange("motivo", e.target.value, {
-                    setTouched: setTouchedFields,
-                    setErrors: setFieldErrors,
-                    validateFn: validateField,
-                  })
+                  handleDialogChange("motivo", e.target.value)
                 }
                 fullWidth
                 required

@@ -26,28 +26,13 @@ import { obtenerLegajoDesdeEmail } from "../../../utils/util.jsx";
 
 import {
   buildDocumentName,
+  buildDocumentsFromConfig,
   createPreviewState,
   isPdfDocument,
 } from "../../../utils/documents.utils.js";
 import { mapResponseDocumento } from "../../../api/formatters/EstudianteFormatters.js";
 const C = TRIPS_STRINGS;
 
-const resolveRequiredDocuments = (requiredDocs, documentTypes) =>
-  requiredDocs.map((documento) => {
-    const match = documentTypes?.find(
-      (type) =>
-        type.nombre.trim().toLowerCase() ===
-        documento.nombre.trim().toLowerCase(),
-    );
-
-    return match
-      ? {
-          ...documento,
-          id_tipo_documento: match.id,
-          extension: match.extension,
-        }
-      : { ...documento };
-  });
 
 export const TravelProvider = ({ children }) => {
   const { user } = useAuth();
@@ -61,30 +46,6 @@ export const TravelProvider = ({ children }) => {
     }));
   };
 
-  const mergeDocuments = (requiredDocs, profileDocs) => {
-    return requiredDocs.map((reqDoc) => {
-      // Buscar el documento correspondiente en la data del perfil
-      const uploadedDoc = profileDocs.find(
-        (pDoc) =>
-          Number(pDoc.id_tipo_documento) === Number(reqDoc.id_tipo_documento),
-      );
-      // Si existe en el perfil, fusionamos los datos; si no, mantenemos el estado base
-      if (uploadedDoc) {
-        return {
-          ...reqDoc, // Mantiene nombre, descripción, template, required, etc.
-          subido: true, // Marca como subido
-          archivo: uploadedDoc.archivo, // URL o blob del archivo
-          nombre_documento:
-            uploadedDoc.nombre_documento || reqDoc.archivoNombre,
-          id_archivo: uploadedDoc.id, // ID necesario para borrar
-          fechaSubida: uploadedDoc.fecha_subida,
-        };
-      }
-
-      // Si no está subido, devuelve el objeto base (subido: false)
-      return reqDoc;
-    });
-  };
 
   const [loadingDocumentos, setLoadingDocumentos] = useState(false);
   const [documentosParaMostrar, setDocumentosParaMostrar] = useState(() =>
@@ -95,15 +56,17 @@ export const TravelProvider = ({ children }) => {
     setLoadingDocumentos(true);
     try {
       const documentTypes = await obtenerTiposDocumento();
-      const requiredDocuments = resolveRequiredDocuments(
-        TRAVEL_REQUIRED_DOCUMENTS,
-        documentTypes,
-      );
       const data = await listarDocumentacionXLegajo(user.legajo);
       const perfilDocs = data.map(mapResponseDocumento);
-      const listaActualizada = mergeDocuments(requiredDocuments, perfilDocs);
 
-      setDocumentosParaMostrar(listaActualizada);
+      setDocumentosParaMostrar((previousDocuments) =>
+        buildDocumentsFromConfig(
+          TRAVEL_REQUIRED_DOCUMENTS,
+          documentTypes,
+          previousDocuments,
+          perfilDocs,
+        ),
+      );
     } catch (error) {
       console.error("Error cargando documentos:", error);
       // En caso de error, mostramos la lista base (todos como "no subidos")
