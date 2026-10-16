@@ -621,7 +621,7 @@ export const HealthUsersProvider = ({ children }) => {
       setDialogData(getEmptyTurnForm());
       showNotification(
         dialogMode === "create"
-          ? "Turno Solicitado - Pendiante de Aprobacion!"
+          ? "Turno Solicitado - Pendiente de Aprobacion!"
           : "Turno Actualizado!",
       );
     } catch (err) {

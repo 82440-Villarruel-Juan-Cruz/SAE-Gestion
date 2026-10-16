@@ -62,7 +62,7 @@ import ScienceIcon from "@mui/icons-material/Science";
 import ContentPasteSearchIcon from "@mui/icons-material/ContentPasteSearch";
 import BloodtypeIcon from "@mui/icons-material/Bloodtype";
 
-import { calendarDays } from "../../../utils/common/constants";
+import { calendarDays ,PALETTE_HEALTH} from "../../../utils/common/constants";
 import { formatDate, formatTime } from "../../../utils/date.utils";
 import {
   formatAvailabilityRange,
@@ -76,15 +76,16 @@ import { HEALTH_STRINGS } from "../../../utils/strings/student.strings";
 import MobileTurnRequest from "./MobileTurnRequest";
 
 const C = HEALTH_STRINGS;
+const PALETTE = PALETTE_HEALTH;
 
-const PALETTE = [
-  "#8A8A8A", //Pendiente
-  "#576DDC", //Asignado
-  "#E77575", //Cancelado
-  "#B8CDFF", //En curso
-  "#99F6B9", //Finalizado
-  "#F1C6A3", //Reprogramado
-];
+// const PALETTE = [
+//   "#525151", //Pendiente
+//   "#576DDC", //Asignado
+//   "#E77575", //Cancelado
+//   "#B8CDFF", //En cursos
+//   "#99F6B9", //Finalizado
+//   "#F1C6A3", //Reprogramado
+// ];
 
 const getTurnStatusTextColor = (statusId) =>
   [3, 4, 5].includes(Number(statusId)) ? "#153b6f" : "white";

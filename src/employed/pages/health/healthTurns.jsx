@@ -53,7 +53,7 @@ import {
   getTodayInputDate,
   toTimeInput,
 } from "../../../utils/date.utils";
-import { calendarDays, carreras } from "../../../utils/common/constants";
+import { calendarDays, carreras,PALETTE_HEALTH } from "../../../utils/common/constants";
 import {
   formatAvailabilityRange,
   formatScheduleRange,
@@ -65,14 +65,8 @@ import { normalizeText } from "../../../utils/text.utils";
 import { HEALTH_STRING } from "../../../utils/strings/employed.strings";
 
 const C = HEALTH_STRING;
-const PALETTE = [
-  "#a0a0a0", //Pendiente
-  "#1538B8", //Asignado
-  "#d85656", //Cancelado
-  "#a8cfff", //En curso
-  "#6FA958", //Finalizado
-  "#FF8E2C", //Reprogramado
-];
+const PALETTE = PALETTE_HEALTH;
+
 
 const getTurnStatusColor = (statusId) =>
   PALETTE[Number(statusId)] ?? PALETTE[0];

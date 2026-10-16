@@ -114,3 +114,11 @@ export const PLACEHOLDER_IMAGE = "images/principal/newsGeneric.webp";
 
 export const DOCS_PER_PAGE = 5;
 
+export const PALETTE_HEALTH = [
+  "#525151", //Pendiente
+  "#1538B8", //Asignado
+  "#d85656", //Cancelado
+  "#f4c127", //En curso
+  "#6FA958", //Finalizado
+  "#FF8E2C", //Reprogramado
+];
