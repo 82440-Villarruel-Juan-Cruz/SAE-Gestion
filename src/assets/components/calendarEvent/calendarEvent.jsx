@@ -115,7 +115,7 @@ function EventoCard({ evento }) {
         borderRadius: 3,
         overflow: "hidden",
         bgcolor: "white",
-        border: "1px solid rgba(18, 54, 102, 0.1)",
+        border: "2px solid rgb(18, 54, 102)",
         boxShadow: "0 16px 42px rgba(21, 61, 113, 0.11)",
         transition: "transform .22s ease, box-shadow .22s ease",
         "&:hover": {
