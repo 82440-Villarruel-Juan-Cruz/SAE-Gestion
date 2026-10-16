@@ -13,6 +13,8 @@ import {
   Stack,
   Card,
   CardContent,
+  Alert,
+  useMediaQuery,
 } from "@mui/material";
 import { Close, AddCircleOutline } from "@mui/icons-material";
 import {
@@ -29,12 +31,8 @@ import {
   SCHOLARSHIP_STRINGS,
   PROFILE_STRINGS,
 } from "../../../utils/strings/student.strings";
-import { PERSONAL_FIELDS } from "../../../utils/common/common.config";
 import {
   SCHOLARSHIP_TYPE,
-  MAX_FILE_SIZE_MB,
-  MAX_FILE_SIZE_BYTES,
-  DEFAULT_ACCEPTED_EXTENSIONS,
 } from "../../../utils/common/constants";
 
 import {
@@ -43,6 +41,8 @@ import {
 } from "../../../utils/documents.utils";
 import { useScholarships } from "../../context/studentContext";
 import { ProfileContextProvider } from "../../../shared/context/providers/profileProvider";
+
+import MobileScholarshipRequest from "./MobileScholarshipRequest";
 
 const C = SCHOLARSHIP_STRINGS;
 const D = PROFILE_STRINGS;
@@ -58,6 +58,7 @@ export default function ScholarshipsForm() {
 }
 
 export function ScholarshipsContent() {
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const { dialogOpen, dialogSaving, setDialogSaving, closeDialog } =
     useNotification();
   const {
@@ -77,6 +78,7 @@ export function ScholarshipsContent() {
     handleProfileSave,
     formatPhone,
     cuilHasError,
+    formError,
   } = useMyProfile();
   const {
     handleChange,
@@ -103,98 +105,36 @@ export function ScholarshipsContent() {
   } = useScholarships(); //Esto en teoria lo llamamos desde dentro del provider de becas
 
   const isSaving = dialogSaving || saving;
+  const personalDataComplete = Boolean(
+    datosPerfil.dni && datosPerfil.cuil && datosPerfil.fecha_nacimiento &&
+    !dniHasError && !cuilHasError,
+  );
+  const contactDataComplete = Boolean(
+    datosPerfil.email && datosPerfil.telefono &&
+    addressParts.every((part) => String(part ?? "").trim()) &&
+    !emailHasError && !phoneHasError,
+  );
+  const requiredDocuments = [
+    ...(documentosRequeridos ?? []),
+    ...(documentosEconomicaVisibles ?? []),
+  ].filter((document) => document.required !== false);
+  const attachedRequiredDocuments = requiredDocuments.filter(hasDocumentFile).length;
 
   const handleSaveScholarshipRequest = async () => {
     if (isSaving) return;
 
     setDialogSaving(true);
     try {
-      await handleProfileSave();
+      const profileSaved = await handleProfileSave({ skipUnchanged: true });
+      if (!profileSaved) return;
       await handleDialogSave();
     } finally {
       setDialogSaving(false);
     }
   };
 
-  return (
-    <Dialog open={dialogOpen} onClose={closeDialog} fullWidth maxWidth="lg">
-      <DialogTitle
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h6" component="span" sx={{ fontWeight: "bold" }}>
-          {C.cardSolicitarTitle}
-        </Typography>
-        <IconButton onClick={closeDialog} size="small" disabled={isSaving}>
-          <Close />
-        </IconButton>
-      </DialogTitle>
-
-      <DialogContent
-        sx={{
-          position: "relative",
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
-          pt: "16px !important",
-        }}
-      >
-        {isSaving && (
-          <Box
-            sx={{
-              position: "absolute",
-              inset: 0,
-              zIndex: 2,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 1.5,
-              bgcolor: "rgba(255,255,255,0.75)",
-              backdropFilter: "blur(2px)",
-            }}
-          >
-            <SAESpinner size="S" />
-            <Typography variant="body2" color="text.secondary">
-              {C.savingRequest}
-            </Typography>
-          </Box>
-        )}
-
-        <Divider variant="middle" sx={{ mt: 0.5 }}>
-          <Chip
-            label={C.DatosPersonales}
-            size="small"
-            sx={{ fontWeight: 700 }}
-          />
-        </Divider>
-        {/* 
-        <Grid container spacing={2}>
-          {PERSONAL_FIELDS.map((field) => (
-            <Grid key={field.name} size={{ xs: 12, sm: 6, md: field.md ?? 6 }}>
-              <SAETextField
-                fullWidth
-                label={field.label}
-                name={field.name}
-                disabled
-                type={field.type}
-                InputLabelProps={field.InputLabelProps}
-                value={datosPerfil[field.name] ?? ""}
-                sx={{
-                  "& .MuiInputBase-input.Mui-disabled": {
-                    WebkitTextFillColor: "rgba(0, 0, 0, 0.75)",
-                    textOverflow: "ellipsis",
-                  },
-                }}
-              />
-            </Grid>
-          ))}
-        </Grid> */}
-
-        <Grid container spacing={{ xs: 1.5, sm: 2 }} mb={{ xs: 3, md: 4 }}>
+  const identityFields = (
+    <>
           <Grid size={{ xs: 12, md: 4 }}>
             <SAETextField
               label={D.personalInfoID}
@@ -245,6 +185,11 @@ export function ScholarshipsContent() {
             />
           </Grid>
 
+    </>
+  );
+
+  const personalFields = (
+    <>
           <Grid size={{ xs: 12, md: 4 }}>
             <SAETextField
               label={D.personalInfoDNI}
@@ -301,8 +246,11 @@ export function ScholarshipsContent() {
               }
             />
           </Grid>
-        </Grid>
-        <Grid container spacing={{ xs: 1.5, sm: 2 }} mb={{ xs: 3, md: 4 }}>
+    </>
+  );
+
+  const contactFields = (
+    <>
           <Grid size={{ xs: 12, md: 6 }}>
             <SAETextField
               label={D.contactInfoEmail}
@@ -335,6 +283,11 @@ export function ScholarshipsContent() {
             />
           </Grid>
 
+    </>
+  );
+
+  const addressFields = (
+    <>
           <Grid size={{ xs: 12, md: 3 }}>
             <SAETextField
               label={D.contactInfoProvince}
@@ -429,12 +382,11 @@ export function ScholarshipsContent() {
               </Card>
             </Grid>
           )}
-        </Grid>
+    </>
+  );
 
-        <Divider variant="middle" sx={{ mt: 0.5 }}>
-          <Chip label={C.TiposBecas} size="small" sx={{ fontWeight: 700 }} />
-        </Divider>
-
+  const scholarshipFields = (
+    <>
         <Autocomplete
           fullWidth
           disabled={isSaving}
@@ -508,7 +460,11 @@ export function ScholarshipsContent() {
             disabled={isSaving}
           />
         )}
+    </>
+  );
 
+  const documentFields = (
+    <>
         {documentosRequeridos?.length > 0 && (
           <Divider variant="middle" sx={{ mt: 0.5 }}>
             <Chip
@@ -593,7 +549,7 @@ export function ScholarshipsContent() {
                 onClick={handleAgregarDocumentoEconomico}
                 disabled={!documentoEconomicoOpcionalId || isSaving}
                 startIcon={<AddCircleOutline />}
-                sx={{ minWidth: { sm: 150 } }}
+                sx={{ minWidth: { sm: 150 }, minHeight: { xs: 48, sm: 36 } }}
               >
                 {C.addButton}
               </SAEButton>
@@ -630,17 +586,85 @@ export function ScholarshipsContent() {
             ))}
           </Grid>
         )}
-      </DialogContent>
+    </>
+  );
 
+  if (isMobile) {
+    return (
+      <MobileScholarshipRequest
+        open={dialogOpen}
+        saving={isSaving}
+        error={formError}
+        onClose={closeDialog}
+        onSubmit={handleSaveScholarshipRequest}
+        profile={datosPerfil}
+        personalDataComplete={personalDataComplete}
+        contactDataComplete={contactDataComplete}
+        hasMissingFields={missingRequiredFields.length > 0}
+        scholarshipType={formBeca?.tipoBeca}
+        requiredDocumentCount={requiredDocuments.length}
+        attachedDocumentCount={attachedRequiredDocuments}
+        personalFields={personalFields}
+        contactFields={contactFields}
+        addressFields={addressFields}
+        scholarshipFields={scholarshipFields}
+        documentFields={documentFields}
+      />
+    );
+  }
+
+  return (
+    <Dialog open={dialogOpen} onClose={isSaving ? undefined : closeDialog} fullWidth maxWidth="lg">
+      <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Typography variant="h6" component="span" sx={{ fontWeight: "bold" }}>{C.cardSolicitarTitle}</Typography>
+        <IconButton onClick={closeDialog} aria-label="Cerrar solicitud de beca" size="small" disabled={isSaving} sx={{ minWidth: 44, minHeight: 44 }}>
+          <Close />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent sx={{ position: "relative", display: "flex", flexDirection: "column", gap: 2, pt: "16px !important" }}>
+        {formError && <Alert severity="error">{formError}</Alert>}
+        {isSaving && (
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 2,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 1.5,
+              bgcolor: "rgba(255,255,255,0.75)",
+              backdropFilter: "blur(2px)",
+            }}
+          >
+            <SAESpinner size="S" />
+            <Typography variant="body2" color="text.secondary">
+              {C.savingRequest}
+            </Typography>
+          </Box>
+        )}
+
+        <Divider variant="middle" sx={{ mt: 0.5 }}>
+          <Chip label={C.DatosPersonales} size="small" sx={{ fontWeight: 700 }} />
+        </Divider>
+        <Grid container spacing={{ xs: 1.5, sm: 2 }} mb={{ xs: 3, md: 4 }}>
+          {identityFields}
+          {personalFields}
+        </Grid>
+        <Grid container spacing={{ xs: 1.5, sm: 2 }} mb={{ xs: 3, md: 4 }}>
+          {contactFields}
+          {addressFields}
+        </Grid>
+        <Divider variant="middle" sx={{ mt: 0.5 }}>
+          <Chip label={C.TiposBecas} size="small" sx={{ fontWeight: 700 }} />
+        </Divider>
+        {scholarshipFields}
+        {documentFields}
+      </DialogContent>
       <DialogActions>
-        <SAEButton onClick={closeDialog} disabled={isSaving}>
-          {C.cancelButton}
-        </SAEButton>
-        <SAEButton
-          variant="contained"
-          onClick={handleSaveScholarshipRequest}
-          disabled={isSaving}
-        >
+        <SAEButton onClick={closeDialog} disabled={isSaving}>{C.cancelButton}</SAEButton>
+        <SAEButton variant="contained" onClick={handleSaveScholarshipRequest} disabled={isSaving}>
           {isSaving ? C.savingButton : C.saveButton}
         </SAEButton>
       </DialogActions>

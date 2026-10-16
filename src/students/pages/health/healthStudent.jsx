@@ -73,6 +73,7 @@ import {
   timeToMinutes,
 } from "../../../utils/schedule.utils";
 import { HEALTH_STRINGS } from "../../../utils/strings/student.strings";
+import MobileTurnRequest from "./MobileTurnRequest";
 
 const C = HEALTH_STRINGS;
 
@@ -1320,6 +1321,7 @@ export function EmployedStudentContent() {
 }
 
 function DialogHealth() {
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const {
     dialogOpen,
     dialogData,
@@ -1474,6 +1476,8 @@ function DialogHealth() {
   };
 
   const handleRemoveAvailability = (indexToRemove) => {
+    setAvailabilityError("");
+    setDialogError("");
     setDialogData((previous) => ({
       ...previous,
       disponibilidades: (previous.disponibilidades ?? []).filter(
@@ -1482,10 +1486,28 @@ function DialogHealth() {
     }));
   };
 
+  const handleSelectMobileSchedule = (schedule) => {
+    setAvailabilityError("");
+    setDialogError("");
+    setDialogData((previous) => ({
+      ...previous,
+      dia_selecionado: schedule.dia,
+      horario_disponible_desde: normalizeTimeValue(schedule.hora_inicio),
+      horario_disponible_hasta: normalizeTimeValue(schedule.hora_fin),
+      horario_seleccionado: getScheduleKey(schedule),
+    }));
+  };
+
   return (
     <>
       {dialogOpen && dialogType === "turnos" && (
-        <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="md" fullWidth>
+        <Dialog
+          open={dialogOpen}
+          onClose={dialogSaving ? undefined : closeDialog}
+          maxWidth="md"
+          fullWidth
+          fullScreen={isMobile && dialogMode === "create"}
+        >
           <DialogTitle
             sx={{
               display: "flex",
@@ -1508,13 +1530,15 @@ function DialogHealth() {
             </SAETypography>
             <IconButton
               onClick={closeDialog}
+              aria-label="Cerrar solicitud"
+              disabled={dialogSaving}
               size="small"
-              sx={{ color: "inherit" }}
+              sx={{ color: "inherit", minWidth: 44, minHeight: 44 }}
             >
               <CloseIcon />
             </IconButton>
           </DialogTitle>
-          <DialogContent dividers>
+          <DialogContent dividers sx={isMobile && dialogMode === "create" ? { px: 2, py: 2 } : undefined}>
             <Stack spacing={2} sx={{ pt: 1 }}>
               {dialogError && !isAvailabilityDialogError && (
                 <Alert severity="error" onClose={() => setDialogError("")}>
@@ -1524,6 +1548,31 @@ function DialogHealth() {
               <>
                 <Grid container spacing={1}>
                   {dialogMode === "create" && (
+                    isMobile ? (
+                      <Grid size={{ xs: 12 }}>
+                        <MobileTurnRequest
+                          data={dialogData}
+                          schedules={horariosDisponibles}
+                          selectedKey={dialogData.horario_seleccionado}
+                          usedKeys={usedScheduleKeys}
+                          getScheduleKey={getScheduleKey}
+                          formatSchedule={formatSchedule}
+                          availabilities={disponibilidades}
+                          formatAvailability={formatAvailability}
+                          minTime={selectedDayMinTime}
+                          maxTime={selectedDayMaxTime}
+                          error={availabilityError || (isAvailabilityDialogError ? dialogError : "")}
+                          onSelect={handleSelectMobileSchedule}
+                          onChange={(field, value) => {
+                            setAvailabilityError("");
+                            setDialogError("");
+                            handleDataChange(field, value);
+                          }}
+                          onAdd={handleAddAvailability}
+                          onRemove={handleRemoveAvailability}
+                        />
+                      </Grid>
+                    ) : (
                     <Grid container size={{ xs: 12 }} m={0} spacing={2}>
                       <Grid size={{ xs: 12 }} m={0}>
                         <Card
@@ -1871,6 +1920,7 @@ function DialogHealth() {
                         />
                       </Grid>
                     </Grid>
+                    )
                   )}
                   {dialogMode === "delete" && (
                     <>
@@ -2301,8 +2351,25 @@ function DialogHealth() {
               gap: 1,
               flexDirection: { xs: "column-reverse", sm: "row" },
               "& > :not(style) ~ :not(style)": { ml: { xs: 0, sm: 1 } },
+              ...(isMobile && dialogMode === "create" && {
+                flexShrink: 0,
+                bgcolor: "white",
+                borderTop: "1px solid #DCE7F5",
+                px: 2,
+                pt: 1.5,
+                pb: "max(12px, env(safe-area-inset-bottom))",
+                flexDirection: "column",
+              }),
             }}
           >
+            {isMobile && dialogMode === "create" && (
+              <SAETypography variant="caption" color="text.secondary" aria-live="polite">
+                {disponibilidades.length > 0
+                  ? `${disponibilidades.length} ${disponibilidades.length === 1 ? "disponibilidad agregada" : "disponibilidades agregadas"}`
+                  : "Agregá al menos una disponibilidad para enviar."}
+              </SAETypography>
+            )}
+            {!(isMobile && dialogMode === "create") && (
             <SAEButton
               variant="outlined"
               onClick={closeDialog}
@@ -2315,16 +2382,18 @@ function DialogHealth() {
             >
               {C.close}
             </SAEButton>
+            )}
             {dialogMode !== "show" && (
               <SAEButton
                 variant="contained"
                 color={dialogMode === "delete" ? "error" : undefined}
                 onClick={handleTurnosSave}
-                disabled={dialogSaving}
+                disabled={dialogSaving || (isMobile && dialogMode === "create" && disponibilidades.length === 0)}
                 sx={{
                   minWidth: { sm: 190 },
                   width: { xs: "100%", sm: "auto" },
                   whiteSpace: "nowrap",
+                  ...(isMobile && dialogMode === "create" && { minHeight: 48 }),
                   ...(dialogMode === "delete" && {
                     bgcolor: "#d85656",
                     color: "white",
@@ -2340,7 +2409,7 @@ function DialogHealth() {
                 }
               >
                 {dialogMode === "create"
-                  ? C.create
+                  ? isMobile ? "Enviar solicitud" : C.create
                   : dialogMode === "delete"
                     ? C.confirmCancelTurn
                     : C.close}

@@ -1123,6 +1123,7 @@ export function TurnGrid() {
                     <Grid size={{ xs: 12, md: 6 }}>
                       <SAETimeField
                         label={C.turnsHour}
+                        readOnly
                         value={
                           dialogData?.hora_atencion?.split?.("hs")?.[0] || ""
                         }

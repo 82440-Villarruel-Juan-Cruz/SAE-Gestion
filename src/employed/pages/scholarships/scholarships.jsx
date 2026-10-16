@@ -84,6 +84,11 @@ function EmployedScholarshipsContent() {
         rows: becariosRows,
         columns: becariosColumns,
         loading: loadingBecarios,
+        initialState: {
+          sorting: {
+            sortModel: [{ field: "fecha_solicitud", sort: "desc" }],
+          },
+        },
       },
     }),
     [becariosRows, becariosColumns, loadingBecarios, openCreateBecario],

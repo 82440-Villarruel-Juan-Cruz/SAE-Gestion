@@ -56,8 +56,18 @@ export default function SAETimeField({
         // Usamos el formato estricto 'HH:mm' para evitar errores de parseo
         value={parseTime(value)}
         onChange={(nuevoValor) => {
+          if (nuevoValor !== null && !nuevoValor.isValid()) return;
 
           const valorRedondeado = redondearMinutos(nuevoValor);
+          const minimo = parseTime(minTime);
+          const maximo = parseTime(maxTime);
+          const fueraDeRango = (hora) =>
+            hora &&
+            ((minimo?.isValid() && hora.format("HH:mm") < minimo.format("HH:mm")) ||
+              (maximo?.isValid() && hora.format("HH:mm") > maximo.format("HH:mm")));
+
+          if (fueraDeRango(nuevoValor) || fueraDeRango(valorRedondeado)) return;
+
           const horaFormateada =
             valorRedondeado && valorRedondeado.isValid()
               ? valorRedondeado.format("HH:mm")
@@ -72,7 +82,7 @@ export default function SAETimeField({
         shouldDisableTime={(timeValue, view) => {
           if (view !== "minutes") return false;
 
-          return Number(timeValue) % timeStepsMinutes !== 0;
+          return timeValue.minute() % timeStepsMinutes !== 0;
         }}
         disabled={disabled}
         localeText={{
@@ -80,6 +90,9 @@ export default function SAETimeField({
           okButtonLabel: "Confirmar",
         }}
         slotProps={{
+          field: {
+            readOnly,
+          },
           textField: {
             size: textFieldSize,
             fullWidth,

@@ -1,4 +1,4 @@
-import React, { useState,useCallback,useEffect } from "react";
+import React, { useState,useCallback,useEffect,useRef } from "react";
 import { ObtenerPerfilXLegajo,ModificarPerfilEstudiante } from "../../../api/EstudianteService";
 import { listarDocumentacionXLegajo } from "../../../api/BecasService";
 import { mapEstudiante, mapResponseDocumento } from "../../../api/formatters/EstudianteFormatters";
@@ -11,6 +11,18 @@ import { PROFILE_REQUIRED_FIELDS } from "../../../utils/common/common.config.js"
 import { PROFILE_STRINGS } from "../../../utils/strings/student.strings.js"; 
 
 const C = PROFILE_STRINGS;
+const getProfilePayload = (profile) => ({
+  legajo: cleanField(profile.legajo),
+  nombres: cleanField(profile.nombres),
+  apellidos: cleanField(profile.apellidos),
+  email: cleanField(profile.email),
+  telefono: cleanField(profile.telefono),
+  fecha_nacimiento: cleanField(profile.fecha_nacimiento),
+  cuil: cleanNumericField(profile.cuil),
+  dni: cleanNumericField(profile.dni),
+  direccion: cleanField(profile.direccion),
+});
+
 export const ProfileContextProvider = ({ children, loadDocuments = false }) => {
   const { user } = useAuth();
   const {showNotification} = useNotification();
@@ -18,6 +30,7 @@ export const ProfileContextProvider = ({ children, loadDocuments = false }) => {
 
   //ESTADOS
   const [datosPerfil, setDatosPerfil] = useState({});
+  const savedProfile = useRef(null);
   const [loadingPerfil, setLoadingPerfil] = useState(false);
   const [documentosPerfil, setDocumentosPerfil] = useState([]);
   const [loadingDocumentos, setLoadingDocumentos] = useState(false);
@@ -29,10 +42,13 @@ export const ProfileContextProvider = ({ children, loadDocuments = false }) => {
 
     try {
       let data = await ObtenerPerfilXLegajo(legajo);
-      setDatosPerfil(mapEstudiante(data));
+      const profile = mapEstudiante(data);
+      setDatosPerfil(profile);
+      savedProfile.current = getProfilePayload(profile);
       setSaveAttempted(false);
     } catch {
       setDatosPerfil({});
+      savedProfile.current = null;
     } finally {
       setLoadingPerfil(false);
     }
@@ -83,7 +99,7 @@ export const ProfileContextProvider = ({ children, loadDocuments = false }) => {
     [datosPerfil.direccion, handleChange],
   );
 
-  const handleProfileSave = async () => {
+  const handleProfileSave = async ({ skipUnchanged = false } = {}) => {
     setSaveAttempted(true);
     setFormError("");
 
@@ -93,7 +109,7 @@ export const ProfileContextProvider = ({ children, loadDocuments = false }) => {
 
     if (camposFaltantes.length > 0) {
       setFormError(`${C.missingFieldMessage} ${camposFaltantes.join(", ")}.`);
-      return;
+      return false;
     }
 
     const email = cleanField(datosPerfil.email);
@@ -104,47 +120,44 @@ export const ProfileContextProvider = ({ children, loadDocuments = false }) => {
 
     if (dni.length !== 8) {
       setFormError(C.DNIRequired);
-      return;
+      return false;
     }
 
     if (cuil.length !== 11) {
       setFormError(C.CUILRequired);
-      return;
+      return false;
     }
 
     if (email && !isValidEmail(email)) {
       setFormError(C.emailRequired);
-      return;
+      return false;
     }
 
     if (telefono && !isValidPhone(telefono)) {
       setFormError(C.phoneRequired);
-      return;
+      return false;
     }
 
     if (direccion && !isValidAddress(direccion)) {
       setFormError(C.completeAdressMessage);
-      return;
+      return false;
+    }
+
+    const body = getProfilePayload(datosPerfil);
+    if (skipUnchanged && JSON.stringify(body) === JSON.stringify(savedProfile.current)) {
+      return true;
     }
 
     setLoadingPerfil(true);
     try {
-      const body = {
-        legajo: cleanField(datosPerfil.legajo),
-        nombres: cleanField(datosPerfil.nombres),
-        apellidos: cleanField(datosPerfil.apellidos),
-        email,
-        telefono,
-        fecha_nacimiento: cleanField(datosPerfil.fecha_nacimiento),
-        cuil,
-        dni,
-        direccion,
-      };
       await ModificarPerfilEstudiante(datosPerfil.legajo, body);
+      savedProfile.current = body;
       showNotification(C.savedProfile,"success")
+      return true;
 
     } catch {
       showNotification(C.errorProfile,"error")
+      return false;
       //setFormError(err.message || "Ocurrió un error al guardar");
     } finally {
       setLoadingPerfil(false);

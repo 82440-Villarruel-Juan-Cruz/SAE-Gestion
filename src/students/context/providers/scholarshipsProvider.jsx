@@ -97,7 +97,7 @@ function getEstadoBecaDesdeBecario(becario = {}) {
 }
 
 export function ScholarshipsProvider({ children }) {
-  const { setDialogOpen } = useNotification();
+  const { dialogOpen, setDialogOpen } = useNotification();
   const isEconomicOptionalDocument = (documento) =>
     documento.required === false;
   const { showNotification } = useNotification();
@@ -439,6 +439,7 @@ export function ScholarshipsProvider({ children }) {
       return;
     }
 
+    resetScholarshipForm();
     setDialogOpen(true);
   };
 
@@ -702,6 +703,16 @@ export function ScholarshipsProvider({ children }) {
   const [documentoEconomicoOpcionalId, setDocumentoEconomicoOpcionalId] =
     useState("");
 
+  const resetScholarshipForm = () => {
+    setFormBeca(initialFormBeca);
+    setDocumentoEconomicoOpcionalId("");
+    setDocumentoAEliminar(null);
+    setDocumentosEconomica((previous) => previous.map((document) => ({
+      ...document,
+      visible: Boolean(document.required || document.subido || document.archivoNombre || document.id_archivo),
+    })));
+  };
+
   // Combos dependientes del tipo de beca. Se cargan al abrir el dialog para no
   // pedir datos mientras el formulario esta cerrado.
   const cargarProyectosInvestigacion = useCallback(async () => {
@@ -732,14 +743,13 @@ export function ScholarshipsProvider({ children }) {
   }, [cargarTiposDocumento]);
 
   useEffect(() => {
-    if (!open) return;
-    setFormBeca(initialFormBeca);
+    if (!dialogOpen) return;
 
     cargarProyectosInvestigacion();
     cargarServiciosInternos();
     cargarTiposDocumentoFormulario();
   }, [
-    initialFormBeca,
+    dialogOpen,
     cargarProyectosInvestigacion,
     cargarServiciosInternos,
     cargarTiposDocumentoFormulario,
@@ -748,42 +758,40 @@ export function ScholarshipsProvider({ children }) {
   // Los requeridos vienen resueltos por Scholarships. El form los copia para
   // poder reflejar cargas y borrados sin mutar props.
   useEffect(() => {
-    if (!open) return;
+    if (!dialogOpen) return;
     setDocumentosRequeridos(documentos);
-  }, [documentos]);
+  }, [dialogOpen, documentos]);
 
   // Los documentos economicos dependen del tipo seleccionado. Se reconstruyen
   // mezclando configuracion, tipos de documento y archivos ya subidos.
   useEffect(() => {
     // Condición de salida para evitar ejecuciones innecesarias
-    if (!formBeca?.tipoBeca || !tiposDocumento) return;
+    if (formBeca?.tipoBeca !== SCHOLARSHIP_TYPE.ECONOMICA || !tiposDocumento) return;
 
     setDocumentosEconomica((prev) =>
-      formBeca.tipoBeca === SCHOLARSHIP_TYPE.ECONOMICA
-        ? buildDocumentsFromConfig(
-            prev, // <-- Pasamos 'prev' en lugar de 'documentosEconomica'
+      buildDocumentsFromConfig(
+            ECONOMIC_DOCUMENTS.concat(ECONOMIC_OPTIONAL_DOCUMENTS),
             tiposDocumento,
             prev,
             documentos,
-          )
-        : [],
+          ),
     );
     // Eliminamos 'documentosEconomica' de las dependencias
   }, [formBeca.tipoBeca, tiposDocumento, documentos]);
 
-  const documentosEconomicaVisibles = documentosEconomica.filter(
+  const documentosEconomicaVisibles = formBeca.tipoBeca === SCHOLARSHIP_TYPE.ECONOMICA ? documentosEconomica.filter(
     (documento) =>
       documento.required ||
       documento.visible ||
       Boolean(getDocumentDisplayName(documento)),
-  );
+  ) : [];
 
-  const documentosEconomicosOpcionalesDisponibles = documentosEconomica.filter(
+  const documentosEconomicosOpcionalesDisponibles = formBeca.tipoBeca === SCHOLARSHIP_TYPE.ECONOMICA ? documentosEconomica.filter(
     (documento) =>
       isEconomicOptionalDocument(documento) &&
       !documento.visible &&
       !getDocumentDisplayName(documento),
-  );
+  ) : [];
 
   // Agregar un opcional solo lo vuelve visible: el documento ya existe en la
   // lista base, asi evitamos duplicados.
@@ -1093,6 +1101,7 @@ export function ScholarshipsProvider({ children }) {
       const mensaje = await crearBecaSegunTipo(becario.id);
       await subirDocumentosRequeridos();
       await cargarMisBecas();
+      resetScholarshipForm();
       setDialogOpen(false);
       setSaving(false);
       showNotification(mensaje, "success");
