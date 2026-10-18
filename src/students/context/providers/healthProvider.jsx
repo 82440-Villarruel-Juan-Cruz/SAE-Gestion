@@ -323,7 +323,7 @@ export const HealthUsersProvider = ({ children }) => {
       closeDialog();
       showNotification(
         dialogMode === "create"
-          ? "Turno Solicitado - Pendiante de Aprobacion!"
+          ? "Turno Solicitado - Pendiente de Aprobacion!"
           : "Turno Actualizado!",
         "success",
       );
