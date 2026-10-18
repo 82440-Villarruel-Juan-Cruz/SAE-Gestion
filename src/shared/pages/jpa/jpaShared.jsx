@@ -55,14 +55,14 @@ const settingsHero = {
     {
       breakpoint: 1024,
       settings: {
-        slidesToShow: 1,
+        slidesToShow: 2,
         slidesToScroll: 1,
       },
     },
     {
       breakpoint: 600,
       settings: {
-        slidesToShow: 1,
+        slidesToShow: 1.15,
         slidesToScroll: 1,
       },
     },
@@ -81,14 +81,16 @@ const settings = {
   pauseOnHover: false,
   responsive: [
     {
+      dots:true,
       breakpoint: 1200,
       settings: {
         slidesToShow: 2,
-        speed: 600, // Reduce slightly for tablet
+        speed: 600,
         swipeToSlide: false,
       },
     },
     {
+      dots:true,
       breakpoint: 933, // Mobile
       settings: {
         slidesToShow: 1,
@@ -515,10 +517,11 @@ function DegreesCarrousel() {
       </Box>
       <Box
         sx={{
-          width: { xs: "calc(100vw - 12px)", sm: "100%" },
-          ml: { xs: "calc(50% - 50vw + 6px)", sm: 0 },
-          boxSizing: "border-box",
+          width: "100%",
+          position: "relative",
           overflow: "hidden",
+          px: { xs: 4, sm: 0 }, // Agrega un respiro lateral en mobile para que no pegue contra la pantalla
+          boxSizing: "border-box",
           "& .slick-slider": {
             width: "100%",
             touchAction: "pan-y",
@@ -539,17 +542,15 @@ function DegreesCarrousel() {
       >
         <Slider
           {...settings}
-          responsive={[]}
           slidesToShow={slidesToShow}
           swipe
-          draggable
           beforeChange={() => {
             dragRef.current = true;
           }}
           afterChange={() => {
             setTimeout(() => {
               dragRef.current = false;
-            }, 100);
+            }, 50);
           }}
         >
           {carreras.map((carrera) => {
@@ -619,7 +620,8 @@ function DegreesCarrousel() {
                     {carrera.title}
                   </Typography>
                   <Stack
-                    direction="row"
+                    direction={{md:"column",lg:"row"}}
+                    gap={1}
                     spacing={1}
                     mt={1}
                     pb={1}
