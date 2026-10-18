@@ -824,10 +824,17 @@ function JourneySection() {
 
   useEffect(() => {
     if (!isMobile) return;
-    avatarRefs.current[selectedStep]?.scrollIntoView({
+    
+    const avatar = avatarRefs.current[selectedStep];
+    const container = avatar?.parentElement;
+    if (!container) return;
+    container.scrollTo({
+      left:
+        container.scrollLeft +
+        avatar.getBoundingClientRect().left -
+        container.getBoundingClientRect().left -
+        (container.clientWidth - avatar.offsetWidth) / 2,
       behavior: "smooth",
-      block: "nearest",
-      inline: "center",
     });
   }, [isMobile, selectedStep]);
 
