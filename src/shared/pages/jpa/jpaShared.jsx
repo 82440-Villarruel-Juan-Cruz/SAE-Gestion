@@ -79,29 +79,33 @@ const settings = {
   slidesToScroll: 1,
   swipeToSlide: true,
   pauseOnHover: false,
-  responsive: [
-    {
-      dots:true,
-      breakpoint: 1200,
-      settings: {
-        slidesToShow: 2,
-        speed: 600,
-        swipeToSlide: false,
-      },
-    },
-    {
-      dots:true,
-      breakpoint: 933, // Mobile
-      settings: {
-        slidesToShow: 1,
-        slidesToScroll: 1,
-        speed: 400,
-        swipeToSlide: false,
-        waitForAnimate: false,
-        autoplay: false,
-      },
-    },
-  ],
+  waitForAnimate: true,
+};
+const settingsMobile = {
+  dots: false,
+  infinite: true,
+  swipe: true,
+  speed: 400,
+  autoplay: false,
+  autoplaySpeed: 4000,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  swipeToSlide: false,
+  pauseOnHover: false,
+  waitForAnimate: false,
+};
+const settingsTablet = {
+  dots: false,
+  infinite: true,
+  swipe: true,
+  speed: 600,
+  autoplay: true,
+  autoplaySpeed: 4000,
+  slidesToShow: 2,
+  slidesToScroll: 1,
+  swipeToSlide: false,
+  pauseOnHover: false,
+  waitForAnimate: true,
 };
 
 const studentJourney = [
@@ -492,7 +496,11 @@ function DegreesCarrousel() {
   const navigate = useNavigate();
   const isMobile = useMediaQuery("(max-width:932px)");
   const isTablet = useMediaQuery("(max-width:1199px)");
-  const slidesToShow = isMobile ? 1 : isTablet ? 2 : 3;
+  const sliderSettings = isMobile
+    ? settingsMobile
+    : isTablet
+      ? settingsTablet
+      : settings;
 
   return (
     <section
@@ -541,9 +549,7 @@ function DegreesCarrousel() {
         }}
       >
         <Slider
-          {...settings}
-          slidesToShow={slidesToShow}
-          swipe
+          {...sliderSettings}
           beforeChange={() => {
             dragRef.current = true;
           }}
