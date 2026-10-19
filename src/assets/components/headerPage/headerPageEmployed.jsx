@@ -7,7 +7,7 @@ export default function HeaderPageEmployed({
   header,
   title,
   description,
-  backgroundImage = "images/headers/initial.jpg",
+  backgroundImage = "images/headers/initial.webp",
   hideBackButton = false,
   backTo = "/Inicio",
   chips = null,

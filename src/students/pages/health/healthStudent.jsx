@@ -62,7 +62,7 @@ import ScienceIcon from "@mui/icons-material/Science";
 import ContentPasteSearchIcon from "@mui/icons-material/ContentPasteSearch";
 import BloodtypeIcon from "@mui/icons-material/Bloodtype";
 
-import { calendarDays ,PALETTE_HEALTH} from "../../../utils/common/constants";
+import { calendarDays, PALETTE_HEALTH } from "../../../utils/common/constants";
 import { formatDate, formatTime } from "../../../utils/date.utils";
 import {
   formatAvailabilityRange,
@@ -366,7 +366,7 @@ export function EmployedStudentContent() {
       <HeaderPageStudent
         title={C.headerTitle}
         description={C.headerDescription}
-        backgroundImage="images/headers/initial.jpg"
+        backgroundImage="images/headers/initial.webp"
         icon={HealingIcon}
       />
 
@@ -1539,7 +1539,12 @@ function DialogHealth() {
               <CloseIcon />
             </IconButton>
           </DialogTitle>
-          <DialogContent dividers sx={isMobile && dialogMode === "create" ? { px: 2, py: 2 } : undefined}>
+          <DialogContent
+            dividers
+            sx={
+              isMobile && dialogMode === "create" ? { px: 2, py: 2 } : undefined
+            }
+          >
             <Stack spacing={2} sx={{ pt: 1 }}>
               {dialogError && !isAvailabilityDialogError && (
                 <Alert severity="error" onClose={() => setDialogError("")}>
@@ -1548,8 +1553,8 @@ function DialogHealth() {
               )}
               <>
                 <Grid container spacing={1}>
-                  {dialogMode === "create" && (
-                    isMobile ? (
+                  {dialogMode === "create" &&
+                    (isMobile ? (
                       <Grid size={{ xs: 12 }}>
                         <MobileTurnRequest
                           data={dialogData}
@@ -1562,7 +1567,10 @@ function DialogHealth() {
                           formatAvailability={formatAvailability}
                           minTime={selectedDayMinTime}
                           maxTime={selectedDayMaxTime}
-                          error={availabilityError || (isAvailabilityDialogError ? dialogError : "")}
+                          error={
+                            availabilityError ||
+                            (isAvailabilityDialogError ? dialogError : "")
+                          }
                           onSelect={handleSelectMobileSchedule}
                           onChange={(field, value) => {
                             setAvailabilityError("");
@@ -1574,355 +1582,367 @@ function DialogHealth() {
                         />
                       </Grid>
                     ) : (
-                    <Grid container size={{ xs: 12 }} m={0} spacing={2}>
-                      <Grid size={{ xs: 12 }} m={0}>
-                        <Card
-                          sx={{
-                            bgcolor: "rgba(235, 235, 41, 0.7)",
-                            border: "1px solid rgba(235, 41, 41, 0.1)",
-                          }}
-                        >
-                          <CardContent sx={{ p: 2 }}>
-                            <SAETypography
-                              variant="subtitle1"
-                              color="var(--textBlack)"
-                              gutterBottom
-                              fontWeight={600}
-                            >
-                              {C.dialogSubtitle}
-                            </SAETypography>
-                            <SAETypography
-                              variant="body2"
-                              color="var(--textBlack)"
-                            >
-                              {C.turnCancellationDisclaimer}
-                            </SAETypography>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                      <Grid size={{ xs: 12 }} m={0}>
-                        <InputLabel>{C.yourData}</InputLabel>
-                      </Grid>
+                      <Grid container size={{ xs: 12 }} m={0} spacing={2}>
+                        <Grid size={{ xs: 12 }} m={0}>
+                          <Card
+                            sx={{
+                              bgcolor: "rgba(235, 235, 41, 0.7)",
+                              border: "1px solid rgba(235, 41, 41, 0.1)",
+                            }}
+                          >
+                            <CardContent sx={{ p: 2 }}>
+                              <SAETypography
+                                variant="subtitle1"
+                                color="var(--textBlack)"
+                                gutterBottom
+                                fontWeight={600}
+                              >
+                                {C.dialogSubtitle}
+                              </SAETypography>
+                              <SAETypography
+                                variant="body2"
+                                color="var(--textBlack)"
+                              >
+                                {C.turnCancellationDisclaimer}
+                              </SAETypography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                        <Grid size={{ xs: 12 }} m={0}>
+                          <InputLabel>{C.yourData}</InputLabel>
+                        </Grid>
 
-                      <Grid size={{ xs: 12, md: 6 }} m={0}>
-                        <SAETextField
-                          label={C.youtID}
-                          fullWidth
-                          value={dialogData.legajo}
-                          onChange={(e) =>
-                            handleDataChange("legajo", e.target.value)
-                          }
-                          disabled={true}
-                        />
-                      </Grid>
-                      <Grid size={{ xs: 12, md: 6 }} m={0}>
-                        <SAETextField
-                          label={C.solicitudDate}
-                          type="date"
-                          value={dialogData.fecha_solicitud}
-                          onChange={(e) =>
-                            handleDataChange("fecha_solicitud", e.target.value)
-                          }
-                          fullWidth
-                          disabled={true}
-                          slotProps={{ inputLabel: { shrink: true } }}
-                        />
-                      </Grid>
-                      <Grid size={{ xs: 12 }} m={0}>
-                        <Card
-                          variant="outlined"
-                          sx={{
-                            borderRadius: 3,
-                            borderColor: "#DCE7F5",
-                            bgcolor: "#F8FBFF",
-                          }}
-                        >
-                          <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
-                            <Stack spacing={1.25}>
-                              <Box>
-                                <SAETypography
-                                  variant="caption"
-                                  sx={{
-                                    color: "text.secondary",
-                                    fontWeight: 800,
-                                    textTransform: "uppercase",
-                                  }}
-                                >
-                                  {C.selectedSpecialty}
-                                </SAETypography>
-                                <SAETypography
-                                  variant="h6"
-                                  sx={{
-                                    color: "var(--secondary)",
-                                    fontWeight: 800,
-                                    lineHeight: 1.2,
-                                  }}
-                                >
-                                  {dialogData.nombre_especialidad}
-                                </SAETypography>
-                              </Box>
-                              <Box>
-                                <SAETypography
-                                  variant="caption"
-                                  sx={{
-                                    color: "text.secondary",
-                                    fontWeight: 800,
-                                  }}
-                                >
-                                  {C.specialtySchedules}
-                                </SAETypography>
-                                <Stack
-                                  direction="row"
-                                  flexWrap="wrap"
-                                  gap={1}
-                                  sx={{ mt: 0.75 }}
-                                >
-                                  {horariosDisponibles.map((horario, index) => (
+                        <Grid size={{ xs: 12, md: 6 }} m={0}>
+                          <SAETextField
+                            label={C.youtID}
+                            fullWidth
+                            value={dialogData.legajo}
+                            onChange={(e) =>
+                              handleDataChange("legajo", e.target.value)
+                            }
+                            disabled={true}
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 6 }} m={0}>
+                          <SAETextField
+                            label={C.solicitudDate}
+                            type="date"
+                            value={dialogData.fecha_solicitud}
+                            onChange={(e) =>
+                              handleDataChange(
+                                "fecha_solicitud",
+                                e.target.value,
+                              )
+                            }
+                            fullWidth
+                            disabled={true}
+                            slotProps={{ inputLabel: { shrink: true } }}
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12 }} m={0}>
+                          <Card
+                            variant="outlined"
+                            sx={{
+                              borderRadius: 3,
+                              borderColor: "#DCE7F5",
+                              bgcolor: "#F8FBFF",
+                            }}
+                          >
+                            <CardContent
+                              sx={{ p: 2, "&:last-child": { pb: 2 } }}
+                            >
+                              <Stack spacing={1.25}>
+                                <Box>
+                                  <SAETypography
+                                    variant="caption"
+                                    sx={{
+                                      color: "text.secondary",
+                                      fontWeight: 800,
+                                      textTransform: "uppercase",
+                                    }}
+                                  >
+                                    {C.selectedSpecialty}
+                                  </SAETypography>
+                                  <SAETypography
+                                    variant="h6"
+                                    sx={{
+                                      color: "var(--secondary)",
+                                      fontWeight: 800,
+                                      lineHeight: 1.2,
+                                    }}
+                                  >
+                                    {dialogData.nombre_especialidad}
+                                  </SAETypography>
+                                </Box>
+                                <Box>
+                                  <SAETypography
+                                    variant="caption"
+                                    sx={{
+                                      color: "text.secondary",
+                                      fontWeight: 800,
+                                    }}
+                                  >
+                                    {C.specialtySchedules}
+                                  </SAETypography>
+                                  <Stack
+                                    direction="row"
+                                    flexWrap="wrap"
+                                    gap={1}
+                                    sx={{ mt: 0.75 }}
+                                  >
+                                    {horariosDisponibles.map(
+                                      (horario, index) => (
+                                        <Chip
+                                          key={`${horario.dia}-${horario.hora_inicio}-${index}`}
+                                          icon={<AccessTimeIcon />}
+                                          label={formatSchedule(horario)}
+                                          clickable
+                                          disabled={usedScheduleKeys.has(
+                                            getScheduleKey(horario),
+                                          )}
+                                          onClick={() => {
+                                            const scheduleKey =
+                                              getScheduleKey(horario);
+
+                                            setAvailabilityError("");
+                                            setDialogError("");
+                                            handleDataChange(
+                                              "dia_selecionado",
+                                              horario.dia,
+                                            );
+                                            handleDataChange(
+                                              "horario_disponible_desde",
+                                              normalizeTimeValue(
+                                                horario.hora_inicio,
+                                              ),
+                                            );
+                                            handleDataChange(
+                                              "horario_disponible_hasta",
+                                              normalizeTimeValue(
+                                                horario.hora_fin,
+                                              ),
+                                            );
+                                            handleDataChange(
+                                              "horario_seleccionado",
+                                              scheduleKey,
+                                            );
+                                          }}
+                                          sx={{
+                                            bgcolor: "#E7F1FF",
+                                            color: "#153b6f",
+                                            fontWeight: 700,
+                                            height: "auto",
+                                            minHeight: 32,
+                                            "& .MuiChip-label": {
+                                              whiteSpace: "normal",
+                                              py: 0.5,
+                                            },
+                                          }}
+                                        />
+                                      ),
+                                    )}
+                                  </Stack>
+                                </Box>
+                              </Stack>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                        <Grid size={{ xs: 12 }} m={0}>
+                          <InputLabel>{C.availability}</InputLabel>
+                          <SAETypography variant="body2" color="text.secondary">
+                            {C.availabilityHint}
+                          </SAETypography>
+                        </Grid>
+                        <Grid size={{ xs: 12 }} m={0}>
+                          <Stack
+                            direction={{ xs: "column", md: "row" }}
+                            spacing={1.5}
+                            alignItems={{ md: "center" }}
+                          >
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                              <Select
+                                value={dialogData.dia_selecionado}
+                                label={C.day}
+                                fullWidth
+                                onChange={(e) => {
+                                  const nextDay = e.target.value;
+                                  const nextDaySchedule =
+                                    horariosDisponibles.find(
+                                      (horario) =>
+                                        Number(horario.dia) === Number(nextDay),
+                                    );
+
+                                  setAvailabilityError("");
+                                  setDialogError("");
+                                  handleDataChange("dia_selecionado", nextDay);
+
+                                  if (nextDaySchedule) {
+                                    handleDataChange(
+                                      "horario_seleccionado",
+                                      getScheduleKey(nextDaySchedule),
+                                    );
+                                    handleDataChange(
+                                      "horario_disponible_desde",
+                                      normalizeTimeValue(
+                                        nextDaySchedule.hora_inicio,
+                                      ),
+                                    );
+                                    handleDataChange(
+                                      "horario_disponible_hasta",
+                                      normalizeTimeValue(
+                                        nextDaySchedule.hora_fin,
+                                      ),
+                                    );
+                                  }
+                                }}
+                              >
+                                {calendarDays.map((d) => (
+                                  <MenuItem
+                                    key={d.value}
+                                    value={d.value}
+                                    disabled={
+                                      !availableDays.has(Number(d.value))
+                                    }
+                                  >
+                                    {d.label}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </Box>
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                              <SAETimeField
+                                label={C.availabilityFrom}
+                                value={dialogData.horario_disponible_desde}
+                                onChange={(value) => {
+                                  setAvailabilityError("");
+                                  setDialogError("");
+                                  handleDataChange(
+                                    "horario_disponible_desde",
+                                    value,
+                                  );
+                                }}
+                                minTime={selectedDayMinTime}
+                                maxTime={selectedDayMaxTime}
+                                timeStepsMinutes={15}
+                                size="big"
+                                fullWidth
+                                readOnly
+                              />
+                            </Box>
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                              <SAETimeField
+                                label={C.availabilityTo}
+                                value={dialogData.horario_disponible_hasta}
+                                onChange={(value) => {
+                                  setAvailabilityError("");
+                                  setDialogError("");
+                                  handleDataChange(
+                                    "horario_disponible_hasta",
+                                    value,
+                                  );
+                                }}
+                                minTime={selectedDayMinTime}
+                                maxTime={selectedDayMaxTime}
+                                timeStepsMinutes={15}
+                                size="big"
+                                fullWidth
+                                readOnly
+                              />
+                            </Box>
+                            <SAEButton
+                              variant="contained"
+                              startIcon={<AddIcon />}
+                              onClick={handleAddAvailability}
+                              sx={{
+                                color: "white",
+                                minHeight: 40,
+                                width: { xs: "100%", md: "auto" },
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {C.addAvailability}
+                            </SAEButton>
+                          </Stack>
+                          {(availabilityError || isAvailabilityDialogError) && (
+                            <Alert severity="error" sx={{ mt: 1.5 }}>
+                              {availabilityError || dialogError}
+                            </Alert>
+                          )}
+                        </Grid>
+                        <Grid size={{ xs: 12 }} m={0}>
+                          <Stack
+                            spacing={1}
+                            sx={{
+                              p: 1.25,
+                              borderRadius: 2,
+                              bgcolor: "#F3F7FC",
+                              border: "1px solid #E0EAF6",
+                            }}
+                          >
+                            <SAETypography
+                              variant="subtitle2"
+                              sx={{ color: "#153b6f", fontWeight: 800 }}
+                            >
+                              {C.selectedAvailability}
+                            </SAETypography>
+                            <Stack direction="row" flexWrap="wrap" gap={1}>
+                              {disponibilidades.length > 0 ? (
+                                disponibilidades.map(
+                                  (disponibilidad, index) => (
                                     <Chip
-                                      key={`${horario.dia}-${horario.hora_inicio}-${index}`}
-                                      icon={<AccessTimeIcon />}
-                                      label={formatSchedule(horario)}
-                                      clickable
-                                      disabled={usedScheduleKeys.has(
-                                        getScheduleKey(horario),
-                                      )}
-                                      onClick={() => {
-                                        const scheduleKey =
-                                          getScheduleKey(horario);
-
-                                        setAvailabilityError("");
-                                        setDialogError("");
-                                        handleDataChange(
-                                          "dia_selecionado",
-                                          horario.dia,
-                                        );
-                                        handleDataChange(
-                                          "horario_disponible_desde",
-                                          normalizeTimeValue(
-                                            horario.hora_inicio,
-                                          ),
-                                        );
-                                        handleDataChange(
-                                          "horario_disponible_hasta",
-                                          normalizeTimeValue(horario.hora_fin),
-                                        );
-                                        handleDataChange(
-                                          "horario_seleccionado",
-                                          scheduleKey,
-                                        );
-                                      }}
+                                      key={`${disponibilidad.dia}-${disponibilidad.hora_desde ?? disponibilidad.hora}-${disponibilidad.hora_hasta ?? ""}-${index}`}
+                                      label={formatAvailability(disponibilidad)}
+                                      onDelete={() =>
+                                        handleRemoveAvailability(index)
+                                      }
+                                      deleteIcon={<DeleteOutlineIcon />}
                                       sx={{
-                                        bgcolor: "#E7F1FF",
+                                        bgcolor: "#FFFFFF",
+                                        border: "1px solid #B7CBE5",
                                         color: "#153b6f",
                                         fontWeight: 700,
-                                        height: "auto",
-                                        minHeight: 32,
+                                        minHeight: 34,
                                         "& .MuiChip-label": {
                                           whiteSpace: "normal",
                                           py: 0.5,
                                         },
+                                        "& .MuiChip-deleteIcon": {
+                                          color: "#d85656",
+                                          "&:hover": { color: "#b93636" },
+                                        },
                                       }}
                                     />
-                                  ))}
-                                </Stack>
-                              </Box>
-                            </Stack>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                      <Grid size={{ xs: 12 }} m={0}>
-                        <InputLabel>{C.availability}</InputLabel>
-                        <SAETypography variant="body2" color="text.secondary">
-                          {C.availabilityHint}
-                        </SAETypography>
-                      </Grid>
-                      <Grid size={{ xs: 12 }} m={0}>
-                        <Stack
-                          direction={{ xs: "column", md: "row" }}
-                          spacing={1.5}
-                          alignItems={{ md: "center" }}
-                        >
-                          <Box sx={{ flex: 1, minWidth: 0 }}>
-                            <Select
-                              value={dialogData.dia_selecionado}
-                              label={C.day}
-                              fullWidth
-                              onChange={(e) => {
-                                const nextDay = e.target.value;
-                                const nextDaySchedule =
-                                  horariosDisponibles.find(
-                                    (horario) =>
-                                      Number(horario.dia) === Number(nextDay),
-                                  );
-
-                                setAvailabilityError("");
-                                setDialogError("");
-                                handleDataChange("dia_selecionado", nextDay);
-
-                                if (nextDaySchedule) {
-                                  handleDataChange(
-                                    "horario_seleccionado",
-                                    getScheduleKey(nextDaySchedule),
-                                  );
-                                  handleDataChange(
-                                    "horario_disponible_desde",
-                                    normalizeTimeValue(
-                                      nextDaySchedule.hora_inicio,
-                                    ),
-                                  );
-                                  handleDataChange(
-                                    "horario_disponible_hasta",
-                                    normalizeTimeValue(
-                                      nextDaySchedule.hora_fin,
-                                    ),
-                                  );
-                                }
-                              }}
-                            >
-                              {calendarDays.map((d) => (
-                                <MenuItem
-                                  key={d.value}
-                                  value={d.value}
-                                  disabled={!availableDays.has(Number(d.value))}
+                                  ),
+                                )
+                              ) : (
+                                <SAETypography
+                                  variant="body2"
+                                  color="text.secondary"
                                 >
-                                  {d.label}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </Box>
-                          <Box sx={{ flex: 1, minWidth: 0 }}>
-                            <SAETimeField
-                              label={C.availabilityFrom}
-                              value={dialogData.horario_disponible_desde}
-                              onChange={(value) => {
-                                setAvailabilityError("");
-                                setDialogError("");
-                                handleDataChange(
-                                  "horario_disponible_desde",
-                                  value,
-                                );
-                              }}
-                              minTime={selectedDayMinTime}
-                              maxTime={selectedDayMaxTime}
-                              timeStepsMinutes={15}
-                              size="big"
-                              fullWidth
-                              readOnly
-                            />
-                          </Box>
-                          <Box sx={{ flex: 1, minWidth: 0 }}>
-                            <SAETimeField
-                              label={C.availabilityTo}
-                              value={dialogData.horario_disponible_hasta}
-                              onChange={(value) => {
-                                setAvailabilityError("");
-                                setDialogError("");
-                                handleDataChange(
-                                  "horario_disponible_hasta",
-                                  value,
-                                );
-                              }}
-                              minTime={selectedDayMinTime}
-                              maxTime={selectedDayMaxTime}
-                              timeStepsMinutes={15}
-                              size="big"
-                              fullWidth
-                              readOnly
-                            />
-                          </Box>
-                          <SAEButton
-                            variant="contained"
-                            startIcon={<AddIcon />}
-                            onClick={handleAddAvailability}
-                            sx={{
-                              color: "white",
-                              minHeight: 40,
-                              width: { xs: "100%", md: "auto" },
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {C.addAvailability}
-                          </SAEButton>
-                        </Stack>
-                        {(availabilityError || isAvailabilityDialogError) && (
-                          <Alert severity="error" sx={{ mt: 1.5 }}>
-                            {availabilityError || dialogError}
-                          </Alert>
-                        )}
-                      </Grid>
-                      <Grid size={{ xs: 12 }} m={0}>
-                        <Stack
-                          spacing={1}
-                          sx={{
-                            p: 1.25,
-                            borderRadius: 2,
-                            bgcolor: "#F3F7FC",
-                            border: "1px solid #E0EAF6",
-                          }}
-                        >
-                          <SAETypography
-                            variant="subtitle2"
-                            sx={{ color: "#153b6f", fontWeight: 800 }}
-                          >
-                            {C.selectedAvailability}
-                          </SAETypography>
-                          <Stack direction="row" flexWrap="wrap" gap={1}>
-                            {disponibilidades.length > 0 ? (
-                              disponibilidades.map((disponibilidad, index) => (
-                                <Chip
-                                  key={`${disponibilidad.dia}-${disponibilidad.hora_desde ?? disponibilidad.hora}-${disponibilidad.hora_hasta ?? ""}-${index}`}
-                                  label={formatAvailability(disponibilidad)}
-                                  onDelete={() =>
-                                    handleRemoveAvailability(index)
-                                  }
-                                  deleteIcon={<DeleteOutlineIcon />}
-                                  sx={{
-                                    bgcolor: "#FFFFFF",
-                                    border: "1px solid #B7CBE5",
-                                    color: "#153b6f",
-                                    fontWeight: 700,
-                                    minHeight: 34,
-                                    "& .MuiChip-label": {
-                                      whiteSpace: "normal",
-                                      py: 0.5,
-                                    },
-                                    "& .MuiChip-deleteIcon": {
-                                      color: "#d85656",
-                                      "&:hover": { color: "#b93636" },
-                                    },
-                                  }}
-                                />
-                              ))
-                            ) : (
-                              <SAETypography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                {C.noAvailability}
-                              </SAETypography>
-                            )}
+                                  {C.noAvailability}
+                                </SAETypography>
+                              )}
+                            </Stack>
                           </Stack>
-                        </Stack>
-                      </Grid>
-                      <Grid size={{ xs: 12 }} m={0}>
-                        <InputLabel>{C.turnsCardSuject}</InputLabel>
-                      </Grid>
+                        </Grid>
+                        <Grid size={{ xs: 12 }} m={0}>
+                          <InputLabel>{C.turnsCardSuject}</InputLabel>
+                        </Grid>
 
-                      <Grid size={{ xs: 12 }} mt={-1}>
-                        <SAETextField
-                          label={C.yourSympthoms}
-                          value={dialogData.asunto}
-                          onChange={(e) =>
-                            handleDataChange("asunto", e.target.value)
-                          }
-                          multiline
-                          fullWidth
-                          rows={4}
-                        />
+                        <Grid size={{ xs: 12 }} mt={-1}>
+                          <SAETextField
+                            label={C.yourSympthoms}
+                            value={dialogData.asunto}
+                            onChange={(e) =>
+                              handleDataChange("asunto", e.target.value)
+                            }
+                            multiline
+                            fullWidth
+                            rows={4}
+                          />
+                        </Grid>
                       </Grid>
-                    </Grid>
-                    )
-                  )}
+                    ))}
                   {dialogMode === "delete" && (
                     <>
                       <Grid size={{ xs: 12 }} m={0}>
@@ -2352,44 +2372,54 @@ function DialogHealth() {
               gap: 1,
               flexDirection: { xs: "column-reverse", sm: "row" },
               "& > :not(style) ~ :not(style)": { ml: { xs: 0, sm: 1 } },
-              ...(isMobile && dialogMode === "create" && {
-                flexShrink: 0,
-                bgcolor: "white",
-                borderTop: "1px solid #DCE7F5",
-                px: 2,
-                pt: 1.5,
-                pb: "max(12px, env(safe-area-inset-bottom))",
-                flexDirection: "column",
-              }),
+              ...(isMobile &&
+                dialogMode === "create" && {
+                  flexShrink: 0,
+                  bgcolor: "white",
+                  borderTop: "1px solid #DCE7F5",
+                  px: 2,
+                  pt: 1.5,
+                  pb: "max(12px, env(safe-area-inset-bottom))",
+                  flexDirection: "column",
+                }),
             }}
           >
             {isMobile && dialogMode === "create" && (
-              <SAETypography variant="caption" color="text.secondary" aria-live="polite">
+              <SAETypography
+                variant="caption"
+                color="text.secondary"
+                aria-live="polite"
+              >
                 {disponibilidades.length > 0
                   ? `${disponibilidades.length} ${disponibilidades.length === 1 ? "disponibilidad agregada" : "disponibilidades agregadas"}`
                   : "Agregá al menos una disponibilidad para enviar."}
               </SAETypography>
             )}
             {!(isMobile && dialogMode === "create") && (
-            <SAEButton
-              variant="outlined"
-              onClick={closeDialog}
-              disabled={dialogSaving}
-              sx={{
-                minWidth: { sm: 140 },
-                width: { xs: "100%", sm: "auto" },
-                whiteSpace: "nowrap",
-              }}
-            >
-              {C.close}
-            </SAEButton>
+              <SAEButton
+                variant="outlined"
+                onClick={closeDialog}
+                disabled={dialogSaving}
+                sx={{
+                  minWidth: { sm: 140 },
+                  width: { xs: "100%", sm: "auto" },
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {C.close}
+              </SAEButton>
             )}
             {dialogMode !== "show" && (
               <SAEButton
                 variant="contained"
                 color={dialogMode === "delete" ? "error" : undefined}
                 onClick={handleTurnosSave}
-                disabled={dialogSaving || (isMobile && dialogMode === "create" && disponibilidades.length === 0)}
+                disabled={
+                  dialogSaving ||
+                  (isMobile &&
+                    dialogMode === "create" &&
+                    disponibilidades.length === 0)
+                }
                 sx={{
                   minWidth: { sm: 190 },
                   width: { xs: "100%", sm: "auto" },
@@ -2410,7 +2440,9 @@ function DialogHealth() {
                 }
               >
                 {dialogMode === "create"
-                  ? isMobile ? "Enviar solicitud" : C.create
+                  ? isMobile
+                    ? "Enviar solicitud"
+                    : C.create
                   : dialogMode === "delete"
                     ? C.confirmCancelTurn
                     : C.close}

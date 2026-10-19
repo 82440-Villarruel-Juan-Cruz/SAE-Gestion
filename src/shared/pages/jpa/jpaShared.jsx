@@ -120,7 +120,7 @@ const studentJourney = [
     subtitle: "Cómo ser parte",
     description: "Todo lo que debés saber",
     text: "Comenzás a ser parte de nuestra comunidad cuando te inscribís por primera vez al ingreso; este proceso involucra que tengas <strong>finalizado el secundario y rindas un examen de ingreso. </strong> Es posible que te preinscribas para rendir aun sin finalizar tus estudios, pero será requisito una vez hayas aprobado los exámenes de ingreso y <strong>debas presentar la documentación.</strong><br/><br/> En la instancia de evaluación deberás rendir <strong> Matemática, Física e Introducción a la vida universitaria, </strong> donde el centro de estudiantes y la SAE proveen de cursos intensivos para que finalices tu formación académica en estas 3 disciplinas.<br/> <br/>Una vez tengas certeza de que estás interesado en estudiar, podés conocer más de cómo inscribirte <a href='https://www.frc.utn.edu.ar/ingreso-ingenierias-2027/' target='_blank' style='color: #2b6cb0; text-decoration: none; font-weight: 500; border-bottom: 2px solid #90cdf4; padding-bottom: 2px;'>aquí.</a>",
-    image: `${baseUrl}images/jpa/journey/auditorio-jpa.jpg`,
+    image: `${baseUrl}images/jpa/journey/auditorio-jpa.webp`,
     alt: "Auditorio Ing. Héctor Aiassa en el edificio central",
   },
   {
@@ -129,7 +129,7 @@ const studentJourney = [
     subtitle: "Documentación",
     description: "Presentación de Documentación",
     text: "Una vez que ingreses y hayas aprobado los exámenes de ingreso deberás presentar en el <strong> Departamento de Alumnos </strong> documentos como <strong>tu fotocopia del DNI, Analítico o Analítico en trámite, Constancia de CUIL y una copia de tu partida de nacimiento (Descargable de CiDi)</strong>. <br/><br/> La presentación de esta documentación personal, la elección de tu carrera y la inscripción a las materias de primer año son fundamentales para que seas considerado un estudiante hecho y derecho de nuestra universidad.<br/><br/>Si necesitás asesoramiento en cómo sacar turno para el departamento o en dónde solicitar los documentos no dudes en acercarte a la <strong>SAE</strong> para recibir atención personalizada a tu problemática.",
-    image: `${baseUrl}images/jpa/journey/documentacion.jpg`,
+    image: `${baseUrl}images/jpa/journey/documentacion.webp`,
     alt: "Primer plano de una carpeta con papeles",
   },
   {
@@ -138,7 +138,7 @@ const studentJourney = [
     subtitle: "Más que estudiar",
     description: "Comunidad Deportiva",
     text: "Desde la Secretaría de Asuntos Estudiantiles contamos con un área dedicada a la realización de deportes como actividad recreativa y competitiva. Contamos con <strong>convenios con diferentes espacios deportivos</strong> para que puedas entrenar en tu día a día, ofreciendo descuentos especiales por ser alumno de nuestra Universidad.<br/><br/>Además en nuestra facultad tenemos un predio dedicado a deportes como<strong> fútbol 11, fútbol sala, vóley, básquet, natación y arquería</strong> con sus respectivos entrenamientos para todos los géneros.<br/><br/>Si estás interesado en representar a la facultad en una o más disciplinas, no dudes en formar parte de nuestros equipos para participar en los torneos deportivos que se realizan durante todo el año.",
-    image: `${baseUrl}images/jpa/journey/campus.jpg`,
+    image: `${baseUrl}images/jpa/journey/campus.webp`,
     alt: "Campus de la UTN a las afueras de Córdoba",
   },
   {
@@ -147,7 +147,7 @@ const studentJourney = [
     subtitle: "Explorá con la UTN",
     description: "Viajá por todo el país",
     text: "Las visitas a empresas son una excelente oportunidad para conocer la realidad del <strong>mundo laboral y establecer contactos con profesionales de la industria.</strong> A lo largo del año se gestionan viajes desde nuestra regional para conocer empresas, otras regionales o infraestructuras donde pueden tener un acercamiento a lo que será su carrera en el ámbito laboral.<br/><br/> La secretaría, en conjunto con diferentes cátedras de la facultad, organiza visitas en diversos sectores de la economía, brindando a los estudiantes la oportunidad de explorar diferentes industrias y <strong>conocer de primera mano las oportunidades laborales disponibles,</strong> siendo una parte importante de la experiencia universitaria, ya que permiten a los estudiantes conectar su formación académica con el mundo real y prepararse para su futura carrera profesional.",
-    image: `${baseUrl}images/jpa/journey/visita-tecnica.jpg`,
+    image: `${baseUrl}images/jpa/journey/visita-tecnica.webp`,
     alt: "Visita guiada a la bodega La Abeja en San Rafael",
   },
   {
@@ -165,7 +165,7 @@ const studentJourney = [
     subtitle: "Becas y prácticas",
     description: "Nuestras Becas",
     text: "La Secretaría posee un programa de becas propias de nuestra universidad en la cual se ofrecen variedad de actividades para que lo económico no sea un impedimento en tu ciclo formativo. Se cuenta con becas de <strong>servicio</strong> orientadas a ser parte de las áreas de nuestra facultad, de <strong>investigación</strong> orientadas a mantener proyectos de investigación en cada especialidad o <strong>económicas</strong> que se centran en tener un seguimiento de tu situación académica/social para mejorar tus oportunidades en finalizar tus estudios de grado.<br/><br/> Por otro lado la <strong>SAE</strong> mantiene una base de conocimiento para poder ayudar a gestionar becas estatales como son las <strong>PROGRESAR</strong> o <strong>Manuel Belgrano.</strong><br/><br/>En ambas situaciones, si estás interesado en informarte más de las becas universitarias o estatales, no dudes en consultarnos.",
-    image: `${baseUrl}images/jpa/journey/oficina-sae.jpg`,
+    image: `${baseUrl}images/jpa/journey/oficina-sae.webp`,
     alt: "Oficina de la Secretaría de Asuntos Estudiantiles (SAE) en Córdoba.",
   },
   {
@@ -174,14 +174,14 @@ const studentJourney = [
     subtitle: "Meta cumplida",
     description: "No pierdas de vista el objetivo",
     text: "Desde la <strong>SAE</strong> queremos acompañarte durante todo tu trayecto académico en nuestra universidad. Nos interesa que te sientas parte de algo más grande, que no dejes atrás tus sueños y que puedas conseguir el objetivo de recibirte con nosotros. No te olvides de que podés acercarte a nuestra oficina o comunicarte con nosotros en cualquier momento de tu camino educativo y te brindaremos una mano para lo que necesites.<br/><br/>Nos llena de orgullo que tantos profesionales elijan nuestra regional para formarse educativamente, participen en nuestros eventos, sean parte de nuestra comunidad y nos ayuden a mejorar constantemente. <br/><br/> <strong>¡Felicitamos a todos nuestros ingenieros formados en esta casa de altos estudios pública, de calidad y gratuita!</strong>",
-    image: `${baseUrl}images/jpa/journey/colacion.jpg`,
+    image: `${baseUrl}images/jpa/journey/colacion.webp`,
     alt: "Aula Magna Agustín Tosco de la Universidad Tecnológica Nacional Regional Córdoba.",
   },
 ];
 const carreras = [
   {
     title: "Ing. en Sistemas",
-    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-sistemas.jpg`,
+    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-sistemas.webp`,
     alt:"Primer plano de código de programación colorido mostrado en un monitor de computadora con fondo oscuro. El autor es Nemuel Sereti subido a Pexels.",
     route: "/JPA/sistemas",
     duracion: "5 años",
@@ -189,7 +189,7 @@ const carreras = [
   },
   {
     title: "Ing. Eléctrica",
-    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-electrica.jpg`,
+    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-electrica.webp`,
     alt:"Foto de una via electrica, el autor es Efe Burak Baydar subido a Pexels.",
     route: "/JPA/electrica",
     duracion: "6 años",
@@ -197,7 +197,7 @@ const carreras = [
   },
   {
     title: "Ing. Química",
-    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-quimica.jpg`,
+    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-quimica.webp`,
     alt:"Primer plano de tuberías y válvulas de acero inoxidable en un entorno de la industria química. El autor es Yuri Shkoda subido a Pexels.",
     route: "/JPA/quimica",
     duracion: "5 años",
@@ -206,7 +206,7 @@ const carreras = [
 
   {
     title: "Ing. Metalúrgica",
-    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-metalurgica.jpg`,
+    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-metalurgica.webp`,
     alt:"Plano de una persona viendo una fundicion, el autor es Emre Ezer subido a Pexels.",
     route: "/JPA/metalurgica",
     duracion: "5 años",
@@ -215,7 +215,7 @@ const carreras = [
 
   {
     title: "Ing. Electrónica",
-    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-electronica.jpg`,
+    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-electronica.webp`,
     route: "/JPA/electronica",
     alt:"Primer plano de circuitos y microprocesador en una placa base, el autor es Mikhail Nilov subido a Pexels.",
     duracion: "6 años",
@@ -223,7 +223,7 @@ const carreras = [
   },
   {
     title: "Ing. Civil",
-    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-civil.jpg`,
+    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-civil.webp`,
     route: "/JPA/civil",
     alt:"Alto puente en construcción con grúas contra un cielo azul. el autor es Cesal Keser subido a Pexels.",
     duracion: "5 años",
@@ -231,7 +231,7 @@ const carreras = [
   },
   {
     title: "Ing. Industrial",
-    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-industrial.jpg`,
+    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-industrial.webp`,
     route: "/JPA/industrial",
     alt:"Vista de ángulo alto de la línea de producción de botellas de vidrio en una fábrica con botellas brillantes. El autor es Keegan Checks subido a Pexels.",
     duracion: "5 años",
@@ -243,7 +243,7 @@ const carreras = [
   },
   {
     title: "Ing. Mecánica",
-    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-mecanica.jpg`,
+    img: `${baseUrl}images/jpa/degree-carrousel/ingenieria-mecanica.webp`,
     alt:"Primer plano del proceso de ensamblaje del motor que resalta la precisión industrial. El autor es Auto Tech subido a Pexels.",
     route: "/JPA/mecanica",
     duracion: "5 años",
@@ -251,9 +251,9 @@ const carreras = [
   },
 ];
 const heroCarrousel = [
-  `${baseUrl}images/jpa/main-hero/patio-seco.jpg`,
-  `${baseUrl}images/jpa/main-hero/institucional-portada.jpg`,
-  `${baseUrl}images/jpa/main-hero/estacionamiento.jpg`,
+  `${baseUrl}images/jpa/main-hero/patio-seco.webp`,
+  `${baseUrl}images/jpa/main-hero/institucional-portada.webp`,
+  `${baseUrl}images/jpa/main-hero/estacionamiento.webp`,
   `${baseUrl}images/jpa/main-hero/auditorio.webp`,
 ];
 

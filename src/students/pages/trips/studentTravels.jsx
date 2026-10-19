@@ -145,7 +145,7 @@ function StudentTravelContent() {
       <StudentHeaderPage
         title={C.headerTitle}
         description={C.headerDescription}
-        backgroundImage="images/headers/initial.jpg"
+        backgroundImage="images/headers/initial.webp"
         icon={LocalAirportIcon}
       />
       {!loadingTravel &&

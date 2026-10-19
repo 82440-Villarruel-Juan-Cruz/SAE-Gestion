@@ -1,4 +1,4 @@
- import {
+import {
   Autocomplete,
   Box,
   Container,
@@ -119,9 +119,8 @@ function EmployedPurchasesContent() {
         header={COMPRAS_STRINGS.headerTitle}
         title={COMPRAS_STRINGS.headerSubtitle}
         description={COMPRAS_STRINGS.headerDescription}
-        backgroundImage={"images/headers/purchases.jfif"}
+        backgroundImage={"images/headers/purchases.webp"}
       />
-      
 
       <SAEDataGrid
         sectionConfig={sectionConfig}
@@ -595,10 +594,7 @@ function DialogPurchase({ dateRange }) {
                     label={COMPRAS_STRINGS.fieldFileNumber}
                     value={dialogData.informe?.nro_expediente ?? ""}
                     onChange={(e) =>
-                      handleInformeFieldChange(
-                        "nro_expediente",
-                        e.target.value,
-                      )
+                      handleInformeFieldChange("nro_expediente", e.target.value)
                     }
                     error={Boolean(fieldErrors["informe.nro_expediente"])}
                     helperText={fieldErrors["informe.nro_expediente"] ?? ""}
@@ -652,19 +648,14 @@ function DialogPurchase({ dateRange }) {
                       )
                     }
                     error={Boolean(fieldErrors["informe.nombre_solicitante"])}
-                    helperText={
-                      fieldErrors["informe.nombre_solicitante"] ?? ""
-                    }
+                    helperText={fieldErrors["informe.nombre_solicitante"] ?? ""}
                     fullWidth
                   />
                   <SAETextField
                     label={COMPRAS_STRINGS.fieldWinnerName}
                     value={dialogData.informe?.nombre_ganador ?? ""}
                     onChange={(e) =>
-                      handleInformeFieldChange(
-                        "nombre_ganador",
-                        e.target.value,
-                      )
+                      handleInformeFieldChange("nombre_ganador", e.target.value)
                     }
                     error={Boolean(fieldErrors["informe.nombre_ganador"])}
                     helperText={fieldErrors["informe.nombre_ganador"] ?? ""}
@@ -690,10 +681,7 @@ function DialogPurchase({ dateRange }) {
                     type="date"
                     value={dialogData.informe?.fecha_informe ?? ""}
                     onChange={(e) =>
-                      handleInformeFieldChange(
-                        "fecha_informe",
-                        e.target.value,
-                      )
+                      handleInformeFieldChange("fecha_informe", e.target.value)
                     }
                     error={Boolean(fieldErrors["informe.fecha_informe"])}
                     helperText={fieldErrors["informe.fecha_informe"] ?? ""}

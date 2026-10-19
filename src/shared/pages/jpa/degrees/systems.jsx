@@ -1,7 +1,7 @@
 import DegreePageTemplate from "../../../../assets/components/degrees/DegreePageTemplate";
 
 export default function SharedJPASistemas() {
-  const imageDirBanner = `${import.meta.env.BASE_URL}images/jpa/degree-banners/ing-sistemas.jpg`;
+  const imageDirBanner = `${import.meta.env.BASE_URL}images/jpa/degree-banners/ing-sistemas.webp`;
   const materias1Año = [
     "Análisis Matemático I",
     "Algebra y Geometría Analítica",
@@ -95,16 +95,25 @@ export default function SharedJPASistemas() {
     { year: "Quinto Año", subjects: materias5Año },
     { year: "Electivas", subjects: materiasElectivas },
   ];
-return (
+  return (
     <DegreePageTemplate
       title="Ingeniería en Sistemas de Información"
       image={imageDirBanner}
       description="Ofrece una formación analítica que permite interpretar y resolver problemas mediante el empleo de metodologías de sistemas y tecnologías de procesamiento de información."
-      degreeInfo={{ degree: "Título — Ingeniero en Sistemas de Información", duration: "Duración — 5 años", link: "https://www.institucional.frc.utn.edu.ar/sistemas/", intermedio: "Título intermedio — Analista Universitario de Sistemas (3.er año)" }}
+      degreeInfo={{
+        degree: "Título — Ingeniero en Sistemas de Información",
+        duration: "Duración — 5 años",
+        link: "https://www.institucional.frc.utn.edu.ar/sistemas/",
+        intermedio:
+          "Título intermedio — Analista Universitario de Sistemas (3.er año)",
+      }}
       curriculum={curriculum}
       scopes={alcances}
       profile={perfil}
-      video={{ title: "Charla del Departamento de Ingeniería en Sistemas", src: "https://www.youtube.com/embed/_P-PybOgYys?si=wj81Dd-sUG9mbpMd" }}
+      video={{
+        title: "Charla del Departamento de Ingeniería en Sistemas",
+        src: "https://www.youtube.com/embed/_P-PybOgYys?si=wj81Dd-sUG9mbpMd",
+      }}
     />
   );
 }

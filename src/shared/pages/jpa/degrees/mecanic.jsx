@@ -1,7 +1,7 @@
 import DegreePageTemplate from "../../../../assets/components/degrees/DegreePageTemplate";
 
 export default function SharedJPAMecanic() {
-   const imageDirBanner = `${import.meta.env.BASE_URL}images/jpa/degree-banners/ing-mecanica.jpg`;
+   const imageDirBanner = `${import.meta.env.BASE_URL}images/jpa/degree-banners/ing-mecanica.webp`;
 
   const materias1Año = [
     "Mecánica I",

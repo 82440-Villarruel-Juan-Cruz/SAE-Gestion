@@ -1,7 +1,7 @@
 import DegreePageTemplate from "../../../../assets/components/degrees/DegreePageTemplate";
 
 export default function SharedJPAQuimica() {
-  const imageDirBanner = `${import.meta.env.BASE_URL}images/jpa/degree-banners/ing-quimica.jpg`;
+  const imageDirBanner = `${import.meta.env.BASE_URL}images/jpa/degree-banners/ing-quimica.webp`;
   const materias1Año = [
     "Integración I",
     "Álgebra y geometría analítica",

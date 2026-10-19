@@ -110,7 +110,7 @@ function EmployedIncriptsContent() {
             header={C.inscriptsManagement}
             title={travelData.nombre}
             description={`Del ${formatDate(travelData.fecha_inicio, "short")} hasta ${formatDate(travelData.fecha_fin, "short")}`}
-            backgroundImage="images/headers/consultations.jpg"
+            backgroundImage="images/headers/consultations.webp"
             backTo="/Gestion-Viajes"
             chips={headerChips}
             showUserChips={false}

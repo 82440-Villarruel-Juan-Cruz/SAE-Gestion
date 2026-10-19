@@ -99,7 +99,7 @@ function ScholarshipsContent() {
       <HeaderPageStudent
         title={C.bigTitle}
         description={C.bigSubtitle}
-        backgroundImage="images/headers/initial.jpg"
+        backgroundImage="images/headers/initial.webp"
         icon={Diversity3Icon}
       />
 

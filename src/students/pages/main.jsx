@@ -1,6 +1,6 @@
-import { Container, Box, Card,Typography} from "@mui/material";
+import { Container, Box, Card, Typography } from "@mui/material";
 import { useAuth } from "../../shared/context/sharedContext";
-import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import LightbulbIcon from "@mui/icons-material/Lightbulb";
 
 import DashboardMenu from "../../assets/components/dashboardMenu/DashboardMenu";
 import NovedadesEstudiantiles from "../../assets/components/studentNews/studentNews";
@@ -13,26 +13,20 @@ import { CalendarEvent } from "../../assets/components/calendarEvent/calendarEve
 const C = MAIN_STRINGS;
 export default function StudentMain() {
   const { user } = useAuth();
-  
+
   return (
     <SAEPage>
-        <HeaderPageStudent
-          title={C.headerTitle}
-          description={C.headerDescription+user.nombre}
-          backgroundImage="images/headers/initial.jpg"
-          icon={LightbulbIcon}
-        />
-        <TitleBox 
-          title={C.panelTitle}
-          description={C.panelDescription}
-        />
+      <HeaderPageStudent
+        title={C.headerTitle}
+        description={C.headerDescription + user.nombre}
+        backgroundImage="images/headers/initial.webp"
+        icon={LightbulbIcon}
+      />
+      <TitleBox title={C.panelTitle} description={C.panelDescription} />
 
-        <DashboardMenu idPerfil={user?.id_perfil}></DashboardMenu>
-        <TitleBox 
-          title={C.eventTitle}
-          description={C.eventDescription}
-        />
-        <CalendarEvent/>
+      <DashboardMenu idPerfil={user?.id_perfil}></DashboardMenu>
+      <TitleBox title={C.eventTitle} description={C.eventDescription} />
+      <CalendarEvent />
     </SAEPage>
   );
 }
